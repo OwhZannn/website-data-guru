@@ -4,6 +4,7 @@ import { periksaBerkas } from '@/lib/periksaBerkas'
 import { catatRiwayat } from '@/lib/riwayat'
 import { Prisma } from '@prisma/client'
 import { GalatDrive, GalatPengguna } from '@/lib/galat'
+import { terjemahkanGalatDrive } from '@/lib/galatDrive'
 import { tanggalLokal } from '@/lib/waktu'
 
 const PESAN_SAH = 'Dokumen ini sudah dinyatakan sah'
@@ -12,7 +13,8 @@ async function lewatDrive<T>(f: () => Promise<T>): Promise<T> {
   try {
     return await f()
   } catch (e) {
-    throw new GalatDrive(e instanceof Error ? e.message : String(e))
+    console.error('Drive gagal saat unggah', e)
+    throw new GalatDrive(terjemahkanGalatDrive(e).pesan, { cause: e })
   }
 }
 

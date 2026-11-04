@@ -73,7 +73,7 @@ describe('unggahDokumen', () => {
 
   it('tidak menyimpan baris apa pun bila Drive gagal', async () => {
     vi.mocked(drive.unggahKeDrive).mockRejectedValueOnce(new Error('invalid_grant'))
-    await expect(unggah({ isi: Buffer.from('%PDF-x') })).rejects.toThrow('invalid_grant')
+    await expect(unggah({ isi: Buffer.from('%PDF-x') })).rejects.toThrow('Hubungan ke Google Drive terputus. Hubungi admin.')
     const baris = await prisma.dokumenGuru.findFirst({ where: { guruId, dokumenId } })
     expect(baris?.fileId ?? null).toBeNull()
   })
@@ -181,12 +181,16 @@ describe('POST /api/dokumen/unggah', () => {
     }
   })
 
-  it('membalas 400 dengan pesan Drive apa adanya', async () => {
+  it('membalas 400 dengan pesan Drive yang sudah diterjemahkan', async () => {
     tokenSesi = await buatSesi(guruId, 'guru')
     vi.mocked(drive.unggahKeDrive).mockRejectedValueOnce(new Error('invalid_grant'))
     const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
     expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ ok: false, pesan: 'invalid_grant' })
+    const teks = await res.text()
+    expect(JSON.parse(teks)).toEqual({ ok: false, pesan: 'Hubungan ke Google Drive terputus. Hubungi admin.' })
+    expect(teks).not.toContain('invalid_grant')
+    const baris = await prisma.dokumenGuru.findFirst({ where: { guruId, dokumenId } })
+    expect(baris?.fileId ?? null).toBeNull()
   })
 
   it('membalas 401 bila belum masuk', async () => {

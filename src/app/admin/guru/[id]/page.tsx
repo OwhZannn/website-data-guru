@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import BannerDrive from '@/components/BannerDrive'
 import { halamanAdmin } from '@/lib/halaman'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen } from '@/lib/riwayat'
@@ -33,6 +34,7 @@ export default async function DetailGuru({ params }: { params: Promise<{ id: str
 
   return (
     <main>
+      <BannerDrive />
       <div className="atas">
         <a href="/admin" style={{ flex: 1 }}>← Beranda admin</a>
         <TombolKeluar />

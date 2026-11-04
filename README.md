@@ -124,6 +124,8 @@ docker compose up -d --build     # migrasi berjalan otomatis
 
 ## 10. Daftar periksa sebelum dibuka
 
+- [ ] Server berarsitektur x86_64/amd64. Image menargetkan `linux-musl-openssl-3.0.x`; build sengaja gagal di arm64.
+- [ ] Beranda admin dan halaman Detail Guru tidak menampilkan banner merah "Google Drive bermasalah". Admin yang sudah masuk juga bisa membuka `/api/kesehatan` (`{"drive":"ok","basisData":"ok"}`).
 - [ ] Status aplikasi OAuth Google "In production", token dibuat sesudahnya.
 - [ ] `DRIVE_FOLDER_ID` milik Gmail yang sama dengan token.
 - [ ] `https://domain` terbuka, HTTP dialihkan ke HTTPS.

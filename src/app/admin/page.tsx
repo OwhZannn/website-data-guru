@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
+import BannerDrive from '@/components/BannerDrive'
 import TombolKeluar from '@/components/TombolKeluar'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,7 @@ export default async function BerandaAdmin() {
 
   return (
     <main>
+      <BannerDrive />
       <div className="atas">
         <h1 style={{ margin: 0, flex: 1 }}>Beranda Admin</h1>
         <TombolKeluar />

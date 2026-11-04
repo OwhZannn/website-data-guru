@@ -83,3 +83,22 @@ export async function unduhInfoFile(
     throw e
   }
 }
+
+/** Pemeriksaan kesehatan: satu panggilan ringan ke folder induk, dengan batas waktu. */
+export async function periksaDrive(batasMs = 5000): Promise<void> {
+  if (palsu()) return
+  const induk = env('DRIVE_FOLDER_ID')
+  const ac = new AbortController()
+  const t = setTimeout(() => ac.abort(), batasMs)
+  try {
+    await drive().files.list(
+      { pageSize: 1, fields: 'files(id)', q: `'${escapeQuery(induk)}' in parents` },
+      { signal: ac.signal },
+    )
+  } catch (e) {
+    if (ac.signal.aborted) throw Object.assign(new Error('ETIMEDOUT'), { code: 'ETIMEDOUT' })
+    throw e
+  } finally {
+    clearTimeout(t)
+  }
+}

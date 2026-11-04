@@ -37,7 +37,6 @@ export async function POST(req: Request) {
     return Response.json({ ok: true, status: hasil.status })
   } catch (e) {
     if (e instanceof Response) return e
-    // GalatDrive diteruskan apa adanya; Task 16 akan menerjemahkannya.
     if (e instanceof GalatPengguna || e instanceof GalatDrive) return gagal(e.message)
     console.error('unggah dokumen gagal', e)
     return Response.json({ ok: false, pesan: 'Terjadi kesalahan. Silakan coba lagi.' }, { status: 500 })

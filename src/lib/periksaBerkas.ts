@@ -8,7 +8,8 @@ export function periksaBerkas(masukan: {
   tipe: string
   isi: Buffer
 }): { sah: true; tipe: 'application/pdf' | 'image/jpeg' } | { sah: false; pesan: string } {
-  const { tipe, isi } = masukan
+  const { isi } = masukan
+  const tipe = masukan.tipe.split(';')[0].trim().toLowerCase()
   if (isi.length === 0) return { sah: false, pesan: 'Berkas kosong' }
   if (isi.length > BATAS_UKURAN) return { sah: false, pesan: 'Ukuran berkas melebihi 5 MB' }
   const terdeteksi = adalahPdf(isi) ? 'application/pdf' : adalahJpg(isi) ? 'image/jpeg' : null

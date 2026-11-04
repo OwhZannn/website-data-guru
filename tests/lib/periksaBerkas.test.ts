@@ -49,3 +49,12 @@ describe('periksaBerkas', () => {
     expect(periksaBerkas({ nama: 'a.jpg', tipe: '', isi: jpg })).toEqual({ sah: true, tipe: 'image/jpeg' })
   })
 })
+
+describe('periksaBerkas normalisasi MIME', () => {
+  it('menerima tipe berhuruf besar dan berparameter', () => {
+    const p = Buffer.from('%PDF-1.4')
+    const j = Buffer.from([0xff, 0xd8, 0xff, 0xe0])
+    expect(periksaBerkas({ nama: 'a.jpg', tipe: 'image/JPEG', isi: j })).toEqual({ sah: true, tipe: 'image/jpeg' })
+    expect(periksaBerkas({ nama: 'a.pdf', tipe: 'application/pdf; charset=binary', isi: p })).toEqual({ sah: true, tipe: 'application/pdf' })
+  })
+})

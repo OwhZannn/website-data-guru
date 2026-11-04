@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { wajibGuru } from '@/lib/auth'
+import { halamanGuru } from '@/lib/halaman'
 import { prisma } from '@/lib/db'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen } from '@/lib/riwayat'
@@ -10,12 +9,7 @@ import TombolKeluar from '@/components/TombolKeluar'
 export const dynamic = 'force-dynamic'
 
 export default async function Dokumen() {
-  let guru
-  try {
-    guru = await wajibGuru()
-  } catch {
-    redirect('/masuk')
-  }
+  const guru = await halamanGuru()
 
   const dibuka = await prisma.periode.findFirst({ where: { dibuka: true } })
   const periode = dibuka ?? (await prisma.periode.findFirst({ orderBy: { dibuatPada: 'desc' } }))

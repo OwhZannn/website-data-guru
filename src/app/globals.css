@@ -18,3 +18,5 @@ button.biasa { background: #e4e7eb; color: #1f2933; }
 .ok { color: #166534; margin: 8px 0; }
 .riwayat { font-size: .9rem; color: #52606d; margin: 8px 0 0; padding-left: 18px; }
 .atas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+textarea, select { display: block; width: 100%; font-size: 16px; padding: 10px; margin: 4px 0 12px; border: 1px solid #9aa5b1; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+.aksi { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }

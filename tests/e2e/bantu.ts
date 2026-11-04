@@ -40,3 +40,8 @@ export async function masuk(page: Page, email: string) {
 }
 
 export const pdf = () => ({ name: 'baru.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%test\n') })
+
+export async function buatAdmin() {
+  const id = randomUUID().slice(0, 8)
+  return db.admin.create({ data: { nama: `Admin ${id}`, email: `admin-${id}@contoh.id`, hashSandi: await hashSandi(SANDI) } })
+}

@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation'
-import { wajibGuru } from '@/lib/auth'
+import { wajibAdmin, wajibGuru } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
+const ada = (f: () => Promise<unknown>) => f().then(() => true, () => false)
+
 export default async function Beranda() {
-  let masuk = true
-  try {
-    await wajibGuru()
-  } catch {
-    masuk = false
-  }
-  redirect(masuk ? '/dokumen' : '/masuk')
+  if (await ada(wajibAdmin)) redirect('/admin')
+  redirect((await ada(wajibGuru)) ? '/dokumen' : '/masuk')
 }

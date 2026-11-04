@@ -11,4 +11,4 @@ services:
     ports:
       # Hanya 127.0.0.1: aplikasi dapat dicapai lewat nginx saja.
       - "127.0.0.1:3000:3000"
-    # TODO Task 16: tambahkan healthcheck ke /api/kesehatan setelah rutenya dibuat.
+    # Belum ada healthcheck: Task 16 akan menambahkan healthcheck ke /api/kesehatan (rutenya belum dibuat).

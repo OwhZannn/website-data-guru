@@ -32,7 +32,7 @@ Jangan pernah memasukkan `.env` ke git (sudah ada di `.gitignore`).
 
 ## 3. Mendapatkan refresh token Google
 
-> **PERINGATAN PENTING:** di Google Cloud Console (OAuth consent screen) status aplikasi **HARUS "In production" (Published)**, bukan "Testing". Pada status Testing, refresh token **mati sssudah 7 hari** dan unggahan guru berhenti tanpa pemberitahuan. Buat tokennya SETELAH aplikasi dipublikasikan.
+> **PERINGATAN PENTING:** di Google Cloud Console (OAuth consent screen) status aplikasi **HARUS "In production" (Published)**, bukan "Testing". Pada status Testing, refresh token **mati sudah 7 hari** dan unggahan guru berhenti tanpa pemberitahuan. Buat tokennya SETELAH aplikasi dipublikasikan.
 
 1. Isi `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` di `.env`.
 2. `set -a; . ./.env; set +a; node scripts/oauth.mjs` lalu buka URL yang dicetak, setujui dengan akun Gmail pemilik folder Drive.

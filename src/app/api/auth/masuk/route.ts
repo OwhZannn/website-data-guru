@@ -2,14 +2,15 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
-import { periksaSandi } from '@/lib/sandi'
+import { hashSandi, periksaSandi } from '@/lib/sandi'
+import { bolehCobaMasuk, catatGagalMasuk, bersihkanGagalMasuk, kunciMasuk } from '@/lib/pembatas'
 import { buatSesi, MASA_SESI_MS } from '@/lib/sesi'
 
 const skema = z.object({ email: z.string().min(1), sandi: z.string().min(1) })
 
-// Hash tetap agar pekerjaan scrypt sama untuk email yang tidak dikenal.
-const HASH_PALSU =
-  'scrypt$f59b512fc943ab90a5c39468b96a61e9$ff56ff602f9dbb4f8022df007cddfedd9e786299bab9aa336e3ce885b750b5178dc89aaa1c52f8cc1303cd8d249309d893a2aa7d44b8c1b7f457ae6b15d89ecd'
+// Hash asli (dihitung sekali) agar pekerjaan scrypt sama untuk email yang tidak dikenal.
+let hashPalsu: Promise<string> | undefined
+const ambilHashPalsu = () => (hashPalsu ??= hashSandi('sandi-palsu-tidak-dipakai'))
 
 const gagal = () =>
   NextResponse.json({ ok: false, pesan: 'Email atau kata sandi salah' }, { status: 401 })
@@ -20,13 +21,25 @@ export async function POST(req: Request) {
   const email = body.data.email.trim().toLowerCase()
   const sandi = body.data.sandi
 
+  const kunci = kunciMasuk(email)
+  if (!(await bolehCobaMasuk(kunci))) {
+    return NextResponse.json(
+      { ok: false, pesan: 'Terlalu banyak percobaan. Coba lagi dalam 15 menit.' },
+      { status: 429 },
+    )
+  }
+
   const admin = await prisma.admin.findUnique({ where: { email } })
   const guru = admin ? null : await prisma.guru.findUnique({ where: { email } })
   const akun = admin ?? guru
   const tipe = admin ? 'admin' : 'guru'
 
-  const cocok = await periksaSandi(sandi, akun?.hashSandi ?? HASH_PALSU)
-  if (!akun || !cocok || !akun.aktif) return gagal()
+  const cocok = await periksaSandi(sandi, akun?.hashSandi ?? (await ambilHashPalsu()))
+  if (!akun || !cocok || !akun.aktif) {
+    await catatGagalMasuk(kunci)
+    return gagal()
+  }
+  await bersihkanGagalMasuk(kunci)
 
   const token = await buatSesi(akun.id, tipe)
   ;(await cookies()).set('sesi', token, {

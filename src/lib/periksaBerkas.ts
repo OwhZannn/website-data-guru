@@ -1,0 +1,19 @@
+export const BATAS_UKURAN = 5 * 1024 * 1024
+
+const adalahPdf = (b: Buffer) => b.subarray(0, 5).equals(Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]))
+const adalahJpg = (b: Buffer) => b.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))
+
+export function periksaBerkas(masukan: {
+  nama: string
+  tipe: string
+  isi: Buffer
+}): { sah: true } | { sah: false; pesan: string } {
+  const { tipe, isi } = masukan
+  if (isi.length === 0) return { sah: false, pesan: 'Berkas kosong' }
+  if (isi.length > BATAS_UKURAN) return { sah: false, pesan: 'Ukuran berkas melebihi 5 MB' }
+  if (tipe !== 'application/pdf' && tipe !== 'image/jpeg')
+    return { sah: false, pesan: 'Tipe berkas harus PDF atau JPG' }
+  const cocok = tipe === 'application/pdf' ? adalahPdf(isi) : adalahJpg(isi)
+  if (!cocok) return { sah: false, pesan: 'Isi berkas bukan PDF atau JPG yang sah' }
+  return { sah: true }
+}

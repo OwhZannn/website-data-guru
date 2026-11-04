@@ -6,6 +6,6 @@ export async function POST() {
   const jar = await cookies()
   const token = jar.get('sesi')?.value
   if (token) await hapusSesi(token)
-  jar.delete('sesi')
+  jar.delete({ name: 'sesi', path: '/' })
   return NextResponse.json({ ok: true })
 }

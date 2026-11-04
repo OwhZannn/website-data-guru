@@ -2,6 +2,27 @@ import { prisma } from '@/lib/db'
 import { folderGuru, unggahKeDrive, hapusDariDrive } from '@/lib/drive'
 import { periksaBerkas } from '@/lib/periksaBerkas'
 import { catatRiwayat } from '@/lib/riwayat'
+import { Prisma } from '@prisma/client'
+import { GalatDrive, GalatPengguna } from '@/lib/galat'
+import { tanggalLokal } from '@/lib/waktu'
+
+const PESAN_SAH = 'Dokumen ini sudah dinyatakan sah'
+
+async function lewatDrive<T>(f: () => Promise<T>): Promise<T> {
+  try {
+    return await f()
+  } catch (e) {
+    throw new GalatDrive(e instanceof Error ? e.message : String(e))
+  }
+}
+
+async function hapusDiam(fileId: string) {
+  try {
+    await hapusDariDrive(fileId)
+  } catch {
+    // sengaja ditelan: paling buruk tertinggal file yatim
+  }
+}
 
 export async function unggahDokumen(masukan: {
   guruId: string
@@ -16,55 +37,69 @@ export async function unggahDokumen(masukan: {
 
   // 1. Periode harus dibuka.
   const periode = await prisma.periode.findUnique({ where: { id: periodeId } })
-  if (!periode?.dibuka) throw new Error('Masa pengunggahan sedang ditutup')
+  if (!periode?.dibuka) throw new GalatPengguna('Masa pengunggahan sedang ditutup')
   const dokumen = await prisma.daftarDokumen.findUnique({ where: { id: dokumenId } })
   if (!dokumen || !dokumen.aktif || dokumen.periodeId !== periodeId)
-    throw new Error('Dokumen tidak ditemukan atau tidak aktif')
+    throw new GalatPengguna('Dokumen tidak ditemukan atau tidak aktif')
   const guru = await prisma.guru.findUnique({ where: { id: guruId } })
-  if (!guru) throw new Error('Guru tidak ditemukan')
+  if (!guru) throw new GalatPengguna('Guru tidak ditemukan')
 
   // 2. Dokumen yang sudah sah tidak boleh diganti.
   const lama = await prisma.dokumenGuru.findUnique({
     where: { periodeId_guruId_dokumenId: { periodeId, guruId, dokumenId } },
   })
-  if (lama?.status === 'SAH') throw new Error('Dokumen ini sudah dinyatakan sah')
+  if (lama?.status === 'SAH') throw new GalatPengguna(PESAN_SAH)
 
   // 3. Periksa isi berkas.
   const cek = periksaBerkas({ nama: masukan.nama, tipe: masukan.tipe, isi })
-  if (!cek.sah) throw new Error(cek.pesan)
+  if (!cek.sah) throw new GalatPengguna(cek.pesan)
 
   // 4. Unggah ke Drive dulu.
   const sekarang = new Date()
   const ekstensi = cek.tipe === 'application/pdf' ? 'pdf' : 'jpg'
-  const namaFile = `${dokumen.nama} - ${sekarang.toISOString().slice(0, 10)}.${ekstensi}`
-  const folderId = await folderGuru(guru.nip, guru.nama)
-  const { fileId } = await unggahKeDrive({ folderId, namaFile, tipe: cek.tipe, isi })
+  const namaFile = `${dokumen.nama} - ${tanggalLokal(sekarang)}.${ekstensi}`
+  const { fileId } = await lewatDrive(async () =>
+    unggahKeDrive({ folderId: await folderGuru(guru.nip, guru.nama), namaFile, tipe: cek.tipe, isi }),
+  )
 
-  // 5. Baru sesudah Drive berhasil, tulis basis data. Simpan fileId lama sebelum ditimpa.
-  const fileIdLama = lama?.fileId ?? null
+  // 5. Baru sesudah Drive berhasil, tulis basis data. Baris dibaca ulang di dalam transaksi
+  //    supaya admin yang mengesahkan selama unggahan berjalan tidak tertimpa.
+  const kunci = { periodeId_guruId_dokumenId: { periodeId, guruId, dokumenId } }
   const data = {
     fileId, namaFile, tipe: cek.tipe, ukuran: isi.length, status: 'MENUNGGU',
     diunggahPada: sekarang, alasan: null, diperiksaOleh: null, diperiksaPada: null,
   }
-  await prisma.$transaction(async (tx) => {
-    await tx.dokumenGuru.upsert({
-      where: { periodeId_guruId_dokumenId: { periodeId, guruId, dokumenId } },
-      create: { periodeId, guruId, dokumenId, ...data },
-      update: data,
+  const tulis = () =>
+    prisma.$transaction(async (tx) => {
+      const kini = await tx.dokumenGuru.findUnique({ where: kunci })
+      if (kini?.status === 'SAH') return { sah: true as const, fileIdLama: null }
+      const fileIdLama = kini?.fileId ?? null
+      await tx.dokumenGuru.upsert({ where: kunci, create: { periodeId, guruId, dokumenId, ...data }, update: data })
+      await catatRiwayat(
+        { periodeId, guruId, dokumenId, aksi: fileIdLama ? 'ganti_file' : 'unggah', oleh: masukan.oleh, olehTipe: 'guru' },
+        tx,
+      )
+      return { sah: false as const, fileIdLama }
     })
-    await catatRiwayat(
-      { periodeId, guruId, dokumenId, aksi: fileIdLama ? 'ganti_file' : 'unggah', oleh: masukan.oleh, olehTipe: 'guru' },
-      tx,
-    )
-  })
-
-  // 6. Hapus file lama; gagal di sini hanya meninggalkan file yatim.
-  if (fileIdLama && fileIdLama !== fileId) {
+  let hasil: Awaited<ReturnType<typeof tulis>>
+  try {
     try {
-      await hapusDariDrive(fileIdLama)
-    } catch {
-      // sengaja ditelan
+      hasil = await tulis()
+    } catch (e) {
+      // Dua unggahan pertama bersamaan: yang kalah mendapat P2002, ulangi sekali.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') hasil = await tulis()
+      else throw e
     }
+  } catch (e) {
+    await hapusDiam(fileId)
+    throw e
   }
+  if (hasil.sah) {
+    await hapusDiam(fileId)
+    throw new GalatPengguna(PESAN_SAH)
+  }
+
+  // 6. Hapus file yang benar-benar digantikan baris baru.
+  if (hasil.fileIdLama && hasil.fileIdLama !== fileId) await hapusDiam(hasil.fileIdLama)
   return { status: 'MENUNGGU' }
 }

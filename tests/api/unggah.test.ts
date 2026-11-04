@@ -15,6 +15,7 @@ import { unggahDokumen } from '../../src/lib/unggahDokumen'
 import { buatSesi } from '../../src/lib/sesi'
 import { POST } from '../../src/app/api/dokumen/unggah/route'
 import * as drive from '../../src/lib/drive'
+import { tanggalLokal } from '../../src/lib/waktu'
 
 const pdf = Buffer.from('%PDF-1.4\nisi')
 let adminId: string, guruId: string, periodeId: string, dokumenId: string
@@ -45,7 +46,7 @@ describe('unggahDokumen', () => {
     expect(h.status).toBe('MENUNGGU')
     const baris = await prisma.dokumenGuru.findFirst({ where: { guruId, dokumenId } })
     expect(baris).toMatchObject({ status: 'MENUNGGU', fileId: 'file-1', tipe: 'application/pdf' })
-    const tgl = new Date().toISOString().slice(0, 10)
+    const tgl = tanggalLokal(new Date())
     expect(drive.folderGuru).toHaveBeenCalledWith('123', 'Budi')
     expect(drive.unggahKeDrive).toHaveBeenCalledWith(expect.objectContaining({
       folderId: 'folder-1', namaFile: `Ijazah - ${tgl}.pdf`, tipe: 'application/pdf',
@@ -66,10 +67,13 @@ describe('unggahDokumen', () => {
 
   it('mengizinkan mengganti dokumen yang masih menunggu', async () => {
     await unggah()
+    const aksi = async () => (await prisma.riwayat.findMany({ where: { guruId } })).map((r) => r.aksi)
+    expect(await aksi()).toEqual(['unggah'])
     const h = await unggah({ nama: 'b.pdf' })
     expect(h.status).toBe('MENUNGGU')
-    const aksi = (await prisma.riwayat.findMany({ where: { guruId }, orderBy: { waktu: 'asc' } })).map((r) => r.aksi)
-    expect(aksi.sort()).toEqual(['ganti_file', 'unggah'])
+    const semua = await aksi()
+    expect(semua).toHaveLength(2)
+    expect(semua.filter((a) => a === 'ganti_file')).toHaveLength(1)
   })
 
   it('tidak menyimpan baris apa pun bila Drive gagal', async () => {
@@ -92,6 +96,29 @@ describe('unggahDokumen', () => {
     vi.mocked(drive.hapusDariDrive).mockRejectedValueOnce(new Error('boom'))
     await expect(unggah()).resolves.toEqual({ status: 'MENUNGGU' })
     expect((await prisma.dokumenGuru.findFirst({ where: { guruId } }))?.fileId).toBe('file-2')
+  })
+
+  it('tidak menimpa dokumen yang disahkan admin selama unggahan berjalan', async () => {
+    await unggah()
+    vi.mocked(drive.unggahKeDrive).mockImplementationOnce(async () => {
+      await prisma.dokumenGuru.updateMany({ where: { guruId, dokumenId }, data: { status: 'SAH' } })
+      return { fileId: 'file-2' }
+    })
+    await expect(unggah()).rejects.toThrow('Dokumen ini sudah dinyatakan sah')
+    expect(await prisma.dokumenGuru.findFirst({ where: { guruId } })).toMatchObject({ status: 'SAH', fileId: 'file-1' })
+    expect(drive.hapusDariDrive).not.toHaveBeenCalledWith('file-1')
+    expect(drive.hapusDariDrive).toHaveBeenCalledWith('file-2')
+  })
+
+  it('menamai file dengan tanggal WITA', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-04T17:00:00Z'))
+    try {
+      await unggah()
+    } finally {
+      vi.useRealTimers()
+    }
+    expect(drive.unggahKeDrive).toHaveBeenCalledWith(expect.objectContaining({ namaFile: 'Ijazah - 2026-11-05.pdf' }))
   })
 
   it('menolak berkas tidak sah sebelum menyentuh Drive', async () => {
@@ -142,6 +169,29 @@ describe('POST /api/dokumen/unggah', () => {
     const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ ok: false, pesan: 'Masa pengunggahan sedang ditutup' })
+  })
+
+  it('membalas 500 dengan pesan umum untuk galat tak terduga', async () => {
+    tokenSesi = await buatSesi(guruId, 'guru')
+    const asli = console.error
+    console.error = vi.fn()
+    const spy = vi.spyOn(prisma.periode, 'findFirst').mockRejectedValueOnce(new Error('SQLITE_BUSY'))
+    try {
+      const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
+      expect(res.status).toBe(500)
+      expect(await res.json()).toEqual({ ok: false, pesan: 'Terjadi kesalahan. Silakan coba lagi.' })
+    } finally {
+      spy.mockRestore()
+      console.error = asli
+    }
+  })
+
+  it('membalas 400 dengan pesan Drive apa adanya', async () => {
+    tokenSesi = await buatSesi(guruId, 'guru')
+    vi.mocked(drive.unggahKeDrive).mockRejectedValueOnce(new Error('invalid_grant'))
+    const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ ok: false, pesan: 'invalid_grant' })
   })
 
   it('membalas 401 bila belum masuk', async () => {

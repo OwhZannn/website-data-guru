@@ -64,3 +64,31 @@ test('tanpa sesi, /dokumen mengarah ke /masuk', async ({ page }) => {
   await page.goto('/dokumen')
   await expect(page).toHaveURL('/masuk')
 })
+
+test('sesi berakhir (401) menampilkan tautan masuk', async ({ page }) => {
+  const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
+  await masuk(page, guru.email)
+  await expect(page).toHaveURL('/dokumen')
+  await page.waitForLoadState('networkidle')
+  await page.route('**/api/dokumen/unggah', (r) => r.fulfill({ status: 401, body: '' }))
+  await page.getByTestId(`berkas-${daftar[0].id}`).setInputFiles(pdf())
+  await expect(page.getByText('Sesi Anda berakhir.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Silakan masuk lagi.' })).toHaveAttribute('href', '/masuk')
+})
+
+test('memilih berkas yang sama lagi setelah gagal tetap mengunggah', async ({ page }) => {
+  const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
+  await masuk(page, guru.email)
+  await expect(page).toHaveURL('/dokumen')
+  await page.waitForLoadState('networkidle')
+  await page.route('**/api/dokumen/unggah', (r) =>
+    r.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ ok: false, pesan: 'Isi berkas bukan PDF atau JPG yang sah' }) }))
+  const input = page.getByTestId(`berkas-${daftar[0].id}`)
+  const f = { ...pdf() }
+  await input.setInputFiles(f)
+  await expect(page.getByText('Isi berkas bukan PDF atau JPG yang sah')).toBeVisible()
+  await expect(input).toHaveValue('')
+  await page.unroute('**/api/dokumen/unggah')
+  await input.setInputFiles(f)
+  await expect(page.getByText('Menunggu diperiksa')).toBeVisible()
+})

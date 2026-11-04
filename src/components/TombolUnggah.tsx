@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 const BATAS = 5 * 1024 * 1024
@@ -11,11 +11,16 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
   const [sibuk, setSibuk] = useState(false)
   const [pesan, setPesan] = useState('')
   const [bisaUlang, setBisaUlang] = useState(false)
+  const [berakhir, setBerakhir] = useState(false)
+  const [menyegarkan, mulaiSegar] = useTransition()
+  const sibukSemua = sibuk || menyegarkan
+  const kosongkan = () => { if (input.current) input.current.value = '' }
 
   async function kirim(f: File) {
     setSibuk(true)
     setPesan('')
     setBisaUlang(false)
+    setBerakhir(false)
     try {
       const form = new FormData()
       form.set('dokumenId', dokumenId)
@@ -24,12 +29,16 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
       const j = await r.json().catch(() => null)
       if (r.ok && j?.ok) {
         setBerkas(null)
-        router.refresh()
+        kosongkan()
+        mulaiSegar(() => router.refresh())
       } else if (r.status === 401) {
-        setPesan('Sesi berakhir. Silakan masuk lagi.')
+        setBerakhir(true)
+        setBerkas(null)
+        kosongkan()
       } else {
         setPesan(j?.pesan ?? 'Unggahan gagal. Coba lagi.')
         setBerkas(null)
+        kosongkan()
       }
     } catch {
       setPesan('Koneksi terputus. Periksa jaringan Anda lalu coba lagi.')
@@ -44,7 +53,7 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
       setPesan('Ukuran berkas melebihi 5 MB')
       setBisaUlang(false)
       setBerkas(null)
-      if (input.current) input.current.value = ''
+      kosongkan()
       return
     }
     setBerkas(f)
@@ -61,13 +70,18 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
         data-testid={`berkas-${dokumenId}`}
         onChange={(e) => dipilih(e.target.files?.[0])}
       />
-      <button type="button" disabled={sibuk} onClick={() => input.current?.click()}>
-        {sibuk ? 'Sedang mengunggah…' : teks}
+      <button type="button" disabled={sibukSemua} onClick={() => input.current?.click()}>
+        {sibukSemua ? 'Sedang mengunggah…' : teks}
       </button>
-      {bisaUlang && berkas && !sibuk && (
+      {bisaUlang && berkas && !sibukSemua && (
         <button type="button" className="biasa" style={{ marginLeft: 8 }} onClick={() => kirim(berkas)}>
           Coba lagi
         </button>
+      )}
+      {berakhir && (
+        <p className="galat" role="alert">
+          Sesi Anda berakhir. <a href="/masuk">Silakan masuk lagi.</a>
+        </p>
       )}
       {pesan && <p className="galat" role="alert">{pesan}</p>}
     </div>

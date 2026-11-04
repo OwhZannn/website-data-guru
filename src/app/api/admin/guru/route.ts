@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     if (!h.success) return gagal('Permintaan tidak sah')
     const b = h.data
     if (b.aksi === 'aktif') { await aturAktifGuru(b.guruId, b.aktif); return Response.json({ ok: true }) }
-    return Response.json({ ok: true, ...(await aturUlangSandiGuru(b.guruId)) })
+    return Response.json({ ok: true, ...(await aturUlangSandiGuru(b.guruId)) }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (e) {
     return galatUmum(e, 'aksi guru gagal')
   }

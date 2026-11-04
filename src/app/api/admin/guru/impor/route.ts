@@ -14,8 +14,7 @@ export async function POST(req: Request) {
     if (!h.success) return gagal('Permintaan tidak sah')
     const baris = uraiDaftarGuru(h.data.teks)
     if (baris.length === 0) return gagal('Daftar guru kosong')
-    if (baris.length > 2000) return gagal('Daftar terlalu panjang (maksimal 2000 baris)')
-    return Response.json({ ok: true, ...(await imporGuru({ baris, adminId: admin.id })) })
+    return Response.json({ ok: true, ...(await imporGuru({ baris, adminId: admin.id })) }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (e) {
     return galatUmum(e, 'impor guru gagal')
   }

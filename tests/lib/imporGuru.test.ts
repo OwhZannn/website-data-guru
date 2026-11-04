@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { prisma } from '../../src/lib/db'
 import { bersihkanSemua } from '../bantu-db'
 import { imporGuru, uraiDaftarGuru, acakSandiAwal } from '../../src/lib/imporGuru'
@@ -71,6 +71,30 @@ describe('imporGuru', () => {
     expect(h.ditolak.map((d) => d.baris)).toEqual([2, 3, 4, 5, 6])
     expect(h.ditolak[3].alasan).toBe('NIP atau email ganda dalam daftar')
     expect(await prisma.guru.count()).toBe(1)
+    expect((await prisma.guru.findUniqueOrThrow({ where: { nip: '1' } })).email).toBe('a1@x.id')
+  })
+
+  it('menolak lebih dari 500 baris', async () => {
+    const baris = Array.from({ length: 501 }, (_, i) => ({ nama: 'G', nip: String(i + 1), email: `g${i}@x.id` }))
+    await expect(imporGuru({ baris, adminId })).rejects.toThrow('Maksimal 500 baris per impor')
+  })
+
+  it('batch yang bentrok tidak menghentikan impor; sandi dan riwayat tetap ada', async () => {
+    const asli = prisma.guru.createMany.bind(prisma.guru)
+    const spy = vi.spyOn(prisma.guru, 'createMany').mockImplementationOnce((async (a: never) => {
+      await prisma.guru.create({ data: { nama: 'Bentrok', nip: '2', email: 'dua@x.id', hashSandi: 'x' } })
+      return asli(a)
+    }) as never)
+    const h = await imporGuru({
+      baris: [1, 2, 3].map((n) => ({ nama: `G${n}`, nip: String(n), email: `${n === 2 ? 'dua' : 'g' + n}@x.id` })),
+      adminId,
+    })
+    spy.mockRestore()
+    expect(h).toMatchObject({ dibuat: 2, dilewati: 1, ditolak: [] })
+    expect(h.sandiAwal.map((s) => s.email).sort()).toEqual(['g1@x.id', 'g3@x.id'])
+    expect((await prisma.guru.findUniqueOrThrow({ where: { nip: '2' } })).nama).toBe('Bentrok')
+    const r = await prisma.riwayat.findMany({ where: { aksi: 'impor_guru' } })
+    expect(r.map((x) => x.alasan)).toEqual(['Impor: 2 dibuat, 1 dilewati, 0 ditolak'])
   })
 
   it('mencatat satu riwayat ringkasan', async () => {

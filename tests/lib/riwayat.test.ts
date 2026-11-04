@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '../../src/lib/db'
 import { bersihkanSemua } from '../bantu-db'
-import { catatRiwayat, daftarRiwayatDokumen, daftarRiwayatPeriode } from '../../src/lib/riwayat'
+import { catatRiwayat, daftarRiwayatDokumen, daftarRiwayatPeriode, namaPelakuRiwayat, TIDAK_DIKENAL } from '../../src/lib/riwayat'
 
 describe('riwayat', () => {
   beforeEach(async () => { await bersihkanSemua() })
@@ -39,5 +39,21 @@ describe('riwayat', () => {
     expect(await daftarRiwayatPeriode('p1')).toHaveLength(3)
     expect(await daftarRiwayatPeriode('p1', { batas: 2, halaman: 0 })).toHaveLength(2)
     expect(await daftarRiwayatPeriode('p1', { batas: 2, halaman: 1 })).toHaveLength(1)
+  })
+})
+
+describe('namaPelakuRiwayat', () => {
+  beforeEach(async () => { await bersihkanSemua() })
+
+  it('memetakan nama admin dan guru, dan "(tidak dikenal)" untuk id yang hilang', async () => {
+    const a = await prisma.admin.create({ data: { nama: 'Bu Admin', email: 'a@contoh.id', hashSandi: 'x' } })
+    const g = await prisma.guru.create({ data: { nama: 'Pak Guru', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })
+    const m = await namaPelakuRiwayat([
+      { id: 'r1', oleh: a.id, olehTipe: 'admin' },
+      { id: 'r2', oleh: g.id, olehTipe: 'guru' },
+      { id: 'r3', oleh: 'hilang', olehTipe: 'admin' },
+      { id: 'r4', oleh: a.id, olehTipe: 'guru' },
+    ])
+    expect(Object.fromEntries(m)).toEqual({ r1: 'Bu Admin', r2: 'Pak Guru', r3: TIDAK_DIKENAL, r4: TIDAK_DIKENAL })
   })
 })

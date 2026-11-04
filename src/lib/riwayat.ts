@@ -38,3 +38,18 @@ export function daftarRiwayatPeriode(
     skip: (opsi.halaman ?? 0) * batas,
   })
 }
+
+export const TIDAK_DIKENAL = '(tidak dikenal)'
+
+/** Nama pelaku setiap baris riwayat, diambil massal (dua query) lalu digabung di memori. Kunci: id riwayat. */
+export async function namaPelakuRiwayat(daftar: Pick<Riwayat, 'id' | 'oleh' | 'olehTipe'>[]): Promise<Map<string, string>> {
+  const idAdmin = [...new Set(daftar.filter((r) => r.olehTipe === 'admin').map((r) => r.oleh))]
+  const idGuru = [...new Set(daftar.filter((r) => r.olehTipe === 'guru').map((r) => r.oleh))]
+  const [admin, guru] = await Promise.all([
+    idAdmin.length ? prisma.admin.findMany({ where: { id: { in: idAdmin } }, select: { id: true, nama: true } }) : [],
+    idGuru.length ? prisma.guru.findMany({ where: { id: { in: idGuru } }, select: { id: true, nama: true } }) : [],
+  ])
+  const nAdmin = new Map(admin.map((a) => [a.id, a.nama]))
+  const nGuru = new Map(guru.map((g) => [g.id, g.nama]))
+  return new Map(daftar.map((r) => [r.id, (r.olehTipe === 'admin' ? nAdmin : nGuru).get(r.oleh) ?? TIDAK_DIKENAL]))
+}

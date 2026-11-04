@@ -15,7 +15,7 @@ test('admin menolak dengan alasan, lalu guru melihat alasannya', async ({ page, 
   await page.getByLabel('Alasan penolakan').fill('Stempel terpotong')
   await page.getByRole('button', { name: 'Kirim penolakan' }).click()
   await expect(page.getByText('Alasan: Stempel terpotong')).toBeVisible()
-  await expect(page.getByText(/WITA — Ditolak oleh admin: Stempel terpotong/)).toBeVisible()
+  await expect(page.getByText(`WITA — Ditolak oleh ${admin.nama} (admin): Stempel terpotong`)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Batalkan keputusan' })).toBeVisible()
 
   const baris = await db.dokumenGuru.findFirst({ where: { guruId: guru.id, dokumenId: daftar[0].id } })
@@ -93,9 +93,6 @@ test('admin menambah admin baru yang bisa masuk dengan sandi yang ditampilkan', 
   const sandi = (await page.getByTestId('sandi-baru').textContent())!
   await expect(page.getByText(/hanya tampil sekali/)).toBeVisible()
   await context.clearCookies()
-  await page.goto('/masuk')
-  await page.fill('[name=email]', email)
-  await page.fill('[name=sandi]', sandi)
-  await page.click('button[type=submit]')
+  await masuk(page, email, sandi)
   await expect(page).toHaveURL(/\/admin|\/ganti-sandi/)
 })

@@ -1,6 +1,7 @@
 'use client'
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { kecilkanGambar } from '@/lib/kecilkanGambar'
 
 const BATAS = 5 * 1024 * 1024
 
@@ -9,11 +10,12 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
   const input = useRef<HTMLInputElement>(null)
   const [berkas, setBerkas] = useState<File | null>(null)
   const [sibuk, setSibuk] = useState(false)
+  const [menyiapkan, setMenyiapkan] = useState(false)
   const [pesan, setPesan] = useState('')
   const [bisaUlang, setBisaUlang] = useState(false)
   const [berakhir, setBerakhir] = useState(false)
   const [menyegarkan, mulaiSegar] = useTransition()
-  const sibukSemua = sibuk || menyegarkan
+  const sibukSemua = sibuk || menyegarkan || menyiapkan
   const kosongkan = () => { if (input.current) input.current.value = '' }
 
   async function kirim(f: File) {
@@ -47,8 +49,13 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
     setSibuk(false)
   }
 
-  function dipilih(f: File | undefined) {
-    if (!f) return
+  async function dipilih(asli: File | undefined) {
+    if (!asli) return
+    setMenyiapkan(true)
+    setPesan('')
+    setBisaUlang(false)
+    const f = await kecilkanGambar(asli)
+    setMenyiapkan(false)
     if (f.size > BATAS) {
       setPesan('Ukuran berkas melebihi 5 MB')
       setBisaUlang(false)
@@ -68,10 +75,10 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
         accept="application/pdf,image/jpeg"
         hidden
         data-testid={`berkas-${dokumenId}`}
-        onChange={(e) => dipilih(e.target.files?.[0])}
+        onChange={(e) => void dipilih(e.target.files?.[0])}
       />
       <button type="button" disabled={sibukSemua} onClick={() => input.current?.click()}>
-        {sibukSemua ? 'Sedang mengunggah…' : teks}
+        {menyiapkan ? 'Menyiapkan berkas…' : sibukSemua ? 'Sedang mengunggah…' : teks}
       </button>
       {bisaUlang && berkas && !sibukSemua && (
         <button type="button" className="biasa" style={{ marginLeft: 8 }} onClick={() => kirim(berkas)}>

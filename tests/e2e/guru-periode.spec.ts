@@ -1,0 +1,41 @@
+import { test, expect } from '@playwright/test'
+import { db, siapkan, buatAdmin, masuk } from './bantu'
+
+test('impor 3 baris (1 tidak valid), sandi tampil, guru baru bisa masuk', async ({ page, context }) => {
+  await siapkan({ dokumen: [{ status: 'BELUM' }] })
+  const admin = await buatAdmin()
+  const u = Date.now().toString().slice(-8)
+  await masuk(page, admin.email)
+  await expect(page).toHaveURL('/admin')
+  await page.goto('/admin/guru')
+  await page.waitForLoadState('networkidle')
+  await page.getByLabel('Daftar guru').fill(`Ani;9${u};ani${u}@contoh.id\nBudi,8${u},Budi${u}@Contoh.id\nCici;abc;cici${u}@contoh.id`)
+  await page.getByRole('button', { name: 'Impor', exact: true }).click()
+  const hasil = page.getByTestId('hasil-impor')
+  await expect(hasil.getByText('2 dibuat, 0 dilewati, 1 ditolak')).toBeVisible()
+  await expect(hasil.getByText('Baris 3: NIP harus berupa angka')).toBeVisible()
+  await expect(hasil.getByText(/tidak dapat dilihat lagi/)).toBeVisible()
+  const sandi = (await hasil.locator('tr', { hasText: `ani${u}@contoh.id` }).locator('code').innerText()).trim()
+  expect(sandi).toHaveLength(10)
+
+  await context.clearCookies()
+  await page.goto('/masuk')
+  await page.fill('[name=email]', `ani${u}@contoh.id`)
+  await page.fill('[name=sandi]', sandi)
+  await page.click('button[type=submit]')
+  await expect(page).toHaveURL('/dokumen')
+})
+
+test('membuka periode B menutup periode A', async ({ page }) => {
+  const { periode: a } = await siapkan({ dokumen: [] })
+  const b = await db.periode.create({ data: { nama: `B ${a.id}`, dibuka: false } })
+  const admin = await buatAdmin()
+  await masuk(page, admin.email)
+  await expect(page).toHaveURL('/admin')
+  await page.goto('/admin/periode')
+  await page.waitForLoadState('networkidle')
+  await page.locator(`li[data-periode="${b.nama}"]`).getByRole('button', { name: 'Buka', exact: true }).click()
+  await expect(page.locator(`li[data-periode="${b.nama}"]`).getByText('Dibuka')).toBeVisible()
+  await expect(page.locator(`li[data-periode="${a.nama}"]`).getByText('Ditutup')).toBeVisible()
+  expect((await db.periode.findUnique({ where: { id: a.id } }))?.dibuka).toBe(false)
+})

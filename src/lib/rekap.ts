@@ -67,7 +67,7 @@ export async function buatXlsx(baris: BarisRekap[]): Promise<Buffer> {
   ws.getColumn(1).numFmt = '@'
   for (const b of baris) {
     const r = ws.addRow([
-      netralkanRumus(b.nip), netralkanRumus(b.nama), b.jumlahSah, b.jumlahWajib, b.status, b.tanggalVerifikasi ?? '',
+      netralkanRumus(b.nip), netralkanRumus(b.nama), b.jumlahSah, b.jumlahWajib, netralkanRumus(b.status), netralkanRumus(b.tanggalVerifikasi ?? ''),
     ])
     r.getCell(1).numFmt = '@'
   }

@@ -38,6 +38,11 @@ describe('GET /api/admin/rekap', () => {
     expect(r.status).toBe(400)
     expect((await r.json()).pesan).toBe('Periode tidak ditemukan')
   })
+  it('sesi guru mendapat 401', async () => {
+    const g = await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
+    tokenSekarang = await buatSesi(g.id, 'guru')
+    expect((await GET(req(`periodeId=${periodeId}&format=csv`))).status).toBe(401)
+  })
   it('tanpa sesi admin ditolak', async () => {
     tokenSekarang = 'salah'
     const r = await GET(req(`periodeId=${periodeId}&format=csv`))

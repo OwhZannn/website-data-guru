@@ -27,10 +27,8 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
   const q = (sp.q ?? '').trim()
   const filter = sp.status && LABEL[sp.status] ? sp.status : 'semua'
   const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
-  const semua = await prisma.guru.findMany({
-    where: q ? { OR: [{ nama: { contains: q } }, { nip: { contains: q } }] } : {},
-    orderBy: [{ nama: 'asc' }, { id: 'asc' }],
-  })
+  const semuaGuru = await prisma.guru.findMany({ orderBy: [{ nama: 'asc' }, { id: 'asc' }] })
+  const semua = q ? semuaGuru.filter((g) => g.nama.toLowerCase().includes(q.toLowerCase()) || g.nip.toLowerCase().includes(q.toLowerCase())) : semuaGuru
 
   // Status dihitung massal: dua query, lalu dikelompokkan di memori.
   const status = new Map<string, StatusGuru>()
@@ -41,8 +39,9 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
     ])
     const per = new Map<string, typeof baris>()
     for (const b of baris) { const l = per.get(b.guruId); if (l) l.push(b); else per.set(b.guruId, [b]) }
-    for (const g of semua) status.set(g.id, hitungStatusGuru(aktif, per.get(g.id) ?? []))
+    for (const g of semuaGuru) if (g.aktif) status.set(g.id, hitungStatusGuru(aktif, per.get(g.id) ?? []))
   }
+  const totalAktif = status.size
   const lengkap = [...status.values()].filter((s) => s.lengkap).length
   const guru = periode && filter !== 'semua' ? semua.filter((g) => status.get(g.id)?.label === LABEL[filter]) : semua
 
@@ -56,7 +55,7 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
       <ImporGuru />
       <h2>Daftar guru ({guru.length})</h2>
       {periode ? (
-        <p data-testid="ringkasan">Total: {semua.length} | Lengkap: {lengkap} | Belum lengkap: {semua.length - lengkap}</p>
+        <p data-testid="ringkasan">Total: {totalAktif} | Lengkap: {lengkap} | Belum lengkap: {totalAktif - lengkap}</p>
       ) : (
         <p>Tidak ada periode yang sedang dibuka, sehingga status dokumen tidak ditampilkan.</p>
       )}
@@ -84,7 +83,7 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
               <BarisGuru
                 key={g.id}
                 guru={{ id: g.id, nama: g.nama, nip: g.nip, email: g.email, aktif: g.aktif }}
-                status={s ? { progres: `${s.jumlahSah}/${s.jumlahWajib}`, label: s.label } : undefined}
+                status={s ? { progres: `${s.jumlahSah}/${s.jumlahWajib}`, label: s.label } : periode ? { progres: '-', label: '-' } : undefined}
               />
             )
           })}

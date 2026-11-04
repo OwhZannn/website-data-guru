@@ -26,6 +26,13 @@ describe('susunRekap', () => {
     expect(r.map((x) => x.status)).toEqual(['Belum mulai', 'Perlu dicek'])
   })
 
+  it('jumlah baris sama dengan jumlah guru aktif yang di-seed', async () => {
+    for (let i = 0; i < 7; i++) await prisma.guru.create({ data: { nama: `G${i}`, nip: `n${i}`, email: `g${i}@x.id`, hashSandi: 'x', aktif: i !== 3 } })
+    const aktif = await prisma.guru.count({ where: { aktif: true } })
+    expect(aktif).toBe(6)
+    expect(await susunRekap(periodeId)).toHaveLength(aktif)
+  })
+
   it('mengisi tanggalVerifikasi (WITA, terbaru) hanya untuk guru lengkap', async () => {
     const [d1, d2] = await Promise.all([0, 1].map((u) => prisma.daftarDokumen.create({ data: { periodeId, nama: `D${u}`, urutan: u } })))
     const a = await prisma.guru.create({ data: { nama: 'A', nip: '1', email: 'a@x.id', hashSandi: 'x' } })
@@ -67,6 +74,17 @@ describe('buatCsv', () => {
 })
 
 describe('buatXlsx', () => {
+  it('tidak ada sel teks yang diawali karakter rumus tanpa apostrof', async () => {
+    const buf = await buatXlsx([baris({ nip: '=1', nama: '+a', status: '-b', tanggalVerifikasi: '@c' }), baris({ nama: '\tx', status: '\rx' })])
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.load(buf as unknown as ArrayBuffer)
+    let teks = 0
+    wb.worksheets[0].eachRow((r) => r.eachCell((c) => {
+      if (typeof c.value === 'string') { teks++; expect(c.value).not.toMatch(/^[=+\-@\t\r]/) }
+    }))
+    expect(teks).toBeGreaterThan(8)
+  })
+
   it('menyimpan NIP sebagai teks, header tebal, dan menetralkan rumus', async () => {
     const buf = await buatXlsx([baris({ nip: '00123', nama: '=HYPERLINK("x")' })])
     const wb = new ExcelJS.Workbook()

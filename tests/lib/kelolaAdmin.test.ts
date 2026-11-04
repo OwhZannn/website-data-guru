@@ -48,12 +48,16 @@ describe('nonaktifkanAdmin', () => {
     const a = await mk('a@x.id'); const b = await mk('b@x.id', false)
     await expect(nonaktifkanAdmin({ adminId: a.id, olehAdminId: b.id })).rejects.toThrow('Admin aktif terakhir tidak dapat dinonaktifkan')
   })
-  it('dua admin saling menonaktifkan bersamaan: satu tetap aktif', async () => {
+  it('dua admin saling menonaktifkan bersamaan: satu berhasil, satu ditolak, satu tetap aktif', async () => {
     const a = await mk('a@x.id'); const b = await mk('b@x.id')
-    await Promise.allSettled([
+    const h = await Promise.allSettled([
       nonaktifkanAdmin({ adminId: b.id, olehAdminId: a.id }),
       nonaktifkanAdmin({ adminId: a.id, olehAdminId: b.id }),
     ])
-    expect(await prisma.admin.count({ where: { aktif: true } })).toBeGreaterThanOrEqual(1)
+    expect(h.filter((x) => x.status === 'fulfilled')).toHaveLength(1)
+    const ditolak = h.filter((x): x is PromiseRejectedResult => x.status === 'rejected')
+    expect(ditolak).toHaveLength(1)
+    expect(String(ditolak[0].reason.message)).toMatch(/Admin aktif terakhir tidak dapat dinonaktifkan|busy|locked|timed out/i)
+    expect(await prisma.admin.count({ where: { aktif: true } })).toBe(1)
   })
 })

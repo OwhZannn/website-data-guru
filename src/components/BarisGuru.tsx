@@ -30,7 +30,7 @@ export default function BarisGuru({ guru, status }: { guru: G; status?: S }) {
     <tr>
       <td><a href={`/admin/guru/${guru.id}`}>{guru.nama}</a></td><td>{guru.nip}</td><td>{guru.email}</td>
       {status && <><td>{status.progres}</td><td>{status.label}</td></>}
-      <td>{guru.aktif ? 'Aktif' : 'Nonaktif'}</td>
+      <td>{guru.aktif ? 'Aktif' : <strong>nonaktif</strong>}</td>
       <td>
         <button disabled={sibuk} onClick={() => kirim({ aksi: 'aktif', guruId: guru.id, aktif: !guru.aktif })}>
           {guru.aktif ? 'Nonaktifkan' : 'Aktifkan'}

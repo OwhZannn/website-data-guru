@@ -21,6 +21,7 @@ const req = (email: string, sandi: string) =>
 describe('masuk', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.percobaanMasuk.deleteMany()
     await prisma.sesi.deleteMany()
     await prisma.admin.deleteMany()
     await prisma.guru.deleteMany()

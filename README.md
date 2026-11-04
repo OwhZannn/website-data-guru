@@ -61,6 +61,8 @@ Sandi acak dicetak **sekali saja**; catat dan minta admin menggantinya setelah m
 
 ## 6. Nginx dan HTTPS
 
+> **Penting: situs wajib dibuka lewat HTTPS melalui nginx.** Dalam image produksi (`NODE_ENV=production`) cookie sesi bertanda `secure`, sehingga peramban tidak menyimpannya bila situs dibuka lewat HTTP biasa, misalnya `http://IP-LAN:3000` sebelum sertifikat terbit. Gejalanya: setelah menekan "Masuk", pengguna diam-diam dikembalikan ke halaman `/masuk` tanpa pesan galat. Ini bukan sandi salah; bukalah `https://domain-sekolah.sch.id`.
+
 ```
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/data-guru
 sudo sed -i 's/DOMAIN_ANDA/domain-sekolah.sch.id/g' /etc/nginx/sites-available/data-guru
@@ -85,6 +87,7 @@ sudo crontab -u $(id -un 1000) -e
 
 ```
 # 02:00 buat salinan lokal (simpan 30 terakhir), 02:15 kirim yang terbaru ke Drive
+# (di folder Drive 'Cadangan Basis Data' juga disimpan 30 terbaru; berkas lain di folder itu tidak disentuh)
 0 2 * * *  cd /opt/website-data-guru && node scripts/cadangan.mjs >> data/cadangan.log 2>&1
 15 2 * * * cd /opt/website-data-guru && set -a && . ./.env && set +a && node scripts/cadangan-ke-drive.mjs >> data/cadangan.log 2>&1
 ```
@@ -128,7 +131,7 @@ docker compose up -d --build     # migrasi berjalan otomatis
 - [ ] Beranda admin dan halaman Detail Guru tidak menampilkan banner merah "Google Drive bermasalah". Admin yang sudah masuk juga bisa membuka `/api/kesehatan` (`{"drive":"ok","basisData":"ok"}`).
 - [ ] Status aplikasi OAuth Google "In production", token dibuat sesudahnya.
 - [ ] `DRIVE_FOLDER_ID` milik Gmail yang sama dengan token.
-- [ ] `https://domain` terbuka, HTTP dialihkan ke HTTPS.
+- [ ] `https://domain` terbuka, HTTP dialihkan ke HTTPS. Semua pengguna masuk lewat alamat HTTPS ini, bukan `http://IP:3000` (cookie sesi `secure` tidak tersimpan lewat HTTP, sehingga masuk akan selalu kembali ke `/masuk`).
 - [ ] Admin pertama bisa masuk; sandi sudah diganti.
 - [ ] Satu guru uji mengunggah dokumen dan berkasnya muncul di Drive.
 - [ ] Unggahan 8 MB berhasil, lebih dari itu ditolak.

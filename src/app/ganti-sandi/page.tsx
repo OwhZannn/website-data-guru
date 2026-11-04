@@ -1,10 +1,12 @@
 'use client'
+import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 
 export default function GantiSandi() {
   const [pesan, setPesan] = useState('')
   const [berhasil, setBerhasil] = useState(false)
   const [sibuk, setSibuk] = useState(false)
+  const terpasang = useTerpasang()
 
   async function kirim(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -41,11 +43,11 @@ export default function GantiSandi() {
   return (
     <main>
       <h1>Ganti kata sandi</h1>
-      <form onSubmit={kirim}>
+      <form method="post" onSubmit={kirim}>
         <label>Kata sandi lama<input name="sandiLama" type="password" autoComplete="current-password" required /></label>
         <label>Kata sandi baru (minimal 8 karakter)<input name="sandiBaru" type="password" autoComplete="new-password" required minLength={8} /></label>
         <label>Ulangi kata sandi baru<input name="konfirmasi" type="password" autoComplete="new-password" required /></label>
-        <button type="submit" disabled={sibuk}>{sibuk ? 'Memproses…' : 'Simpan'}</button>
+        <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Memproses…' : 'Simpan'}</button>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
         {berhasil && <p className="ok" role="status">Kata sandi berhasil diganti. Perangkat lain dikeluarkan.</p>}
       </form>

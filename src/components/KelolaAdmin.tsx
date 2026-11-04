@@ -1,4 +1,5 @@
 'use client'
+import { useTerpasang } from '@/lib/terpasang'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -11,6 +12,7 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
   const [pesan, setPesan] = useState('')
   const [baru, setBaru] = useState<{ email: string; sandi: string } | null>(null)
   const [sibuk, setSibuk] = useState(false)
+  const terpasang = useTerpasang()
 
   async function kirim(badan: object): Promise<{ ok: boolean; sandi?: string }> {
     setSibuk(true); setPesan('')
@@ -36,10 +38,10 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
 
   return (
     <div>
-      <form onSubmit={(e) => { e.preventDefault(); void tambah() }}>
+      <form method="post" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
         <input name="nama" aria-label="Nama admin" value={nama} onChange={(e) => setNama(e.target.value)} />{' '}
         <input name="email" aria-label="Email admin" value={email} onChange={(e) => setEmail(e.target.value)} />{' '}
-        <button type="submit" disabled={sibuk}>Tambah admin</button>
+        <button type="submit" disabled={sibuk || !terpasang}>Tambah admin</button>
       </form>
       {pesan && <p role="alert">{pesan}</p>}
       {baru && (

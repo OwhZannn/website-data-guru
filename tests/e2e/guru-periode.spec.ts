@@ -19,10 +19,7 @@ test('impor 3 baris (1 tidak valid), sandi tampil, guru baru bisa masuk', async 
   expect(sandi).toHaveLength(10)
 
   await context.clearCookies()
-  await page.goto('/masuk')
-  await page.fill('[name=email]', `ani${u}@contoh.id`)
-  await page.fill('[name=sandi]', sandi)
-  await page.click('button[type=submit]')
+  await masuk(page, `ani${u}@contoh.id`, sandi)
   await expect(page).toHaveURL('/dokumen')
 })
 

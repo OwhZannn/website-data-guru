@@ -39,10 +39,7 @@ test('masa unggah ditutup: tanpa tombol unggah', async ({ page }) => {
 
 test('sandi salah menampilkan galat', async ({ page }) => {
   const { guru } = await siapkan({ dokumen: [] })
-  await page.goto('/masuk')
-  await page.fill('[name=email]', guru.email)
-  await page.fill('[name=sandi]', 'salah-salah')
-  await page.click('button[type=submit]')
+  await masuk(page, guru.email, 'salah-salah')
   await expect(page.getByText('Email atau kata sandi salah')).toBeVisible()
 })
 

@@ -1,4 +1,5 @@
 'use client'
+import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -6,6 +7,7 @@ export default function Masuk() {
   const router = useRouter()
   const [pesan, setPesan] = useState('')
   const [sibuk, setSibuk] = useState(false)
+  const terpasang = useTerpasang()
 
   async function kirim(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -34,10 +36,10 @@ export default function Masuk() {
   return (
     <main>
       <h1>Masuk</h1>
-      <form onSubmit={kirim}>
+      <form method="post" onSubmit={kirim}>
         <label>Email<input name="email" type="email" autoComplete="username" required /></label>
         <label>Kata sandi<input name="sandi" type="password" autoComplete="current-password" required /></label>
-        <button type="submit" disabled={sibuk}>{sibuk ? 'Memproses…' : 'Masuk'}</button>
+        <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Memproses…' : 'Masuk'}</button>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
     </main>

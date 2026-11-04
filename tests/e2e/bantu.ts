@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
-import type { Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 import { hashSandi } from '../../src/lib/sandi'
 
 export const db = new PrismaClient({ datasources: { db: { url: 'file:./e2e.db' } } })
@@ -32,11 +32,14 @@ export async function siapkan(opsi: { dibuka?: boolean; dokumen: Isi[] }) {
   return { guru, periode, daftar }
 }
 
-export async function masuk(page: Page, email: string) {
+/** Tombol kirim baru aktif setelah hidrasi; menunggu itu mencegah pengiriman formulir asli sebelum JS siap. */
+export async function masuk(page: Page, email: string, sandi = SANDI) {
   await page.goto('/masuk')
+  const tombol = page.locator('button[type=submit]')
+  await expect(tombol).toBeEnabled()
   await page.fill('[name=email]', email)
-  await page.fill('[name=sandi]', SANDI)
-  await page.click('button[type=submit]')
+  await page.fill('[name=sandi]', sandi)
+  await tombol.click()
 }
 
 export const pdf = () => ({ name: 'baru.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%test\n') })

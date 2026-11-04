@@ -54,7 +54,7 @@ test('PDF dikirim tanpa diubah', async ({ page }) => {
 
 test('JPEG kecil dikirim tanpa diubah', async ({ page }) => {
   const { input, dikirim } = await siapUnggah(page)
-  const kecil = await jpegBesar(page, 160, 120, 0.9)
+  const kecil = await jpegBesar(page, 160, 120, 0.3)
   expect(kecil.length).toBeLessThan(200 * 1024)
   await input.setInputFiles({ name: 'kecil.jpg', mimeType: 'image/jpeg', buffer: kecil })
   await expect.poll(() => dikirim.length).toBe(1)

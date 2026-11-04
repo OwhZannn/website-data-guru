@@ -6,6 +6,7 @@ vi.mock('next/headers', () => ({
 }))
 
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { hashSandi, periksaSandi } from '../../src/lib/sandi'
 import { buatSesi } from '../../src/lib/sesi'
 import { POST } from '../../src/app/api/ganti-sandi/route'
@@ -15,8 +16,7 @@ const req = (b: unknown) => new Request('http://x/api/ganti-sandi', { method: 'P
 describe('ganti sandi', () => {
   let guruId: string
   beforeEach(async () => {
-    await prisma.sesi.deleteMany()
-    await prisma.guru.deleteMany()
+    await bersihkanSemua()
     const g = await prisma.guru.create({
       data: { nama: 'G', nip: '1', email: 'g@x.com', hashSandi: await hashSandi('lama-12345') },
     })

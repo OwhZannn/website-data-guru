@@ -11,6 +11,7 @@ vi.mock('next/headers', () => ({
 }))
 
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { unggahDokumen } from '../../src/lib/unggahDokumen'
 import { buatSesi } from '../../src/lib/sesi'
 import { POST } from '../../src/app/api/dokumen/unggah/route'
@@ -24,13 +25,7 @@ beforeEach(async () => {
   vi.clearAllMocks()
   vi.mocked(drive.unggahKeDrive).mockResolvedValue({ fileId: 'file-1' })
   tokenSesi = undefined
-  await prisma.riwayat.deleteMany()
-  await prisma.dokumenGuru.deleteMany()
-  await prisma.daftarDokumen.deleteMany()
-  await prisma.periode.deleteMany()
-  await prisma.sesi.deleteMany()
-  await prisma.guru.deleteMany()
-  await prisma.admin.deleteMany()
+  await bersihkanSemua()
   adminId = (await prisma.admin.create({ data: { nama: 'A', email: 'a@x.com', hashSandi: 'x' } })).id
   guruId = (await prisma.guru.create({ data: { nama: 'Budi', nip: '123', email: 'g@x.com', hashSandi: 'x' } })).id
   periodeId = (await prisma.periode.create({ data: { nama: '2026', dibuka: true } })).id

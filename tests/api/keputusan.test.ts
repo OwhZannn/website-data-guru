@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 let tokenSekarang = 'tok'
 vi.mock('next/headers', () => ({
@@ -6,6 +6,7 @@ vi.mock('next/headers', () => ({
 }))
 
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { buatSesi } from '../../src/lib/sesi'
 import { POST } from '../../src/app/api/admin/keputusan/route'
 
@@ -14,22 +15,9 @@ const req = (b: unknown) => new Request('http://x/api/admin/keputusan', { method
 describe('POST /api/admin/keputusan', () => {
   let adminId: string
   let dokumenGuruId: string
-  // Baris DokumenGuru merujuk Guru/Admin lewat FK; bersihkan supaya file tes lain bisa menghapus gurunya.
-  afterAll(async () => {
-    await prisma.riwayat.deleteMany()
-    await prisma.dokumenGuru.deleteMany()
-    await prisma.daftarDokumen.deleteMany()
-    await prisma.periode.deleteMany()
-  })
 
   beforeEach(async () => {
-    await prisma.sesi.deleteMany()
-    await prisma.riwayat.deleteMany()
-    await prisma.dokumenGuru.deleteMany()
-    await prisma.daftarDokumen.deleteMany()
-    await prisma.periode.deleteMany()
-    await prisma.guru.deleteMany()
-    await prisma.admin.deleteMany()
+    await bersihkanSemua()
     adminId = (await prisma.admin.create({ data: { nama: 'A', email: 'a@x.id', hashSandi: 'x' } })).id
     const guru = await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
     const p = await prisma.periode.create({ data: { nama: 'P', dibuka: true } })

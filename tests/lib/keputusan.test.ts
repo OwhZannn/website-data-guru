@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { sahkanDokumen, tolakDokumen, batalkanKeputusan } from '../../src/lib/keputusan'
 import { GalatPengguna } from '../../src/lib/galat'
 
@@ -11,21 +12,9 @@ describe('keputusan admin', () => {
   const buatBaris = (status: string, fileId: string | null = 'f1') =>
     prisma.dokumenGuru.update({ where: { id: dokumenGuruId }, data: { status, fileId } })
 
-  // Baris DokumenGuru merujuk Guru/Admin lewat FK; bersihkan supaya file tes lain bisa menghapus gurunya.
-  afterAll(async () => {
-    await prisma.riwayat.deleteMany()
-    await prisma.dokumenGuru.deleteMany()
-    await prisma.daftarDokumen.deleteMany()
-    await prisma.periode.deleteMany()
-  })
 
   beforeEach(async () => {
-    await prisma.riwayat.deleteMany()
-    await prisma.dokumenGuru.deleteMany()
-    await prisma.daftarDokumen.deleteMany()
-    await prisma.periode.deleteMany()
-    await prisma.guru.deleteMany()
-    await prisma.admin.deleteMany()
+    await bersihkanSemua()
     const admin = await prisma.admin.create({ data: { nama: 'Admin', email: 'a@contoh.id', hashSandi: 'x' } })
     adminId = admin.id
     const guru = await prisma.guru.create({ data: { nama: 'Guru', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })

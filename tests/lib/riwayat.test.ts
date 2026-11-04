@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { catatRiwayat, daftarRiwayatDokumen, daftarRiwayatPeriode } from '../../src/lib/riwayat'
 
 describe('riwayat', () => {
-  beforeEach(async () => { await prisma.riwayat.deleteMany() })
+  beforeEach(async () => { await bersihkanSemua() })
 
   it('mencatat alasan penolakan', async () => {
     await catatRiwayat({ periodeId: 'p1', guruId: 'g1', dokumenId: 'd1', aksi: 'tolak', alasan: 'Scan buram', oleh: 'a1', olehTipe: 'admin' })

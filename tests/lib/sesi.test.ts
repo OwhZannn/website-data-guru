@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { buatSesi, bacaSesi, hapusSesi } from '../../src/lib/sesi'
 
 describe('sesi', () => {
-  beforeEach(async () => { await prisma.sesi.deleteMany() })
+  beforeEach(async () => { await bersihkanSemua() })
 
   it('mengembalikan pemilik dan tipe untuk token yang sah', async () => {
     const token = await buatSesi('guru-1', 'guru')

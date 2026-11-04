@@ -11,6 +11,7 @@ vi.mock('@/lib/sandi', async (asli) => {
 })
 
 import { prisma } from '../../src/lib/db'
+import { bersihkanSemua } from '../bantu-db'
 import { hashSandi, periksaSandi } from '../../src/lib/sandi'
 import { POST as masuk } from '../../src/app/api/auth/masuk/route'
 import { POST as keluar } from '../../src/app/api/auth/keluar/route'
@@ -21,10 +22,7 @@ const req = (email: string, sandi: string) =>
 describe('masuk', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    await prisma.percobaanMasuk.deleteMany()
-    await prisma.sesi.deleteMany()
-    await prisma.admin.deleteMany()
-    await prisma.guru.deleteMany()
+    await bersihkanSemua()
     await prisma.admin.create({
       data: { nama: 'A', email: 'admin@x.com', hashSandi: await hashSandi('benar') },
     })

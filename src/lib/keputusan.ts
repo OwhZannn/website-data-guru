@@ -5,6 +5,7 @@ import { GalatPengguna } from '@/lib/galat'
 
 export const ALASAN_MAKS = 1000
 const TIDAK_MENUNGGU = 'Dokumen ini tidak sedang menunggu pemeriksaan'
+const BELUM_DIPUTUSKAN = 'Dokumen ini belum diputuskan'
 const STATUS_SAMA = 'Status baru sama dengan status sekarang'
 
 function periksaAlasan(alasan: unknown, pesanKosong: string): string {
@@ -45,7 +46,12 @@ async function putuskan(o: {
       })
       const baris = await tx.dokumenGuru.findUnique({ where: { id: o.dokumenGuruId } })
       if (!baris) throw new GalatPengguna('Dokumen tidak ditemukan')
-      if (count !== 1) throw new GalatPengguna(o.pesanStatus)
+      if (count !== 1) {
+        if (o.aksi === 'batalkan' && (baris.status === 'MENUNGGU' || baris.status === 'BELUM')) {
+          throw new GalatPengguna(BELUM_DIPUTUSKAN)
+        }
+        throw new GalatPengguna(o.pesanStatus)
+      }
       await catatRiwayat(
         {
           periodeId: baris.periodeId, guruId: baris.guruId, dokumenId: baris.dokumenId,

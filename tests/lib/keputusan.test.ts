@@ -91,9 +91,16 @@ describe('keputusan admin', () => {
     expect(await prisma.dokumenGuru.findUnique({ where: { id: dokumenGuruId } })).toMatchObject({ status: 'SAH', alasan: null })
   })
 
-  it('pembatalan ke status yang sama atau dari MENUNGGU ditolak', async () => {
+  it('membatalkan baris MENUNGGU atau BELUM ditolak dengan pesan belum diputuskan', async () => {
     await expect(batalkanKeputusan({ dokumenGuruId, adminId, alasan: 'x', statusBaru: 'SAH' }))
-      .rejects.toThrow('Status baru sama dengan status sekarang')
+      .rejects.toThrow('Dokumen ini belum diputuskan')
+    await buatBaris('BELUM', null)
+    await expect(batalkanKeputusan({ dokumenGuruId, adminId, alasan: 'x', statusBaru: 'DITOLAK' }))
+      .rejects.toThrow('Dokumen ini belum diputuskan')
+    expect(await prisma.riwayat.count()).toBe(0)
+  })
+
+  it('pembatalan ke status yang sama ditolak', async () => {
     await sahkanDokumen({ dokumenGuruId, adminId })
     await expect(batalkanKeputusan({ dokumenGuruId, adminId, alasan: 'x', statusBaru: 'SAH' }))
       .rejects.toThrow('Status baru sama dengan status sekarang')

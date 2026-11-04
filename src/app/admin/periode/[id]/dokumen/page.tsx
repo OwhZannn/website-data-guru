@@ -1,0 +1,31 @@
+import { notFound } from 'next/navigation'
+import { prisma } from '@/lib/db'
+import { halamanAdmin } from '@/lib/halaman'
+import TombolKeluar from '@/components/TombolKeluar'
+import KelolaDokumen from '@/components/KelolaDokumen'
+
+export const dynamic = 'force-dynamic'
+
+export default async function DaftarDokumenPeriode({ params }: { params: Promise<{ id: string }> }) {
+  await halamanAdmin()
+  const { id } = await params
+  const periode = await prisma.periode.findUnique({ where: { id } })
+  if (!periode) notFound()
+  const dokumen = await prisma.daftarDokumen.findMany({ where: { periodeId: id }, orderBy: [{ urutan: 'asc' }, { id: 'asc' }] })
+
+  return (
+    <main>
+      <div className="atas">
+        <a href="/admin" style={{ flex: 1 }}>← Beranda admin</a>
+        <TombolKeluar />
+      </div>
+      <h1>Daftar Dokumen</h1>
+      <p>{periode.nama}</p>
+      <KelolaDokumen
+        periodeId={id}
+        aktif={dokumen.filter((d) => d.aktif).map((d) => ({ id: d.id, nama: d.nama, urutan: d.urutan }))}
+        nonaktif={dokumen.filter((d) => !d.aktif).map((d) => ({ id: d.id, nama: d.nama, urutan: d.urutan }))}
+      />
+    </main>
+  )
+}

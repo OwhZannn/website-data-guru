@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic'
 export default async function BerandaAdmin() {
   const admin = await halamanAdmin()
   const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
+  // Sementara sampai daftar periode ada: tautan ke periode dibuka, atau yang terbaru bila tidak ada.
+  const periodeDokumen = periode ?? (await prisma.periode.findFirst({ orderBy: { dibuatPada: 'desc' } }))
   const kelompok = periode
     ? await prisma.dokumenGuru.groupBy({
         by: ['guruId'],
@@ -28,6 +30,7 @@ export default async function BerandaAdmin() {
       </div>
       <p>{admin.nama}</p>
       {periode ? <p>Periode dibuka: <strong>{periode.nama}</strong></p> : <p>Tidak ada periode yang sedang dibuka.</p>}
+      {periodeDokumen && <p><a href={`/admin/periode/${periodeDokumen.id}/dokumen`}>Kelola daftar dokumen ({periodeDokumen.nama})</a></p>}
       <h2>Menunggu pemeriksaan</h2>
       {guru.length === 0 ? (
         <p>Tidak ada dokumen yang menunggu pemeriksaan.</p>

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -71,4 +71,19 @@ describe('buat-admin.mjs', () => {
     expect(await periksaSandi(s, h)).toBe(true)
     expect(await periksaSandi('salah', h)).toBe(false)
   })
+
+  it('menolak email yang sudah dipakai guru atau admin dan mencetak email ternormalisasi', () => {
+    const url = `file:${join(dir, 'a.db')}`
+    const env = { ...process.env, DATABASE_URL: url }
+    execFileSync('npx', ['prisma', 'migrate', 'deploy'], { env, stdio: 'ignore' })
+    execFileSync('sqlite3', [join(dir, 'a.db'), "INSERT INTO Guru (id,nama,nip,email,hashSandi) VALUES ('g1','G','123','guru@x.id','h')"])
+    const jalan = (email: string) => spawnSync('node', ['scripts/buat-admin.mjs', 'A', email], { env, encoding: 'utf8' })
+    const dup = jalan('Guru@X.id')
+    expect(dup.status).not.toBe(0)
+    expect(dup.stderr).toContain('Email sudah dipakai')
+    const ok = jalan('  Baru@X.ID ')
+    expect(ok.status).toBe(0)
+    expect(ok.stdout).toContain('baru@x.id')
+    expect(jalan('baru@x.id').stderr).toContain('Email sudah dipakai')
+  }, 60000)
 })

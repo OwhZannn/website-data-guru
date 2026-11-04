@@ -21,7 +21,7 @@ export function jalankanCadangan({ berkasDb, dirCadangan, sekarang = new Date(),
   let tujuan = join(dirCadangan, `${dasar}.db`)
   for (let n = 2; existsSync(tujuan); n++) tujuan = join(dirCadangan, `${dasar}-${n}.db`)
   // VACUUM INTO: salinan konsisten walau basis data sedang dipakai. Tanda kutip tunggal digandakan.
-  execFileSync('sqlite3', [berkasDb, `VACUUM INTO '${tujuan.replace(/'/g, "''")}'`], { stdio: ['ignore', 'pipe', 'pipe'] })
+  execFileSync('sqlite3', ['-cmd', '.timeout 5000', berkasDb, `VACUUM INTO '${tujuan.replace(/'/g, "''")}'`], { stdio: ['ignore', 'pipe', 'pipe'] })
   if (!existsSync(tujuan)) throw new Error('Berkas cadangan tidak terbentuk')
   const dihapus = pangkas(dirCadangan, simpan)
   return { tujuan, dihapus }

@@ -24,8 +24,11 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const prisma = new PrismaClient()
   try {
     const sandi = buatSandiAcak()
-    await prisma.admin.create({ data: { nama, email: email.trim().toLowerCase(), hashSandi: await hashSandi(sandi) } })
-    console.log(`Admin dibuat: ${email}\nSandi (catat sekarang, tidak ditampilkan lagi): ${sandi}`)
+    const surel = email.trim().toLowerCase()
+    const [a, g] = await Promise.all([prisma.admin.findUnique({ where: { email: surel } }), prisma.guru.findUnique({ where: { email: surel } })])
+    if (a || g) throw new Error('Email sudah dipakai')
+    await prisma.admin.create({ data: { nama, email: surel, hashSandi: await hashSandi(sandi) } })
+    console.log(`Admin dibuat: ${surel}\nSandi (catat sekarang, tidak ditampilkan lagi): ${sandi}`)
   } catch (e) {
     console.error(`Gagal membuat admin: ${e instanceof Error ? e.message : e}`)
     process.exitCode = 1

@@ -77,12 +77,22 @@ Batas unggahan 8 MB dan batas waktu 120 detik sudah diatur di berkas tersebut. C
 
 ## 7. Cadangan otomatis (crontab)
 
-`crontab -e` sebagai pengguna pemilik folder aplikasi:
+Folder `data/` dimiliki uid 1000, jadi cron **harus berjalan sebagai pengguna ber-uid 1000** (cek dengan `id -un 1000`), kalau tidak cadangan gagal tanpa suara:
+
+```
+sudo crontab -u $(id -un 1000) -e
+```
 
 ```
 # 02:00 buat salinan lokal (simpan 30 terakhir), 02:15 kirim yang terbaru ke Drive
 0 2 * * *  cd /opt/website-data-guru && node scripts/cadangan.mjs >> data/cadangan.log 2>&1
 15 2 * * * cd /opt/website-data-guru && set -a && . ./.env && set +a && node scripts/cadangan-ke-drive.mjs >> data/cadangan.log 2>&1
+```
+
+Verifikasi cadangan pertama sungguh terbentuk: jalankan sekali dengan tangan sebagai pengguna itu, lalu lihat hasilnya.
+
+```
+sudo -u '#1000' bash -c 'cd /opt/website-data-guru && node scripts/cadangan.mjs' && ls data/cadangan
 ```
 
 Salinan lokal ada di `data/cadangan/prod-YYYY-MM-DD.db`; salinan Drive ada di subfolder "Cadangan Basis Data" (tidak dihapus otomatis; bersihkan manual sesekali). Periksa `data/cadangan.log` secara berkala.

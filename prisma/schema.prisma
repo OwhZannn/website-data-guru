@@ -76,6 +76,9 @@ model Riwayat {
   alasan    String?
   oleh      String
   olehTipe  String
+
+  @@index([guruId, dokumenId])
+  @@index([periodeId, waktu])
 }
 
 model Sesi {

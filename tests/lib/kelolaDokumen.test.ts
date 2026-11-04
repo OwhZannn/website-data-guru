@@ -51,19 +51,19 @@ describe('kelola dokumen', () => {
   })
 
   it('menonaktifkan dokumen tidak menghapus barisnya', async () => {
-    await nonaktifkanDokumen({ dokumenId: d1, adminId })
+    await nonaktifkanDokumen({ dokumenId: d1, periodeId, adminId })
     expect((await prisma.daftarDokumen.findUnique({ where: { id: d1 } }))?.aktif).toBe(false)
     expect(await prisma.dokumenGuru.count({ where: { dokumenId: d1 } })).toBe(1)
     expect((await riwayat())[0].alasan).toBe('Menonaktifkan dokumen: SK')
-    await expect(nonaktifkanDokumen({ dokumenId: d1, adminId })).rejects.toThrow('sudah nonaktif')
+    await expect(nonaktifkanDokumen({ dokumenId: d1, periodeId, adminId })).rejects.toThrow('sudah nonaktif')
   })
 
   it('mengaktifkan kembali tercatat, dan dampaknya memperhitungkan SAH lama', async () => {
-    await nonaktifkanDokumen({ dokumenId: d1, adminId })
-    await aktifkanKembaliDokumen({ dokumenId: d1, adminId })
+    await nonaktifkanDokumen({ dokumenId: d1, periodeId, adminId })
+    await aktifkanKembaliDokumen({ dokumenId: d1, periodeId, adminId })
     expect((await prisma.daftarDokumen.findUnique({ where: { id: d1 } }))?.aktif).toBe(true)
     expect(await riwayat()).toHaveLength(2)
-    await nonaktifkanDokumen({ dokumenId: d1, adminId })
+    await nonaktifkanDokumen({ dokumenId: d1, periodeId, adminId })
     await prisma.dokumenGuru.updateMany({ where: { dokumenId: d1 }, data: { status: 'DITOLAK' } })
     expect(await hitungDampakDokumenBaru(periodeId, d1)).toBe(1)
     await prisma.dokumenGuru.updateMany({ where: { dokumenId: d1 }, data: { status: 'SAH' } })
@@ -71,18 +71,58 @@ describe('kelola dokumen', () => {
   })
 
   it('tidak bisa mengaktifkan kembali bila nama bentrok dengan dokumen aktif', async () => {
-    await nonaktifkanDokumen({ dokumenId: d1, adminId })
+    await nonaktifkanDokumen({ dokumenId: d1, periodeId, adminId })
     await tambahDokumen({ periodeId, nama: 'SK', adminId })
-    await expect(aktifkanKembaliDokumen({ dokumenId: d1, adminId })).rejects.toThrow('Dokumen dengan nama ini sudah ada')
+    await expect(aktifkanKembaliDokumen({ dokumenId: d1, periodeId, adminId })).rejects.toThrow('Dokumen dengan nama ini sudah ada')
   })
 
-  it('mengganti nama dan menukar urutan dengan tetangga', async () => {
-    await ubahDokumen({ dokumenId: d1, nama: 'SK Baru', adminId })
+  it('mengganti nama tercatat di riwayat', async () => {
+    await ubahDokumen({ dokumenId: d1, periodeId, nama: 'SK Baru', adminId })
     expect((await prisma.daftarDokumen.findUnique({ where: { id: d1 } }))?.nama).toBe('SK Baru')
-    await ubahDokumen({ dokumenId: d1, urutan: 2, adminId })
-    expect((await prisma.daftarDokumen.findUnique({ where: { id: d1 } }))?.urutan).toBe(2)
-    expect((await prisma.daftarDokumen.findUnique({ where: { id: d2 } }))?.urutan).toBe(1)
-    await expect(ubahDokumen({ dokumenId: d1, nama: 'ijazah', adminId })).rejects.toThrow('sudah ada')
-    await expect(ubahDokumen({ dokumenId: 'tidak-ada', nama: 'x', adminId })).rejects.toThrow('Dokumen tidak ditemukan')
+    const r = await riwayat()
+    expect(r).toHaveLength(1)
+    expect(r[0].alasan).toContain('SK Baru')
+    await expect(ubahDokumen({ dokumenId: d1, periodeId, nama: 'ijazah', adminId })).rejects.toThrow('sudah ada')
+    await expect(ubahDokumen({ dokumenId: 'tidak-ada', periodeId, nama: 'x', adminId })).rejects.toThrow('Dokumen tidak ditemukan')
+  })
+
+  const urutanAktif = async () =>
+    (await prisma.daftarDokumen.findMany({ where: { periodeId, aktif: true }, orderBy: [{ urutan: 'asc' }, { id: 'asc' }] })).map((d) => d.nama)
+
+  it('menggeser naik/turun dan mencatat riwayat; batas atas dan bawah ditolak', async () => {
+    await ubahDokumen({ dokumenId: d2, periodeId, arah: 'naik', adminId })
+    expect(await urutanAktif()).toEqual(['Ijazah', 'SK'])
+    expect(await riwayat()).toHaveLength(1)
+    await expect(ubahDokumen({ dokumenId: d2, periodeId, arah: 'naik', adminId })).rejects.toThrow('Dokumen sudah di posisi paling atas')
+    await expect(ubahDokumen({ dokumenId: d1, periodeId, arah: 'turun', adminId })).rejects.toThrow('Dokumen sudah di posisi paling bawah')
+    expect(await riwayat()).toHaveLength(1)
+  })
+
+  it('menggeser dengan celah urutan dan melewati dokumen nonaktif', async () => {
+    await prisma.daftarDokumen.update({ where: { id: d1 }, data: { urutan: 1 } })
+    await prisma.daftarDokumen.update({ where: { id: d2 }, data: { urutan: 9 } })
+    const mid = await prisma.daftarDokumen.create({ data: { periodeId, nama: 'Tengah', urutan: 5, aktif: false } })
+    await ubahDokumen({ dokumenId: d2, periodeId, arah: 'naik', adminId })
+    expect(await urutanAktif()).toEqual(['Ijazah', 'SK'])
+    expect((await prisma.daftarDokumen.findUnique({ where: { id: mid.id } }))?.aktif).toBe(false)
+    await prisma.daftarDokumen.update({ where: { id: d1 }, data: { urutan: 3 } })
+    await prisma.daftarDokumen.update({ where: { id: d2 }, data: { urutan: 3 } })
+    const [pertama, kedua] = (await prisma.daftarDokumen.findMany({ where: { periodeId, aktif: true }, orderBy: { id: 'asc' } })).map((d) => d.id)
+    await ubahDokumen({ dokumenId: kedua, periodeId, arah: 'naik', adminId })
+    const hasil = await prisma.daftarDokumen.findMany({ where: { periodeId, aktif: true }, orderBy: { urutan: 'asc' } })
+    expect(hasil.map((d) => d.id)).toEqual([kedua, pertama])
+  })
+
+  it('dokumen dari periode lain ditolak dan tidak mengubah apa pun', async () => {
+    const lain = (await prisma.periode.create({ data: { nama: 'Lain' } })).id
+    const pesan = 'Dokumen tidak ditemukan'
+    await expect(ubahDokumen({ dokumenId: d1, periodeId: lain, nama: 'X', adminId })).rejects.toThrow(pesan)
+    await expect(ubahDokumen({ dokumenId: d1, periodeId: lain, arah: 'turun', adminId })).rejects.toThrow(pesan)
+    await expect(nonaktifkanDokumen({ dokumenId: d1, periodeId: lain, adminId })).rejects.toThrow(pesan)
+    await expect(aktifkanKembaliDokumen({ dokumenId: d1, periodeId: lain, adminId })).rejects.toThrow(pesan)
+    await expect(hitungDampakDokumenBaru(lain, d1)).rejects.toThrow(pesan)
+    const d = await prisma.daftarDokumen.findUnique({ where: { id: d1 } })
+    expect(d).toMatchObject({ nama: 'SK', aktif: true, urutan: 1 })
+    expect(await riwayat()).toHaveLength(0)
   })
 })

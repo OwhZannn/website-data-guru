@@ -21,9 +21,9 @@ async function pastikanNamaBebas(tx: Prisma.TransactionClient, periodeId: string
   }
 }
 
-async function ambilDokumen(tx: Prisma.TransactionClient, dokumenId: string) {
+async function ambilDokumen(tx: Prisma.TransactionClient, dokumenId: string, periodeId: string) {
   const dok = await tx.daftarDokumen.findUnique({ where: { id: dokumenId } })
-  if (!dok) throw new GalatPengguna('Dokumen tidak ditemukan')
+  if (!dok || dok.periodeId !== periodeId) throw new GalatPengguna('Dokumen tidak ditemukan')
   return dok
 }
 
@@ -51,7 +51,10 @@ async function hitungDampak(tx: Prisma.TransactionClient, periodeId: string, dok
 }
 
 export function hitungDampakDokumenBaru(periodeId: string, dokumenId?: string): Promise<number> {
-  return prisma.$transaction((tx) => hitungDampak(tx, periodeId, dokumenId))
+  return prisma.$transaction(async (tx) => {
+    if (dokumenId) await ambilDokumen(tx, dokumenId, periodeId)
+    return hitungDampak(tx, periodeId, dokumenId)
+  })
 }
 
 export async function tambahDokumen(m: {
@@ -80,26 +83,42 @@ export async function tambahDokumen(m: {
   })
 }
 
-/** Ganti nama dan/atau urutan. Urutan menukar posisi dengan dokumen lain yang memegang urutan itu. */
-export async function ubahDokumen(m: { dokumenId: string; nama?: string; urutan?: number; adminId: string }): Promise<void> {
+/** Ganti nama dan/atau geser satu posisi. Penukaran hanya dengan dokumen AKTIF bertetangga di periode yang sama. */
+export async function ubahDokumen(m: {
+  dokumenId: string
+  periodeId: string
+  nama?: string
+  arah?: 'naik' | 'turun'
+  adminId: string
+}): Promise<void> {
   const nama = m.nama === undefined ? undefined : bersihkanNama(m.nama)
-  if (m.urutan !== undefined && !Number.isInteger(m.urutan)) throw new GalatPengguna('Urutan tidak sah')
+  if (m.arah !== undefined && m.arah !== 'naik' && m.arah !== 'turun') throw new GalatPengguna('Arah tidak sah')
   await prisma.$transaction(async (tx) => {
-    const dok = await ambilDokumen(tx, m.dokumenId)
+    const dok = await ambilDokumen(tx, m.dokumenId, m.periodeId)
     const catatan: string[] = []
     if (nama !== undefined && nama !== dok.nama) {
       if (dok.aktif) await pastikanNamaBebas(tx, dok.periodeId, nama, dok.id)
       await tx.daftarDokumen.update({ where: { id: dok.id }, data: { nama } })
       catatan.push(`Mengubah nama dokumen: ${dok.nama} menjadi ${nama}`)
     }
-    if (m.urutan !== undefined && m.urutan !== dok.urutan) {
-      const tetangga = await tx.daftarDokumen.findFirst({
-        where: { periodeId: dok.periodeId, urutan: m.urutan, id: { not: dok.id } },
-        orderBy: { id: 'asc' },
+    if (m.arah) {
+      if (!dok.aktif) throw new GalatPengguna('Dokumen nonaktif tidak bisa diurutkan')
+      const aktif = await tx.daftarDokumen.findMany({
+        where: { periodeId: dok.periodeId, aktif: true },
+        orderBy: [{ urutan: 'asc' }, { id: 'asc' }],
       })
-      if (tetangga) await tx.daftarDokumen.update({ where: { id: tetangga.id }, data: { urutan: dok.urutan } })
-      await tx.daftarDokumen.update({ where: { id: dok.id }, data: { urutan: m.urutan } })
-      catatan.push(`Mengubah urutan dokumen: ${nama ?? dok.nama}`)
+      const i = aktif.findIndex((d) => d.id === dok.id)
+      const tetangga = aktif[m.arah === 'naik' ? i - 1 : i + 1]
+      if (!tetangga) {
+        throw new GalatPengguna(m.arah === 'naik' ? 'Dokumen sudah di posisi paling atas' : 'Dokumen sudah di posisi paling bawah')
+      }
+      // Tukar posisi, lalu beri urutan 1..n pada dokumen aktif (menormalkan celah dan urutan kembar).
+      const baru = [...aktif]
+      ;[baru[i], baru[aktif.indexOf(tetangga)]] = [baru[aktif.indexOf(tetangga)], baru[i]]
+      for (const [k, d] of baru.entries()) {
+        if (d.urutan !== k + 1) await tx.daftarDokumen.update({ where: { id: d.id }, data: { urutan: k + 1 } })
+      }
+      catatan.push(`Menggeser ${m.arah === 'naik' ? 'ke atas' : 'ke bawah'}: ${nama ?? dok.nama}`)
     }
     if (catatan.length === 0) return
     await catatRiwayat(
@@ -110,9 +129,9 @@ export async function ubahDokumen(m: { dokumenId: string; nama?: string; urutan?
 }
 
 /** Dokumen tidak pernah dihapus; hanya dinonaktifkan (baris guru tetap utuh). */
-export async function nonaktifkanDokumen(m: { dokumenId: string; adminId: string }): Promise<void> {
+export async function nonaktifkanDokumen(m: { dokumenId: string; periodeId: string; adminId: string }): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    const dok = await ambilDokumen(tx, m.dokumenId)
+    const dok = await ambilDokumen(tx, m.dokumenId, m.periodeId)
     if (!dok.aktif) throw new GalatPengguna('Dokumen ini sudah nonaktif')
     await tx.daftarDokumen.update({ where: { id: dok.id }, data: { aktif: false } })
     await catatRiwayat(
@@ -122,9 +141,9 @@ export async function nonaktifkanDokumen(m: { dokumenId: string; adminId: string
   })
 }
 
-export async function aktifkanKembaliDokumen(m: { dokumenId: string; adminId: string }): Promise<void> {
+export async function aktifkanKembaliDokumen(m: { dokumenId: string; periodeId: string; adminId: string }): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    const dok = await ambilDokumen(tx, m.dokumenId)
+    const dok = await ambilDokumen(tx, m.dokumenId, m.periodeId)
     if (dok.aktif) throw new GalatPengguna('Dokumen ini sudah aktif')
     await pastikanNamaBebas(tx, dok.periodeId, dok.nama)
     await tx.daftarDokumen.update({ where: { id: dok.id }, data: { aktif: true } })

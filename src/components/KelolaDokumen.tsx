@@ -74,18 +74,18 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
               {edit?.id === d.id ? (
                 <>
                   <input aria-label="Nama baru" value={edit.nama} maxLength={200} onChange={(e) => setEdit({ id: d.id, nama: e.target.value })} />{' '}
-                  <button type="button" disabled={sibuk} onClick={async () => { if (await kirim({ aksi: 'ubah', dokumenId: d.id, nama: edit.nama })) setEdit(null) }}>Simpan</button>{' '}
+                  <button type="button" disabled={sibuk} onClick={async () => { if (await kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, nama: edit.nama })) setEdit(null) }}>Simpan</button>{' '}
                   <button type="button" className="biasa" onClick={() => setEdit(null)}>Batal ubah</button>
                 </>
               ) : (
                 <>
                   <strong>{d.nama}</strong>{' '}
                   <button type="button" className="biasa" disabled={sibuk || i === 0} aria-label={`Naikkan ${d.nama}`}
-                    onClick={() => kirim({ aksi: 'ubah', dokumenId: d.id, urutan: aktif[i - 1].urutan })}>↑</button>
+                    onClick={() => kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, arah: 'naik' })}>↑</button>
                   <button type="button" className="biasa" disabled={sibuk || i === aktif.length - 1} aria-label={`Turunkan ${d.nama}`}
-                    onClick={() => kirim({ aksi: 'ubah', dokumenId: d.id, urutan: aktif[i + 1].urutan })}>↓</button>{' '}
+                    onClick={() => kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, arah: 'turun' })}>↓</button>{' '}
                   <button type="button" className="biasa" onClick={() => setEdit({ id: d.id, nama: d.nama })}>Ubah nama</button>{' '}
-                  <button type="button" className="biasa" disabled={sibuk} onClick={() => kirim({ aksi: 'nonaktifkan', dokumenId: d.id })}>
+                  <button type="button" className="biasa" disabled={sibuk} onClick={() => kirim({ aksi: 'nonaktifkan', periodeId, dokumenId: d.id })}>
                     Nonaktifkan
                   </button>
                   <br /><small>Dokumen disembunyikan dari guru, bukan dihapus. Berkas yang sudah diunggah tetap tersimpan.</small>
@@ -104,7 +104,7 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
               <li key={d.id} style={{ opacity: 0.55 }}>
                 {d.nama}{' '}
                 <button type="button" className="biasa" disabled={sibuk}
-                  onClick={() => denganPeringatan(d.id, async () => { await kirim({ aksi: 'aktifkan', dokumenId: d.id }) })}>
+                  onClick={() => denganPeringatan(d.id, async () => { await kirim({ aksi: 'aktifkan', periodeId, dokumenId: d.id }) })}>
                   Aktifkan kembali
                 </button>
               </li>

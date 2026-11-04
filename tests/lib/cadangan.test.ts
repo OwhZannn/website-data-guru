@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { jalankanCadangan, pangkas } from '../../scripts/cadangan.mjs'
-import { pilihTerbaru, NAMA_SUBFOLDER } from '../../scripts/cadangan-ke-drive.mjs'
+import { pilihTerbaru, pilihUntukDihapus, NAMA_SUBFOLDER } from '../../scripts/cadangan-ke-drive.mjs'
 import { hashSandi, buatSandiAcak } from '../../scripts/buat-admin.mjs'
 import { periksaSandi } from '../../src/lib/sandi'
 
@@ -86,4 +86,24 @@ describe('buat-admin.mjs', () => {
     expect(ok.stdout).toContain('baru@x.id')
     expect(jalan('baru@x.id').stderr).toContain('Email sudah dipakai')
   }, 60000)
+})
+
+describe('pilihUntukDihapus (pemangkasan cadangan di Drive)', () => {
+  const b = (name: string) => ({ id: `id-${name}`, name })
+  it('menyimpan 30 terbaru yang cocok pola dan memilih sisanya', () => {
+    const nama = Array.from({ length: 33 }, (_, i) => `prod-2026-01-${String(i + 1).padStart(2, '0')}.db`).slice(0, 31)
+      .concat(['prod-2026-02-01.db', 'prod-2026-02-01-2.db'])
+    const hapus = pilihUntukDihapus(nama.map(b)).map((f) => f.name).sort()
+    expect(hapus).toEqual(['prod-2026-01-01.db', 'prod-2026-01-02.db', 'prod-2026-01-03.db'])
+  })
+  it('tidak pernah memilih berkas yang tidak cocok pola', () => {
+    const asing = ['catatan.txt', 'prod-2026-01-01.db.bak', 'dev-2025-01-01.db', 'prod-2025-1-1.db', 'Prod-2025-01-01.db']
+    const cocok = Array.from({ length: 31 }, (_, i) => `prod-2026-03-${String(i + 1).padStart(2, '0')}.db`)
+    const hapus = pilihUntukDihapus([...asing, ...cocok].map(b), 30).map((f) => f.name)
+    expect(hapus).toEqual(['prod-2026-03-01.db'])
+    expect(pilihUntukDihapus(asing.map(b), 0)).toEqual([])
+  })
+  it('tidak menghapus apa pun bila jumlah cadangan tidak melebihi batas', () => {
+    expect(pilihUntukDihapus([b('prod-2026-01-01.db'), b('lain.pdf')])).toEqual([])
+  })
 })

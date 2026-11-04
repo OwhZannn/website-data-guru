@@ -104,9 +104,14 @@ export async function imporGuru(masukan: { baris: BarisGuru[]; adminId: string }
   }
   ditolak.sort((a, b) => a.baris - b.baris)
 
-  await catatRiwayat({
-    periodeId: periode.id, aksi: 'impor_guru', oleh: adminId, olehTipe: 'admin',
-    alasan: `Impor: ${sandiAwal.length} dibuat, ${dilewati} dilewati, ${ditolak.length} ditolak`,
-  })
+  try {
+    await catatRiwayat({
+      periodeId: periode.id, aksi: 'impor_guru', oleh: adminId, olehTipe: 'admin',
+      alasan: `Impor: ${sandiAwal.length} dibuat, ${dilewati} dilewati, ${ditolak.length} ditolak`,
+    })
+  } catch (e) {
+    // Akun sudah dibuat; jangan sampai sandi hilang hanya karena riwayat gagal ditulis.
+    console.error('impor guru: gagal mencatat riwayat', e)
+  }
   return { dibuat: sandiAwal.length, dilewati, ditolak, sandiAwal }
 }

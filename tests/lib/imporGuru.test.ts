@@ -3,6 +3,7 @@ import { prisma } from '../../src/lib/db'
 import { bersihkanSemua } from '../bantu-db'
 import { imporGuru, uraiDaftarGuru, acakSandiAwal } from '../../src/lib/imporGuru'
 import { periksaSandi } from '../../src/lib/sandi'
+import * as riwayat from '../../src/lib/riwayat'
 import { aturAktifGuru, aturUlangSandiGuru } from '../../src/lib/kelolaGuru'
 
 describe('uraiDaftarGuru', () => {
@@ -72,6 +73,15 @@ describe('imporGuru', () => {
     expect(h.ditolak[3].alasan).toBe('NIP atau email ganda dalam daftar')
     expect(await prisma.guru.count()).toBe(1)
     expect((await prisma.guru.findUniqueOrThrow({ where: { nip: '1' } })).email).toBe('a1@x.id')
+  })
+
+  it('gagal mencatat riwayat tidak menghilangkan sandi', async () => {
+    const spy = vi.spyOn(riwayat, 'catatRiwayat').mockRejectedValueOnce(new Error('db'))
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const h = await imporGuru({ baris: [{ nama: 'A', nip: '1', email: 'a@x.id' }], adminId })
+    spy.mockRestore(); err.mockRestore()
+    expect(h.dibuat).toBe(1)
+    expect(h.sandiAwal).toHaveLength(1)
   })
 
   it('menolak lebih dari 500 baris', async () => {

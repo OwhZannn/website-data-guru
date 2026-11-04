@@ -4,6 +4,8 @@ import { hitungStatusGuru, type StatusGuru } from '@/lib/status'
 import TombolKeluar from '@/components/TombolKeluar'
 import ImporGuru from '@/components/ImporGuru'
 import BarisGuru from '@/components/BarisGuru'
+import PilihPeriode from '@/components/PilihPeriode'
+import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,12 +23,14 @@ const LABEL: Record<string, StatusGuru['label']> = {
   lengkap: 'Lengkap',
 }
 
-export default async function HalamanGuru({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }) {
+export default async function HalamanGuru({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; periode?: string }> }) {
   await halamanAdmin()
   const sp = await searchParams
   const q = (sp.q ?? '').trim()
   const filter = sp.status && LABEL[sp.status] ? sp.status : 'semua'
-  const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
+  // Bawaan sama dengan /dokumen dan Detail Guru: periode dibuka, kalau tidak ada yang terbaru.
+  const daftarPeriode = await semuaPeriode()
+  const periode = pilihPeriode(daftarPeriode, sp.periode)
   const semuaGuru = await prisma.guru.findMany({ orderBy: [{ nama: 'asc' }, { id: 'asc' }] })
   const semua = q ? semuaGuru.filter((g) => g.nama.toLowerCase().includes(q.toLowerCase()) || g.nip.toLowerCase().includes(q.toLowerCase())) : semuaGuru
 
@@ -54,12 +58,15 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
       <p><a href="/admin">Beranda</a></p>
       <ImporGuru />
       <h2>Daftar guru ({guru.length})</h2>
+      {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} lain={{ q, status: filter }} />}
+      {periode && <h3>Status dokumen periode {periode.nama}{periode.dibuka ? ' (dibuka)' : ' (ditutup)'}</h3>}
       {periode ? (
         <p data-testid="ringkasan">Total: {totalAktif} | Lengkap: {lengkap} | Belum lengkap: {totalAktif - lengkap}</p>
       ) : (
-        <p>Tidak ada periode yang sedang dibuka, sehingga status dokumen tidak ditampilkan.</p>
+        <p>Belum ada periode, sehingga status dokumen tidak ditampilkan.</p>
       )}
       <form method="get">
+        {periode && <input type="hidden" name="periode" value={periode.id} />}
         <input name="q" aria-label="Cari nama atau NIP" defaultValue={q} />{' '}
         {periode && (
           <select name="status" aria-label="Filter status" defaultValue={filter}>

@@ -2,17 +2,23 @@ import { halamanGuru } from '@/lib/halaman'
 import { prisma } from '@/lib/db'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen } from '@/lib/riwayat'
+import { periodeTerlihatGuru, pilihPeriode } from '@/lib/pilihPeriode'
+import PilihPeriode from '@/components/PilihPeriode'
 import { tanggalLokal } from '@/lib/waktu'
 import KartuDokumen from '@/components/KartuDokumen'
 import TombolKeluar from '@/components/TombolKeluar'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Dokumen() {
+export default async function Dokumen({ searchParams }: { searchParams: Promise<{ periode?: string }> }) {
   const guru = await halamanGuru()
+  const sp = await searchParams
 
-  const dibuka = await prisma.periode.findFirst({ where: { dibuka: true } })
-  const periode = dibuka ?? (await prisma.periode.findFirst({ orderBy: { dibuatPada: 'desc' } }))
+  // Hanya periode milik guru ini (plus periode saat ini); id asing jatuh ke bawaan.
+  const daftarPeriode = await periodeTerlihatGuru(guru.id)
+  const periode = pilihPeriode(daftarPeriode, sp.periode)
+  const dibuka = periode?.dibuka ?? false
+  const adaDibuka = daftarPeriode.some((p) => p.dibuka)
   const dokumen = periode
     ? await prisma.daftarDokumen.findMany({ where: { periodeId: periode.id, aktif: true }, orderBy: { urutan: 'asc' } })
     : []
@@ -28,7 +34,9 @@ export default async function Dokumen() {
         <TombolKeluar />
       </div>
       <p>{guru.nama}</p>
-      {!dibuka && <p role="status"><strong>Masa pengunggahan sedang ditutup.</strong></p>}
+      {!adaDibuka && <p role="status"><strong>Masa pengunggahan sedang ditutup.</strong></p>}
+      {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
+      {periode && !dibuka && adaDibuka && <p role="status">Periode ini sudah ditutup; hanya dapat dilihat.</p>}
       {periode && dokumen.length > 0 && (
         <>
           <p>{periode.nama}</p>
@@ -43,7 +51,7 @@ export default async function Dokumen() {
                 status={b?.status ?? 'BELUM'}
                 alasan={b?.alasan ?? null}
                 namaFile={b?.namaFile ?? null}
-                bolehUnggah={!!dibuka}
+                bolehUnggah={dibuka}
                 riwayat={riwayat[i].map((r) => ({
                   id: r.id,
                   aksi: r.aksi,

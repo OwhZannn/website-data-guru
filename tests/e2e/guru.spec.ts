@@ -1,0 +1,66 @@
+import { test, expect } from '@playwright/test'
+import { siapkan, masuk, db, pdf } from './bantu'
+
+test('guru melihat alasan penolakan dan bisa mengunggah ulang', async ({ page }) => {
+  const { guru, periode, daftar } = await siapkan({ dokumen: [{ status: 'DITOLAK', alasan: 'Scan kurang jelas' }] })
+  await db.riwayat.create({
+    data: { periodeId: periode.id, guruId: guru.id, dokumenId: daftar[0].id, aksi: 'tolak', alasan: 'Scan kurang jelas', oleh: 'admin', olehTipe: 'admin' },
+  })
+  await masuk(page, guru.email)
+  await expect(page).toHaveURL('/dokumen')
+  await expect(page.getByText('Alasan penolakan: Scan kurang jelas')).toBeVisible()
+  await expect(page.getByRole('list', { name: /Riwayat/ }).getByText(/Scan kurang jelas/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Unggah ulang' })).toBeVisible()
+  await expect(page.getByText('Progres: 0 dari 1 dokumen sah')).toBeVisible()
+
+  await page.waitForLoadState('networkidle') // pastikan hidrasi selesai
+  await page.getByTestId(`berkas-${daftar[0].id}`).setInputFiles(pdf())
+  await expect(page.getByText('Menunggu diperiksa')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ganti file' })).toBeVisible()
+})
+
+test('dokumen yang sudah sah tidak bisa diganti', async ({ page }) => {
+  const { guru } = await siapkan({ dokumen: [{ status: 'SAH' }, { status: 'MENUNGGU' }] })
+  await masuk(page, guru.email)
+  await expect(page).toHaveURL('/dokumen')
+  await expect(page.getByText('SAH', { exact: true })).toBeVisible()
+  await expect(page.getByText('Progres: 1 dari 2 dokumen sah')).toBeVisible()
+  // hanya satu tombol (milik dokumen yang menunggu); kartu sah tanpa tombol
+  await expect(page.getByRole('button', { name: /Unggah|Ganti file/ })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Ganti file' })).toHaveCount(1)
+})
+
+test('masa unggah ditutup: tanpa tombol unggah', async ({ page }) => {
+  const { guru } = await siapkan({ dibuka: false, dokumen: [{ status: 'BELUM' }] })
+  await masuk(page, guru.email)
+  await expect(page.getByText('Masa pengunggahan sedang ditutup.')).toBeVisible()
+  await expect(page.getByRole('button', { name: /Unggah|Ganti file/ })).toHaveCount(0)
+})
+
+test('sandi salah menampilkan galat', async ({ page }) => {
+  const { guru } = await siapkan({ dokumen: [] })
+  await page.goto('/masuk')
+  await page.fill('[name=email]', guru.email)
+  await page.fill('[name=sandi]', 'salah-salah')
+  await page.click('button[type=submit]')
+  await expect(page.getByText('Email atau kata sandi salah')).toBeVisible()
+})
+
+test('jaringan putus: tampil pesan dan tombol coba lagi mengirim ulang berkas yang sama', async ({ page }) => {
+  const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
+  await masuk(page, guru.email)
+  await expect(page).toHaveURL('/dokumen')
+  await page.waitForLoadState('networkidle')
+  await page.route('**/api/dokumen/unggah', (r) => r.abort('failed'))
+  await page.getByTestId(`berkas-${daftar[0].id}`).setInputFiles(pdf())
+  await expect(page.getByText('Koneksi terputus. Periksa jaringan Anda lalu coba lagi.')).toBeVisible()
+  await expect(page.getByText('Belum diunggah')).toBeVisible()
+  await page.unroute('**/api/dokumen/unggah')
+  await page.getByRole('button', { name: 'Coba lagi' }).click()
+  await expect(page.getByText('Menunggu diperiksa')).toBeVisible()
+})
+
+test('tanpa sesi, /dokumen mengarah ke /masuk', async ({ page }) => {
+  await page.goto('/dokumen')
+  await expect(page).toHaveURL('/masuk')
+})

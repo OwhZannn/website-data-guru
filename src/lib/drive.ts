@@ -8,6 +8,9 @@ function env(nama: string): string {
   return nilai
 }
 
+// Hanya untuk tes e2e; diabaikan sepenuhnya di produksi.
+const palsu = () => process.env.DRIVE_PALSU === '1' && process.env.NODE_ENV !== 'production'
+
 let klien: drive_v3.Drive | null = null
 function drive(): drive_v3.Drive {
   const id = env('GOOGLE_CLIENT_ID')
@@ -25,6 +28,7 @@ function drive(): drive_v3.Drive {
 const escapeQuery = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
 export async function folderGuru(nip: string, nama: string): Promise<string> {
+  if (palsu()) return 'folder-palsu'
   const induk = env('DRIVE_FOLDER_ID')
   const namaFolder = amanUntukNamaFolder(`${nip} - ${nama}`)
   const d = drive()
@@ -49,6 +53,7 @@ export async function unggahKeDrive(masukan: {
   tipe: string
   isi: Buffer
 }): Promise<{ fileId: string }> {
+  if (palsu()) return { fileId: `palsu-${Date.now()}-${Math.random().toString(36).slice(2)}` }
   const { data } = await drive().files.create({
     requestBody: { name: masukan.namaFile, parents: [masukan.folderId] },
     media: { mimeType: masukan.tipe, body: Readable.from(masukan.isi) },
@@ -58,6 +63,7 @@ export async function unggahKeDrive(masukan: {
 }
 
 export async function hapusDariDrive(fileId: string): Promise<void> {
+  if (palsu()) return
   try {
     await drive().files.delete({ fileId })
   } catch (e: any) {

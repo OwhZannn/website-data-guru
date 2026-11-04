@@ -3,7 +3,6 @@ export function amanUntukNamaFolder(nama: string): string {
     .replace(/[\\/:*?"<>|]/g, ' - ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 100)
-    .trim()
-  return bersih.replace(/^(- )+|( -)+$/g, '').trim() || 'Tanpa Nama'
+  const bersih2 = Array.from(bersih).slice(0, 100).join('').trim()
+  return bersih2.replace(/^(- )+|( -)+$/g, '').trim() || 'Tanpa Nama'
 }

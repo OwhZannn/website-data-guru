@@ -6,10 +6,10 @@ const jpg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])
 
 describe('periksaBerkas', () => {
   it('menerima PDF yang benar', () => {
-    expect(periksaBerkas({ nama: 'ijazah.pdf', tipe: 'application/pdf', isi: pdf })).toEqual({ sah: true })
+    expect(periksaBerkas({ nama: 'ijazah.pdf', tipe: 'application/pdf', isi: pdf })).toEqual({ sah: true, tipe: 'application/pdf' })
   })
   it('menerima JPG yang benar', () => {
-    expect(periksaBerkas({ nama: 'foto.jpg', tipe: 'image/jpeg', isi: jpg })).toEqual({ sah: true })
+    expect(periksaBerkas({ nama: 'foto.jpg', tipe: 'image/jpeg', isi: jpg })).toEqual({ sah: true, tipe: 'image/jpeg' })
   })
   it('menolak file yang hanya diganti namanya', () => {
     const exe = Buffer.from([0x4d, 0x5a, 0x90, 0x00])
@@ -41,5 +41,11 @@ describe('periksaBerkas', () => {
   })
   it('menolak JPG yang isinya ternyata PDF', () => {
     expect(periksaBerkas({ nama: 'a.jpg', tipe: 'image/jpeg', isi: pdf }).sah).toBe(false)
+  })
+  it('menerima PDF bertipe octet-stream dan melaporkan tipe terdeteksi', () => {
+    expect(periksaBerkas({ nama: 'a.pdf', tipe: 'application/octet-stream', isi: pdf })).toEqual({ sah: true, tipe: 'application/pdf' })
+  })
+  it('menerima JPG bertipe kosong dan melaporkan tipe terdeteksi', () => {
+    expect(periksaBerkas({ nama: 'a.jpg', tipe: '', isi: jpg })).toEqual({ sah: true, tipe: 'image/jpeg' })
   })
 })

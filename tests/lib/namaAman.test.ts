@@ -18,4 +18,13 @@ describe('amanUntukNamaFolder', () => {
     expect(amanUntukNamaFolder('   ').length).toBeGreaterThan(0)
     expect(amanUntukNamaFolder('///').length).toBeGreaterThan(0)
   })
+  it('mempertahankan huruf beraksen dan non-Latin', () => {
+    expect(amanUntukNamaFolder('Zoë Ñúñez')).toBe('Zoë Ñúñez')
+    expect(amanUntukNamaFolder('王小明')).toBe('王小明')
+  })
+  it('memotong karakter astral tanpa surrogate yatim', () => {
+    const h = amanUntukNamaFolder('😀'.repeat(150))
+    expect(Array.from(h).length).toBe(100)
+    expect(h).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/)
+  })
 })

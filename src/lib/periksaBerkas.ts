@@ -7,13 +7,13 @@ export function periksaBerkas(masukan: {
   nama: string
   tipe: string
   isi: Buffer
-}): { sah: true } | { sah: false; pesan: string } {
+}): { sah: true; tipe: 'application/pdf' | 'image/jpeg' } | { sah: false; pesan: string } {
   const { tipe, isi } = masukan
   if (isi.length === 0) return { sah: false, pesan: 'Berkas kosong' }
   if (isi.length > BATAS_UKURAN) return { sah: false, pesan: 'Ukuran berkas melebihi 5 MB' }
-  if (tipe !== 'application/pdf' && tipe !== 'image/jpeg')
-    return { sah: false, pesan: 'Tipe berkas harus PDF atau JPG' }
-  const cocok = tipe === 'application/pdf' ? adalahPdf(isi) : adalahJpg(isi)
-  if (!cocok) return { sah: false, pesan: 'Isi berkas bukan PDF atau JPG yang sah' }
-  return { sah: true }
+  const terdeteksi = adalahPdf(isi) ? 'application/pdf' : adalahJpg(isi) ? 'image/jpeg' : null
+  if (!terdeteksi) return { sah: false, pesan: 'Isi berkas bukan PDF atau JPG yang sah' }
+  if (tipe !== '' && tipe !== 'application/octet-stream' && tipe !== terdeteksi)
+    return { sah: false, pesan: 'Tipe berkas harus PDF atau JPG dan sesuai isinya' }
+  return { sah: true, tipe: terdeteksi }
 }

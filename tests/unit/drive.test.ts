@@ -42,7 +42,7 @@ describe('unggahKeDrive', () => {
 })
 
 describe('folderGuru', () => {
-  it('meloloskan tanda kutip dan backslash dalam query', async () => {
+  it('meloloskan tanda kutip dalam query', async () => {
     m.list.mockResolvedValue({ data: { files: [{ id: 'x' }] } })
     await folderGuru('123', "O'Neil")
     const q: string = m.list.mock.calls[0][0].q

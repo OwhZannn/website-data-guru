@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id         String   @id @default(cuid())
+  nama       String
+  email      String   @unique
+  hashSandi  String
+  aktif      Boolean  @default(true)
+  dibuatPada DateTime @default(now())
+}
+
+model Guru {
+  id         String   @id @default(cuid())
+  nama       String
+  nip        String   @unique
+  email      String   @unique
+  hashSandi  String
+  aktif      Boolean  @default(true)
+  dibuatPada DateTime @default(now())
+  dokumen    DokumenGuru[]
+}
+
+model Periode {
+  id         String   @id @default(cuid())
+  nama       String
+  dibuka     Boolean  @default(false)
+  dibuatPada DateTime @default(now())
+  dokumen    DaftarDokumen[]
+  dokumenGuru DokumenGuru[]
+}
+
+model DaftarDokumen {
+  id        String  @id @default(cuid())
+  periodeId String
+  periode   Periode @relation(fields: [periodeId], references: [id])
+  nama      String
+  urutan    Int
+  aktif     Boolean @default(true)
+  dokumenGuru DokumenGuru[]
+}
+
+model DokumenGuru {
+  id            String        @id @default(cuid())
+  periodeId     String
+  periode       Periode       @relation(fields: [periodeId], references: [id])
+  guruId        String
+  guru          Guru          @relation(fields: [guruId], references: [id])
+  dokumenId     String
+  dokumen       DaftarDokumen @relation(fields: [dokumenId], references: [id])
+  fileId        String?
+  namaFile      String?
+  tipe          String?
+  ukuran        Int?
+  status        String        @default("BELUM")
+  alasan        String?
+  diperiksaOleh String?
+  diperiksaPada DateTime?
+  diunggahPada  DateTime?
+  @@unique([periodeId, guruId, dokumenId])
+}
+
+model Riwayat {
+  id        String   @id @default(cuid())
+  waktu     DateTime @default(now())
+  periodeId String
+  guruId    String?
+  dokumenId String?
+  aksi      String
+  alasan    String?
+  oleh      String
+  olehTipe  String
+}
+
+model Sesi {
+  token      String   @id
+  pemilikId  String
+  tipe       String
+  kedaluwarsa DateTime
+}
+
+model PercobaanMasuk {
+  kunci String   @id
+  gagal Int      @default(0)
+  sejak DateTime
+}

@@ -28,7 +28,8 @@ export default async function BerandaAdmin() {
       </div>
       <p>{admin.nama}</p>
       {periode ? <p>Periode dibuka: <strong>{periode.nama}</strong></p> : <p>Tidak ada periode yang sedang dibuka.</p>}
-      <p><a href="/admin/periode">Kelola periode</a> | <a href="/admin/guru">Kelola guru</a></p>
+      <p><a href="/admin/periode">Kelola periode</a> | <a href="/admin/guru">Kelola guru</a> | <a href="/admin/admin">Kelola admin</a></p>
+      {periode && <p>Unduh rekap: <a href={`/api/admin/rekap?periodeId=${periode.id}&format=csv`}>CSV</a> | <a href={`/api/admin/rekap?periodeId=${periode.id}&format=xlsx`}>XLSX</a></p>}
       <h2>Menunggu pemeriksaan</h2>
       {guru.length === 0 ? (
         <p>Tidak ada dokumen yang menunggu pemeriksaan.</p>

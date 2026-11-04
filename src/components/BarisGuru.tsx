@@ -3,8 +3,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type G = { id: string; nama: string; nip: string; email: string; aktif: boolean }
+type S = { progres: string; label: string }
 
-export default function BarisGuru({ guru }: { guru: G }) {
+export default function BarisGuru({ guru, status }: { guru: G; status?: S }) {
   const router = useRouter()
   const [pesan, setPesan] = useState('')
   const [sandi, setSandi] = useState('')
@@ -27,7 +28,8 @@ export default function BarisGuru({ guru }: { guru: G }) {
 
   return (
     <tr>
-      <td>{guru.nama}</td><td>{guru.nip}</td><td>{guru.email}</td>
+      <td><a href={`/admin/guru/${guru.id}`}>{guru.nama}</a></td><td>{guru.nip}</td><td>{guru.email}</td>
+      {status && <><td>{status.progres}</td><td>{status.label}</td></>}
       <td>{guru.aktif ? 'Aktif' : 'Nonaktif'}</td>
       <td>
         <button disabled={sibuk} onClick={() => kirim({ aksi: 'aktif', guruId: guru.id, aktif: !guru.aktif })}>

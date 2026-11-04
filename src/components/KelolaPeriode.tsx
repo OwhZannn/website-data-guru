@@ -37,6 +37,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
         {periode.map((p) => (
           <li key={p.id} data-periode={p.nama}>
             <strong>{p.nama}</strong> <span className="lencana">{p.dibuka ? 'Dibuka' : 'Ditutup'}</span>{' '}
+            <a href={`/api/admin/rekap?periodeId=${p.id}&format=csv`}>Rekap CSV</a>{' '}<a href={`/api/admin/rekap?periodeId=${p.id}&format=xlsx`}>Rekap XLSX</a>{' '}
             {p.dibuka
               ? <button disabled={sibuk} onClick={() => kirim({ aksi: 'tutup', periodeId: p.id })}>Tutup</button>
               : <button disabled={sibuk} onClick={() => kirim({ aksi: 'buka', periodeId: p.id })}>Buka</button>}{' '}

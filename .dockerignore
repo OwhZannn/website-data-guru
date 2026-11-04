@@ -1,0 +1,10 @@
+node_modules
+.next
+.env
+*.db
+data
+.git
+.superpowers
+.omc
+tests
+test-results

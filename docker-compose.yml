@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Menimpa DATABASE_URL di .env: jalur absolut di dalam kontainer.
+      DATABASE_URL: file:/app/data/prod.db
+    volumes:
+      - ./data:/app/data
+    ports:
+      # Hanya 127.0.0.1: aplikasi dapat dicapai lewat nginx saja.
+      - "127.0.0.1:3000:3000"
+    # TODO Task 16: tambahkan healthcheck ke /api/kesehatan setelah rutenya dibuat.

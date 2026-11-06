@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client'
 import { GalatDrive, GalatPengguna } from '@/lib/galat'
 import { terjemahkanGalatDrive } from '@/lib/galatDrive'
 import { tanggalLokal } from '@/lib/waktu'
+import { profilLengkap, wajibBagi } from '@/lib/syarat'
 
 const PESAN_SAH = 'Dokumen ini sudah dinyatakan sah'
 
@@ -45,6 +46,9 @@ export async function unggahDokumen(masukan: {
     throw new GalatPengguna('Dokumen tidak ditemukan atau tidak aktif')
   const guru = await prisma.guru.findUnique({ where: { id: guruId } })
   if (!guru) throw new GalatPengguna('Guru tidak ditemukan')
+  // Daftar dokumen wajib bergantung pada profil, jadi profil harus lengkap lebih dulu.
+  if (!profilLengkap(guru)) throw new GalatPengguna('Lengkapi profil Anda terlebih dahulu')
+  if (!wajibBagi(dokumen.berlakuUntuk, guru)) throw new GalatPengguna('Dokumen ini tidak diminta untuk Anda. Periksa profil dan tugas tambahan Anda.')
 
   // 2. Dokumen yang sudah sah tidak boleh diganti.
   const lama = await prisma.dokumenGuru.findUnique({
@@ -61,7 +65,7 @@ export async function unggahDokumen(masukan: {
   const ekstensi = cek.tipe === 'application/pdf' ? 'pdf' : 'jpg'
   const namaFile = `${dokumen.nama} - ${tanggalLokal(sekarang)}.${ekstensi}`
   const { fileId } = await lewatDrive(async () =>
-    unggahKeDrive({ folderId: await folderGuru(guru.nip, guru.nama), namaFile, tipe: cek.tipe, isi }),
+    unggahKeDrive({ folderId: await folderGuru(guru.username, guru.nama), namaFile, tipe: cek.tipe, isi }),
   )
 
   // 5. Baru sesudah Drive berhasil, tulis basis data. Baris dibaca ulang di dalam transaksi

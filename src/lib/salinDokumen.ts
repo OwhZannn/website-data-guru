@@ -24,7 +24,7 @@ export async function salinDaftarDokumen(masukan: {
       if (ada.has(kunci)) continue
       ada.add(kunci)
       urutan += 1
-      await tx.daftarDokumen.create({ data: { periodeId: kePeriodeId, nama: d.nama, urutan } })
+      await tx.daftarDokumen.create({ data: { periodeId: kePeriodeId, nama: d.nama, urutan, berlakuUntuk: d.berlakuUntuk } })
       jumlah += 1
     }
     if (jumlah > 0) {

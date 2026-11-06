@@ -5,11 +5,11 @@ const JENDELA_MS = 15 * 60_000
 
 export const kunciMasuk = (email: string) => `masuk:${email.toLowerCase()}`
 
-export async function bolehCobaMasuk(kunci: string): Promise<boolean> {
+export async function bolehCobaMasuk(kunci: string, batas = BATAS): Promise<boolean> {
   const baris = await prisma.percobaanMasuk.findUnique({ where: { kunci } })
   if (!baris) return true
   if (Date.now() - baris.sejak.getTime() > JENDELA_MS) return true
-  return baris.gagal < BATAS
+  return baris.gagal < batas
 }
 
 export async function catatGagalMasuk(kunci: string): Promise<void> {

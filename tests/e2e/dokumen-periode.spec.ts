@@ -19,7 +19,7 @@ test('menambah dokumen saat guru lengkap menampilkan peringatan, lalu guru jadi 
   expect(await db.daftarDokumen.count({ where: { periodeId: periode.id } })).toBe(3)
 
   await context.clearCookies()
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText('Progres: 2 dari 3 dokumen sah')).toBeVisible()
   await expect(page.getByText('Kartu Pegawai')).toBeVisible()
@@ -50,7 +50,7 @@ test('menonaktifkan dokumen menghilangkannya dari /dokumen guru, dan bisa diakti
   await expect(page.getByRole('heading', { name: 'Dokumen nonaktif' })).toBeVisible()
 
   await context.clearCookies()
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText(daftar[1].nama)).toBeVisible()
   await expect(page.getByText(daftar[0].nama)).toHaveCount(0)

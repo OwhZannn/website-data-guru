@@ -11,7 +11,7 @@ describe('kelola dokumen', () => {
   beforeEach(async () => {
     await bersihkanSemua()
     adminId = (await prisma.admin.create({ data: { nama: 'A', email: 'a@x.id', hashSandi: 'x' } })).id
-    guruId = (await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })).id
+    guruId = (await prisma.guru.create({ data: { nama: 'G', username: '1', nip: '1', email: 'g@x.id', hashSandi: 'x' } })).id
     periodeId = (await prisma.periode.create({ data: { nama: 'P', dibuka: true } })).id
     d1 = (await prisma.daftarDokumen.create({ data: { periodeId, nama: 'SK', urutan: 1 } })).id
     d2 = (await prisma.daftarDokumen.create({ data: { periodeId, nama: 'Ijazah', urutan: 2 } })).id

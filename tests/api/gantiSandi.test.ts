@@ -18,7 +18,7 @@ describe('ganti sandi', () => {
   beforeEach(async () => {
     await bersihkanSemua()
     const g = await prisma.guru.create({
-      data: { nama: 'G', nip: '1', email: 'g@x.com', hashSandi: await hashSandi('lama-12345') },
+      data: { nama: 'G', username: '1', nip: '1', email: 'g@x.com', hashSandi: await hashSandi('lama-12345') },
     })
     guruId = g.id
     tokenSekarang = await buatSesi(g.id, 'guru')

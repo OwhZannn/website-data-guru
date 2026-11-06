@@ -2,15 +2,19 @@ import { z } from 'zod'
 import { wajibAdmin } from '@/lib/auth'
 import { GalatPengguna } from '@/lib/galat'
 import {
-  tambahDokumen, ubahDokumen, nonaktifkanDokumen, aktifkanKembaliDokumen, hitungDampakDokumenBaru,
+  tambahDokumen, ubahDokumen, nonaktifkanDokumen, aktifkanKembaliDokumen, hitungDampakDokumenBaru, isiDaftarBaku,
 } from '@/lib/kelolaDokumen'
 
 export const runtime = 'nodejs'
 
 const id = z.string().min(1)
 const skema = z.discriminatedUnion('aksi', [
-  z.object({ aksi: z.literal('tambah'), periodeId: id, nama: z.string() }),
-  z.object({ aksi: z.literal('ubah'), periodeId: id, dokumenId: id, nama: z.string().optional(), arah: z.enum(['naik', 'turun']).optional() }),
+  z.object({ aksi: z.literal('tambah'), periodeId: id, nama: z.string(), berlakuUntuk: z.string().optional() }),
+  z.object({
+    aksi: z.literal('ubah'), periodeId: id, dokumenId: id, nama: z.string().optional(),
+    arah: z.enum(['naik', 'turun']).optional(), berlakuUntuk: z.string().optional(),
+  }),
+  z.object({ aksi: z.literal('isi_baku'), periodeId: id }),
   z.object({ aksi: z.literal('nonaktifkan'), periodeId: id, dokumenId: id }),
   z.object({ aksi: z.literal('aktifkan'), periodeId: id, dokumenId: id }),
 ])
@@ -30,7 +34,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url)
     const periodeId = url.searchParams.get('periodeId')
     if (!periodeId) return gagal('Permintaan tidak sah')
-    const dampak = await hitungDampakDokumenBaru(periodeId, url.searchParams.get('dokumenId') ?? undefined)
+    const dampak = await hitungDampakDokumenBaru(
+      periodeId, url.searchParams.get('dokumenId') ?? undefined, url.searchParams.get('berlakuUntuk') ?? undefined,
+    )
     return Response.json({ ok: true, dampak })
   } catch (e) {
     return galatUmum(e, 'hitung dampak dokumen gagal')
@@ -43,8 +49,10 @@ export async function POST(req: Request) {
     const hasil = skema.safeParse(await req.json().catch(() => null))
     if (!hasil.success) return gagal('Permintaan tidak sah')
     const b = hasil.data
-    if (b.aksi === 'tambah') await tambahDokumen({ periodeId: b.periodeId, nama: b.nama, adminId: admin.id })
-    else if (b.aksi === 'ubah') await ubahDokumen({ periodeId: b.periodeId, dokumenId: b.dokumenId, nama: b.nama, arah: b.arah, adminId: admin.id })
+    if (b.aksi === 'tambah') await tambahDokumen({ periodeId: b.periodeId, nama: b.nama, berlakuUntuk: b.berlakuUntuk, adminId: admin.id })
+    else if (b.aksi === 'ubah') {
+      await ubahDokumen({ periodeId: b.periodeId, dokumenId: b.dokumenId, nama: b.nama, arah: b.arah, berlakuUntuk: b.berlakuUntuk, adminId: admin.id })
+    } else if (b.aksi === 'isi_baku') await isiDaftarBaku({ periodeId: b.periodeId, adminId: admin.id })
     else if (b.aksi === 'nonaktifkan') await nonaktifkanDokumen({ periodeId: b.periodeId, dokumenId: b.dokumenId, adminId: admin.id })
     else await aktifkanKembaliDokumen({ periodeId: b.periodeId, dokumenId: b.dokumenId, adminId: admin.id })
     return Response.json({ ok: true })

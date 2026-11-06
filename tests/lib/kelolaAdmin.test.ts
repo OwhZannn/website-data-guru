@@ -22,7 +22,7 @@ describe('tambahAdmin', () => {
   })
   it('menolak email ganda di tabel admin maupun guru, dan email tak valid', async () => {
     const o = await mk('o@x.id')
-    await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
+    await prisma.guru.create({ data: { nama: 'G', username: '1', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
     const t = (email: string) => tambahAdmin({ nama: 'B', email, sandi: 'abcdefgh1234', olehAdminId: o.id })
     await expect(t('O@x.id')).rejects.toThrow('Email sudah dipakai')
     await expect(t('g@x.id')).rejects.toThrow('Email sudah dipakai')

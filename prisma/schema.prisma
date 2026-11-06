@@ -20,12 +20,34 @@ model Admin {
 model Guru {
   id         String   @id @default(cuid())
   nama       String
-  nip        String   @unique
-  email      String   @unique
+  // Username untuk masuk: NIP bagi ASN (PNS/PPPK/Paruh waktu), NIK bagi Non ASN.
+  username   String   @unique
+  nip        String?  @unique
+  nik        String?  @unique
+  email      String?  @unique // tidak dipakai lagi untuk masuk; dipertahankan untuk data lama
+  // false = mendaftar sendiri dan belum disetujui admin; belum boleh masuk.
+  disetujui  Boolean  @default(true)
   hashSandi  String
   aktif      Boolean  @default(true)
   dibuatPada DateTime @default(now())
   dokumen    DokumenGuru[]
+
+  // Profil (diisi guru, boleh dikoreksi admin). Menentukan dokumen mana yang wajib.
+  asalSekolah      String?
+  statusPegawai    String?  // PNS | PPPK | PARUH_WAKTU | NON_ASN
+  jabatan          String   @default("GURU") // GURU | KEPSEK
+  tahunSertifikasi Int?
+  sertifikasiBaru  Boolean  @default(false)
+  tugasLabPerpus   Boolean  @default(false)
+  tugasTbq         Boolean  @default(false)
+  tugasRohis       Boolean  @default(false)
+  tugasImtaq       Boolean  @default(false)
+  tugasInklusi     Boolean  @default(false)
+  tugasWakasek     Boolean  @default(false)
+  tugasOsis        Boolean  @default(false)
+  tugasWaliKelas   Boolean  @default(false)
+  tugasPiket       Boolean  @default(false)
+  tugasGuruWali    Boolean  @default(false)
 }
 
 model Periode {
@@ -44,6 +66,8 @@ model DaftarDokumen {
   nama      String
   urutan    Int
   aktif     Boolean @default(true)
+  // Siapa yang wajib mengunggah; lihat BERLAKU di src/lib/syarat.ts.
+  berlakuUntuk String @default("semua")
   dokumenGuru DokumenGuru[]
 }
 

@@ -6,7 +6,7 @@ test('guru melihat alasan penolakan dan bisa mengunggah ulang', async ({ page })
   await db.riwayat.create({
     data: { periodeId: periode.id, guruId: guru.id, dokumenId: daftar[0].id, aksi: 'tolak', alasan: 'Scan kurang jelas', oleh: 'admin', olehTipe: 'admin' },
   })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText('Alasan penolakan: Scan kurang jelas')).toBeVisible()
   await expect(page.getByRole('list', { name: /Riwayat/ }).getByText(/Scan kurang jelas/)).toBeVisible()
@@ -21,7 +21,7 @@ test('guru melihat alasan penolakan dan bisa mengunggah ulang', async ({ page })
 
 test('dokumen yang sudah sah tidak bisa diganti', async ({ page }) => {
   const { guru } = await siapkan({ dokumen: [{ status: 'SAH' }, { status: 'MENUNGGU' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText('SAH', { exact: true })).toBeVisible()
   await expect(page.getByText('Progres: 1 dari 2 dokumen sah')).toBeVisible()
@@ -32,20 +32,20 @@ test('dokumen yang sudah sah tidak bisa diganti', async ({ page }) => {
 
 test('masa unggah ditutup: tanpa tombol unggah', async ({ page }) => {
   const { guru } = await siapkan({ dibuka: false, dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page.getByText('Masa pengunggahan sedang ditutup.')).toBeVisible()
   await expect(page.getByRole('button', { name: /Unggah|Ganti file/ })).toHaveCount(0)
 })
 
 test('sandi salah menampilkan galat', async ({ page }) => {
   const { guru } = await siapkan({ dokumen: [] })
-  await masuk(page, guru.email, 'salah-salah')
-  await expect(page.getByText('Email atau kata sandi salah')).toBeVisible()
+  await masuk(page, guru.username, 'salah-salah')
+  await expect(page.getByText('Username atau kata sandi salah')).toBeVisible()
 })
 
 test('jaringan putus: tampil pesan dan tombol coba lagi mengirim ulang berkas yang sama', async ({ page }) => {
   const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await page.waitForLoadState('networkidle')
   await page.route('**/api/dokumen/unggah', (r) => r.abort('failed'))
@@ -64,7 +64,7 @@ test('tanpa sesi, /dokumen mengarah ke /masuk', async ({ page }) => {
 
 test('sesi berakhir (401) menampilkan tautan masuk', async ({ page }) => {
   const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await page.waitForLoadState('networkidle')
   await page.route('**/api/dokumen/unggah', (r) => r.fulfill({ status: 401, body: '' }))
@@ -75,7 +75,7 @@ test('sesi berakhir (401) menampilkan tautan masuk', async ({ page }) => {
 
 test('memilih berkas yang sama lagi setelah gagal tetap mengunggah', async ({ page }) => {
   const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await page.waitForLoadState('networkidle')
   await page.route('**/api/dokumen/unggah', (r) =>

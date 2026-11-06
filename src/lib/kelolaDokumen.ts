@@ -3,8 +3,15 @@ import { prisma } from '@/lib/db'
 import { catatRiwayat } from '@/lib/riwayat'
 import { hitungStatusGuru } from '@/lib/status'
 import { GalatPengguna } from '@/lib/galat'
+import { KODE_BERLAKU, LABEL_BERLAKU, wajibBagi } from '@/lib/syarat'
 
 export const NAMA_MAKS = 200
+
+function bersihkanBerlaku(b: unknown): string {
+  const v = b ?? 'semua'
+  if (typeof v !== 'string' || !(KODE_BERLAKU as readonly string[]).includes(v)) throw new GalatPengguna('Pilihan "Berlaku untuk" tidak sah')
+  return v
+}
 
 function bersihkanNama(nama: unknown): string {
   const bersih = typeof nama === 'string' ? nama.trim() : ''
@@ -32,8 +39,8 @@ async function ambilDokumen(tx: Prisma.TransactionClient, dokumenId: string, per
  * ditambahkan. Bila `dokumenId` (dokumen nonaktif yang diaktifkan kembali) diberikan, guru yang
  * sudah berstatus SAH pada dokumen itu tidak dihitung.
  */
-async function hitungDampak(tx: Prisma.TransactionClient, periodeId: string, dokumenId?: string): Promise<number> {
-  const dokumen = await tx.daftarDokumen.findMany({ where: { periodeId, aktif: true }, select: { id: true, aktif: true } })
+async function hitungDampak(tx: Prisma.TransactionClient, periodeId: string, dokumenId?: string, berlaku = 'semua'): Promise<number> {
+  const dokumen = await tx.daftarDokumen.findMany({ where: { periodeId, aktif: true }, select: { id: true, aktif: true, berlakuUntuk: true } })
   if (dokumen.length === 0) return 0
   const baris = await tx.dokumenGuru.findMany({
     where: { periodeId, guru: { aktif: true } },
@@ -41,19 +48,25 @@ async function hitungDampak(tx: Prisma.TransactionClient, periodeId: string, dok
   })
   const perGuru = new Map<string, typeof baris>()
   for (const b of baris) perGuru.set(b.guruId, [...(perGuru.get(b.guruId) ?? []), b])
+  const profil = new Map((await tx.guru.findMany({ where: { id: { in: [...perGuru.keys()] } } })).map((g) => [g.id, g]))
   let jumlah = 0
-  for (const rows of perGuru.values()) {
-    if (!hitungStatusGuru(dokumen, rows).lengkap) continue
+  for (const [guruId, rows] of perGuru) {
+    const p = profil.get(guruId)
+    if (!p || !wajibBagi(berlaku, p)) continue
+    if (!hitungStatusGuru(dokumen, rows, p).lengkap) continue
     if (dokumenId && rows.some((r) => r.dokumenId === dokumenId && r.status === 'SAH')) continue
     jumlah++
   }
   return jumlah
 }
 
-export function hitungDampakDokumenBaru(periodeId: string, dokumenId?: string): Promise<number> {
+export function hitungDampakDokumenBaru(periodeId: string, dokumenId?: string, berlaku?: string): Promise<number> {
   return prisma.$transaction(async (tx) => {
-    if (dokumenId) await ambilDokumen(tx, dokumenId, periodeId)
-    return hitungDampak(tx, periodeId, dokumenId)
+    if (dokumenId) {
+      const dok = await ambilDokumen(tx, dokumenId, periodeId)
+      return hitungDampak(tx, periodeId, dokumenId, dok.berlakuUntuk)
+    }
+    return hitungDampak(tx, periodeId, undefined, bersihkanBerlaku(berlaku))
   })
 }
 
@@ -61,22 +74,24 @@ export async function tambahDokumen(m: {
   periodeId: string
   nama: string
   urutan?: number
+  berlakuUntuk?: string
   adminId: string
 }): Promise<{ akanTidakLengkap: number }> {
   const nama = bersihkanNama(m.nama)
+  const berlakuUntuk = bersihkanBerlaku(m.berlakuUntuk)
   return prisma.$transaction(async (tx) => {
     const periode = await tx.periode.findUnique({ where: { id: m.periodeId } })
     if (!periode) throw new GalatPengguna('Periode tidak ditemukan')
     await pastikanNamaBebas(tx, m.periodeId, nama)
-    const akanTidakLengkap = await hitungDampak(tx, m.periodeId)
+    const akanTidakLengkap = await hitungDampak(tx, m.periodeId, undefined, berlakuUntuk)
     let urutan = m.urutan
     if (urutan === undefined) {
       const maks = await tx.daftarDokumen.aggregate({ where: { periodeId: m.periodeId }, _max: { urutan: true } })
       urutan = (maks._max.urutan ?? 0) + 1
     }
-    const dok = await tx.daftarDokumen.create({ data: { periodeId: m.periodeId, nama, urutan } })
+    const dok = await tx.daftarDokumen.create({ data: { periodeId: m.periodeId, nama, urutan, berlakuUntuk } })
     await catatRiwayat(
-      { periodeId: m.periodeId, dokumenId: dok.id, aksi: 'ubah_daftar_dokumen', alasan: `Menambah dokumen: ${nama}`, oleh: m.adminId, olehTipe: 'admin' },
+      { periodeId: m.periodeId, dokumenId: dok.id, aksi: 'ubah_daftar_dokumen', alasan: `Menambah dokumen: ${nama}${berlakuUntuk === 'semua' ? '' : ` (khusus ${LABEL_BERLAKU[berlakuUntuk]})`}`, oleh: m.adminId, olehTipe: 'admin' },
       tx,
     )
     return { akanTidakLengkap }
@@ -89,9 +104,11 @@ export async function ubahDokumen(m: {
   periodeId: string
   nama?: string
   arah?: 'naik' | 'turun'
+  berlakuUntuk?: string
   adminId: string
 }): Promise<void> {
   const nama = m.nama === undefined ? undefined : bersihkanNama(m.nama)
+  const berlakuUntuk = m.berlakuUntuk === undefined ? undefined : bersihkanBerlaku(m.berlakuUntuk)
   if (m.arah !== undefined && m.arah !== 'naik' && m.arah !== 'turun') throw new GalatPengguna('Arah tidak sah')
   await prisma.$transaction(async (tx) => {
     const dok = await ambilDokumen(tx, m.dokumenId, m.periodeId)
@@ -100,6 +117,10 @@ export async function ubahDokumen(m: {
       if (dok.aktif) await pastikanNamaBebas(tx, dok.periodeId, nama, dok.id)
       await tx.daftarDokumen.update({ where: { id: dok.id }, data: { nama } })
       catatan.push(`Mengubah nama dokumen: ${dok.nama} menjadi ${nama}`)
+    }
+    if (berlakuUntuk !== undefined && berlakuUntuk !== dok.berlakuUntuk) {
+      await tx.daftarDokumen.update({ where: { id: dok.id }, data: { berlakuUntuk } })
+      catatan.push(`Mengubah "berlaku untuk" ${nama ?? dok.nama}: ${LABEL_BERLAKU[dok.berlakuUntuk] ?? dok.berlakuUntuk} menjadi ${LABEL_BERLAKU[berlakuUntuk]}`)
     }
     if (m.arah) {
       if (!dok.aktif) throw new GalatPengguna('Dokumen nonaktif tidak bisa diurutkan')
@@ -151,5 +172,52 @@ export async function aktifkanKembaliDokumen(m: { dokumenId: string; periodeId: 
       { periodeId: dok.periodeId, dokumenId: dok.id, aksi: 'ubah_daftar_dokumen', alasan: `Mengaktifkan kembali dokumen: ${dok.nama}`, oleh: m.adminId, olehTipe: 'admin' },
       tx,
     )
+  })
+}
+
+/** Daftar dokumen baku verval sertifikasi guru PAI. */
+export const DAFTAR_BAKU: { nama: string; berlakuUntuk: string }[] = [
+  { nama: 'Jadwal dan tugas guru PAI dari sekolah', berlakuUntuk: 'guru' },
+  { nama: 'Jadwal dan tugas dari aplikasi SIAGA (distempel dan ditandatangani kepala sekolah)', berlakuUntuk: 'guru' },
+  { nama: 'Absen dari sekolah', berlakuUntuk: 'guru' },
+  { nama: 'SK sebagai kepala sekolah', berlakuUntuk: 'kepsek' },
+  { nama: 'Program kepala sekolah', berlakuUntuk: 'kepsek' },
+  { nama: 'Absen dari aplikasi SIAGA', berlakuUntuk: 'kepsek' },
+  { nama: 'SK kenaikan gaji berkala terakhir', berlakuUntuk: 'semua' },
+  { nama: 'SK kenaikan pangkat terakhir', berlakuUntuk: 'pns' },
+  { nama: 'Laporan kepala lab/perpustakaan', berlakuUntuk: 'lab_perpus' },
+  { nama: 'Sertifikat kepala perpustakaan/lab', berlakuUntuk: 'lab_perpus' },
+  { nama: 'Laporan TBQ', berlakuUntuk: 'tbq' },
+  { nama: 'Laporan bimbingan Rohis', berlakuUntuk: 'rohis' },
+  { nama: 'Bukti pembinaan Imtaq/ekskul', berlakuUntuk: 'imtaq' },
+  { nama: 'Bukti bimbingan inklusi', berlakuUntuk: 'inklusi' },
+  { nama: 'Sertifikat pembimbing inklusi', berlakuUntuk: 'inklusi' },
+  { nama: 'Laporan wakil kepala sekolah', berlakuUntuk: 'wakasek' },
+  { nama: 'Laporan pembina OSIS', berlakuUntuk: 'osis' },
+  { nama: 'Laporan wali kelas', berlakuUntuk: 'wali_kelas' },
+  { nama: 'Laporan guru piket', berlakuUntuk: 'piket' },
+  { nama: 'Laporan guru wali', berlakuUntuk: 'guru_wali' },
+  { nama: 'Buku rekening', berlakuUntuk: 'sertifikasi_baru' },
+  { nama: 'NUPTK / NPWP / KTP', berlakuUntuk: 'sertifikasi_baru' },
+  { nama: 'Ijazah terakhir (asli atau legalisir)', berlakuUntuk: 'sertifikasi_baru' },
+  { nama: 'Sertifikat pendidik (asli atau legalisir)', berlakuUntuk: 'sertifikasi_baru' },
+]
+
+/** Isi periode yang daftar dokumennya masih kosong (termasuk yang nonaktif) dengan daftar baku. */
+export async function isiDaftarBaku(m: { periodeId: string; adminId: string }): Promise<{ jumlah: number }> {
+  return prisma.$transaction(async (tx) => {
+    const periode = await tx.periode.findUnique({ where: { id: m.periodeId } })
+    if (!periode) throw new GalatPengguna('Periode tidak ditemukan')
+    if (await tx.daftarDokumen.count({ where: { periodeId: m.periodeId } })) {
+      throw new GalatPengguna('Daftar baku hanya bisa dipakai pada periode yang belum punya dokumen')
+    }
+    await tx.daftarDokumen.createMany({
+      data: DAFTAR_BAKU.map((d, i) => ({ periodeId: m.periodeId, nama: d.nama, berlakuUntuk: d.berlakuUntuk, urutan: i + 1 })),
+    })
+    await catatRiwayat(
+      { periodeId: m.periodeId, aksi: 'ubah_daftar_dokumen', alasan: `Mengisi daftar baku (${DAFTAR_BAKU.length} dokumen)`, oleh: m.adminId, olehTipe: 'admin' },
+      tx,
+    )
+    return { jumlah: DAFTAR_BAKU.length }
   })
 }

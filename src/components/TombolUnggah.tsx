@@ -2,8 +2,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { kecilkanGambar } from '@/lib/kecilkanGambar'
-
-const BATAS = 5 * 1024 * 1024
+import { BATAS_UKURAN, TEKS_BATAS } from '@/lib/periksaBerkas'
 
 export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; teks: string }) {
   const router = useRouter()
@@ -56,8 +55,8 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
     setBisaUlang(false)
     const f = await kecilkanGambar(asli)
     setMenyiapkan(false)
-    if (f.size > BATAS) {
-      setPesan('Ukuran berkas melebihi 5 MB')
+    if (f.size > BATAS_UKURAN) {
+      setPesan(`Ukuran berkas melebihi ${TEKS_BATAS}. Perkecil atau pindai ulang dengan resolusi lebih rendah.`)
       setBisaUlang(false)
       setBerkas(null)
       kosongkan()
@@ -68,7 +67,7 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
   }
 
   return (
-    <div>
+    <div className="aksi">
       <input
         ref={input}
         type="file"
@@ -80,8 +79,9 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
       <button type="button" disabled={sibukSemua} onClick={() => input.current?.click()}>
         {menyiapkan ? 'Menyiapkan berkas…' : sibukSemua ? 'Sedang mengunggah…' : teks}
       </button>
+      {!sibukSemua && <span className="kartu-sub">PDF atau JPG, maks. {TEKS_BATAS}</span>}
       {bisaUlang && berkas && !sibukSemua && (
-        <button type="button" className="biasa" style={{ marginLeft: 8 }} onClick={() => kirim(berkas)}>
+        <button type="button" className="biasa" onClick={() => kirim(berkas)}>
           Coba lagi
         </button>
       )}

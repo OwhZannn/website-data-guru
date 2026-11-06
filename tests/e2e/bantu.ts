@@ -13,7 +13,10 @@ export async function siapkan(opsi: { dibuka?: boolean; dokumen: Isi[] }) {
   const id = randomUUID().slice(0, 8)
   await db.periode.updateMany({ where: { dibuka: true }, data: { dibuka: false } })
   const guru = await db.guru.create({
-    data: { nama: `Guru ${id}`, nip: id, email: `${id}@contoh.id`, hashSandi: await hashSandi(SANDI) },
+    data: {
+      nama: `Guru ${id}`, username: id, nip: id, email: `${id}@contoh.id`, hashSandi: await hashSandi(SANDI),
+      asalSekolah: 'SMA Negeri 1', statusPegawai: 'PNS', tahunSertifikasi: 2015,
+    },
   })
   const periode = await db.periode.create({ data: { nama: `Periode ${id}`, dibuka: opsi.dibuka ?? true } })
   const daftar = []
@@ -33,11 +36,12 @@ export async function siapkan(opsi: { dibuka?: boolean; dokumen: Isi[] }) {
 }
 
 /** Tombol kirim baru aktif setelah hidrasi; menunggu itu mencegah pengiriman formulir asli sebelum JS siap. */
+/** `email` untuk admin, NIP/NIK (username) untuk guru. */
 export async function masuk(page: Page, email: string, sandi = SANDI) {
   await page.goto('/masuk')
   const tombol = page.locator('button[type=submit]')
   await expect(tombol).toBeEnabled()
-  await page.fill('[name=email]', email)
+  await page.fill('[name=username]', email)
   await page.fill('[name=sandi]', sandi)
   await tombol.click()
 }

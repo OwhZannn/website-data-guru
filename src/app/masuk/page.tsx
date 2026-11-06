@@ -1,4 +1,5 @@
 'use client'
+import InputSandi from '@/components/InputSandi'
 import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -18,7 +19,7 @@ export default function Masuk() {
       const r = await fetch('/api/auth/masuk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: f.get('email'), sandi: f.get('sandi') }),
+        body: JSON.stringify({ username: f.get('username'), sandi: f.get('sandi') }),
       })
       const j = await r.json().catch(() => null)
       if (r.ok && j?.ok) {
@@ -34,14 +35,23 @@ export default function Masuk() {
   }
 
   return (
-    <main>
+    <main className="masuk">
+      <div className="masuk-kartu">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-kemenag.png" alt="Logo Kementerian Agama" width={92} height={82} />
       <h1>Masuk</h1>
+      <p className="sub">Verval Sertifikasi Guru</p>
       <form method="post" onSubmit={kirim}>
-        <label>Email<input name="email" type="email" autoComplete="username" required /></label>
-        <label>Kata sandi<input name="sandi" type="password" autoComplete="current-password" required /></label>
+        <label>Username
+          <input name="username" autoComplete="username" required placeholder="NIP atau NIK" />
+          <small className="redup bantuan">Guru ASN memakai NIP, guru Non ASN memakai NIK. Admin memakai email.</small>
+        </label>
+        <label>Kata sandi<InputSandi name="sandi" autoComplete="current-password" required /></label>
         <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Memproses…' : 'Masuk'}</button>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
+      <p className="masuk-daftar">Belum punya akun? <a href="/daftar">Buat akun guru</a></p>
+      </div>
     </main>
   )
 }

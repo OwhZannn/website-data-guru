@@ -13,7 +13,7 @@ test('guru melihat alasan penolakan di periode lampau (hanya baca); id periode a
   const asing = await siapkan({ dibuka: false, dokumen: [{ status: 'DITOLAK', alasan: 'Rahasia guru lain' }] })
   await db.periode.update({ where: { id: baru.id }, data: { dibuka: true } })
 
-  await masuk(page, lama.guru.email)
+  await masuk(page, lama.guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText(baru.nama, { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Unggah' })).toBeVisible()

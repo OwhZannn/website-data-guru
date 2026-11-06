@@ -4,7 +4,7 @@ import { bersihkanSemua } from '../bantu-db'
 import { periodeTerlihatGuru, pilihPeriode, semuaPeriode } from '../../src/lib/pilihPeriode'
 
 async function buatGuru(nip: string) {
-  return prisma.guru.create({ data: { nama: `Guru ${nip}`, nip, email: `${nip}@contoh.id`, hashSandi: 'x' } })
+  return prisma.guru.create({ data: { nama: `Guru ${nip}`, username: nip, nip, email: `${nip}@contoh.id`, hashSandi: 'x' } })
 }
 async function buatPeriode(nama: string, dibuka: boolean, menit: number) {
   return prisma.periode.create({ data: { nama, dibuka, dibuatPada: new Date(Date.UTC(2026, 0, 1, 0, menit)) } })

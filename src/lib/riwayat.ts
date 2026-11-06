@@ -3,7 +3,8 @@ import { prisma } from '@/lib/db'
 
 export type AksiRiwayat =
   | 'unggah' | 'ganti_file' | 'sahkan' | 'tolak' | 'batalkan'
-  | 'buka_periode' | 'tutup_periode' | 'ubah_daftar_dokumen' | 'impor_guru' | 'buat_admin'
+  | 'buka_periode' | 'tutup_periode' | 'ubah_daftar_dokumen' | 'impor_guru' | 'buat_admin' | 'ubah_profil'
+  | 'tambah_guru' | 'daftar_guru' | 'setujui_guru' | 'tolak_daftar'
 
 export type MasukanRiwayat = {
   periodeId: string

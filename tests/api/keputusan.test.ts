@@ -19,7 +19,7 @@ describe('POST /api/admin/keputusan', () => {
   beforeEach(async () => {
     await bersihkanSemua()
     adminId = (await prisma.admin.create({ data: { nama: 'A', email: 'a@x.id', hashSandi: 'x' } })).id
-    const guru = await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
+    const guru = await prisma.guru.create({ data: { nama: 'G', username: '1', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
     const p = await prisma.periode.create({ data: { nama: 'P', dibuka: true } })
     const d = await prisma.daftarDokumen.create({ data: { periodeId: p.id, nama: 'SK', urutan: 0 } })
     dokumenGuruId = (await prisma.dokumenGuru.create({

@@ -3,7 +3,7 @@ import { siapkan, masuk } from './bantu'
 
 test('galat Drive ditampilkan apa adanya dari server, tanpa sukses palsu dan tanpa Coba lagi', async ({ page }) => {
   const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await page.waitForLoadState('networkidle')
   const PESAN = 'Penyimpanan Google Drive penuh. Hubungi admin.'

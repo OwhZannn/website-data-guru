@@ -1,12 +1,15 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { BERLAKU, LABEL_BERLAKU } from '@/lib/syarat'
 
-type Dok = { id: string; nama: string; urutan: number }
+type Dok = { id: string; nama: string; urutan: number; berlakuUntuk: string }
 
 export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeId: string; aktif: Dok[]; nonaktif: Dok[] }) {
+  const kosong = aktif.length === 0 && nonaktif.length === 0
   const router = useRouter()
   const [nama, setNama] = useState('')
+  const [berlaku, setBerlaku] = useState('semua')
   const [pesan, setPesan] = useState('')
   const [sibuk, setSibuk] = useState(false)
   // Peringatan menunggu konfirmasi: aksi yang tertunda beserta jumlah guru terdampak.
@@ -30,10 +33,10 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
   }
 
   // Tanya dampak dulu; bila > 0 tampilkan peringatan, bila 0 langsung jalan.
-  async function denganPeringatan(dokumenId: string | undefined, jalan: () => Promise<void>) {
+  async function denganPeringatan(dokumenId: string | undefined, jalan: () => Promise<void>, berlakuUntuk?: string) {
     setSibuk(true); setPesan('')
     try {
-      const q = new URLSearchParams({ periodeId, ...(dokumenId ? { dokumenId } : {}) })
+      const q = new URLSearchParams({ periodeId, ...(dokumenId ? { dokumenId } : {}), ...(berlakuUntuk ? { berlakuUntuk } : {}) })
       const r = await fetch(`/api/admin/dokumen?${q}`)
       const j = await r.json().catch(() => null)
       if (!r.ok || !j?.ok) { setPesan(j?.pesan ?? 'Terjadi kesalahan. Silakan coba lagi.'); return }
@@ -47,13 +50,24 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
   }
 
   const tambah = () => denganPeringatan(undefined, async () => {
-    if (await kirim({ aksi: 'tambah', periodeId, nama })) setNama('')
-  })
+    if (await kirim({ aksi: 'tambah', periodeId, nama, berlakuUntuk: berlaku })) { setNama(''); setBerlaku('semua') }
+  }, berlaku)
 
   return (
     <>
-      <form onSubmit={(e) => { e.preventDefault(); void tambah() }}>
+      {kosong && (
+        <div className="panel">
+          <p style={{ margin: '0 0 10px' }}>Periode ini belum punya dokumen. Isi dengan 16 dokumen baku verval sertifikasi guru PAI, lalu ubah seperlunya.</p>
+          <button type="button" disabled={sibuk} onClick={() => kirim({ aksi: 'isi_baku', periodeId })}>Isi dengan daftar baku</button>
+        </div>
+      )}
+      <form className="panel" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
         <label>Nama dokumen baru<input value={nama} onChange={(e) => setNama(e.target.value)} maxLength={200} /></label>
+        <label>Berlaku untuk
+          <select value={berlaku} onChange={(e) => setBerlaku(e.target.value)}>
+            {BERLAKU.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </label>
         <button type="submit" disabled={sibuk}>Tambah dokumen</button>
       </form>
 
@@ -68,7 +82,7 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
 
       <h2>Dokumen aktif</h2>
       {aktif.length === 0 ? <p>Belum ada dokumen aktif.</p> : (
-        <ol>
+        <ol className="daftar-kartu">
           {aktif.map((d, i) => (
             <li key={d.id} aria-label={d.nama}>
               {edit?.id === d.id ? (
@@ -80,6 +94,10 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
               ) : (
                 <>
                   <strong>{d.nama}</strong>{' '}
+                  <select aria-label={`Berlaku untuk ${d.nama}`} value={d.berlakuUntuk} disabled={sibuk}
+                    onChange={(e) => kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, berlakuUntuk: e.target.value })}>
+                    {BERLAKU.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>{' '}
                   <button type="button" className="biasa" disabled={sibuk || i === 0} aria-label={`Naikkan ${d.nama}`}
                     onClick={() => kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, arah: 'naik' })}>↑</button>
                   <button type="button" className="biasa" disabled={sibuk || i === aktif.length - 1} aria-label={`Turunkan ${d.nama}`}
@@ -99,10 +117,10 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
       {nonaktif.length > 0 && (
         <>
           <h2>Dokumen nonaktif</h2>
-          <ul>
+          <ul className="daftar-kartu">
             {nonaktif.map((d) => (
               <li key={d.id} style={{ opacity: 0.55 }}>
-                {d.nama}{' '}
+                {d.nama} <small>({LABEL_BERLAKU[d.berlakuUntuk] ?? d.berlakuUntuk})</small>{' '}
                 <button type="button" className="biasa" disabled={sibuk}
                   onClick={() => denganPeringatan(d.id, async () => { await kirim({ aksi: 'aktifkan', periodeId, dokumenId: d.id }) })}>
                   Aktifkan kembali

@@ -47,7 +47,7 @@ export default function TombolKeputusan({ dokumenGuruId, status }: { dokumenGuru
           {menunggu && (
             <>
               <button type="button" disabled={sibuk} onClick={() => kirim({ aksi: 'sahkan' })}>Sahkan</button>
-              <button type="button" className="biasa" disabled={sibuk} onClick={() => setMode('tolak')}>Tolak</button>
+              <button type="button" className="bahaya" disabled={sibuk} onClick={() => setMode('tolak')}>Tolak</button>
             </>
           )}
           {sudahDiputuskan && (

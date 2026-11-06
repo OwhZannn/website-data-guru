@@ -17,7 +17,7 @@ describe('keputusan admin', () => {
     await bersihkanSemua()
     const admin = await prisma.admin.create({ data: { nama: 'Admin', email: 'a@contoh.id', hashSandi: 'x' } })
     adminId = admin.id
-    const guru = await prisma.guru.create({ data: { nama: 'Guru', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })
+    const guru = await prisma.guru.create({ data: { nama: 'Guru', username: '1', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })
     const periode = await prisma.periode.create({ data: { nama: 'P', dibuka: false } })
     const dok = await prisma.daftarDokumen.create({ data: { periodeId: periode.id, nama: 'SK', urutan: 0 } })
     dokumenId = dok.id

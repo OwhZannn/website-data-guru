@@ -59,6 +59,17 @@ node scripts/buat-admin.mjs "Nama Lengkap" email@sekolah.sch.id
 
 Sandi acak dicetak **sekali saja**; catat dan minta admin menggantinya setelah masuk.
 
+### Akun guru
+
+- **Admin** masuk memakai **email**. **Guru** masuk memakai **username**: NIP untuk PNS, PPPK, dan Paruh waktu, atau NIK untuk Non ASN.
+- Akun guru dibuat dengan tiga cara. Setiap cara memberi kata sandi awal **8 angka acak** yang tampil sekali:
+  - admin menambahkan satu per satu di menu Guru, tombol **Tambah guru**;
+  - admin mengimpor banyak guru sekaligus di menu Guru, tombol **Impor guru**, dengan format `Nama;NIP;NIK;Status Kepegawaian;Tahun Sertifikasi`;
+  - guru mendaftar sendiri di `/daftar` (tautan "Buat akun guru" di halaman masuk). Akun ini baru bisa dipakai setelah admin menekan **Setujui** di menu Guru.
+- Pendaftaran dibatasi 30 kali per 15 menit per alamat IP. Batasnya longgar karena guru satu sekolah sering mendaftar dari WiFi yang sama.
+- Guru mengganti kata sandinya sendiri di menu **Profil**. Admin bisa membuat kata sandi baru lewat **Atur ulang sandi**.
+- Guru yang terdaftar sebelum pembaruan ini memakai NIP-nya sebagai username. Isian NIP lama dipakai apa adanya.
+
 ## 6. Nginx dan HTTPS
 
 > **Penting: situs wajib dibuka lewat HTTPS melalui nginx.** Dalam image produksi (`NODE_ENV=production`) cookie sesi bertanda `secure`, sehingga peramban tidak menyimpannya bila situs dibuka lewat HTTP biasa, misalnya `http://IP-LAN:3000` sebelum sertifikat terbit. Gejalanya: setelah menekan "Masuk", pengguna diam-diam dikembalikan ke halaman `/masuk` tanpa pesan galat. Ini bukan sandi salah; bukalah `https://domain-sekolah.sch.id`.
@@ -134,7 +145,7 @@ docker compose up -d --build     # migrasi berjalan otomatis
 - [ ] `https://domain` terbuka, HTTP dialihkan ke HTTPS. Semua pengguna masuk lewat alamat HTTPS ini, bukan `http://IP:3000` (cookie sesi `secure` tidak tersimpan lewat HTTP, sehingga masuk akan selalu kembali ke `/masuk`).
 - [ ] Admin pertama bisa masuk; sandi sudah diganti.
 - [ ] Satu guru uji mengunggah dokumen dan berkasnya muncul di Drive.
-- [ ] Unggahan 8 MB berhasil, lebih dari itu ditolak.
+- [ ] Unggahan PDF/JPG sampai 3 MB berhasil, lebih dari itu ditolak dengan pesan yang jelas.
 - [ ] `node scripts/cadangan.mjs` dan `cadangan-ke-drive.mjs` berhasil; satu cadangan sudah diuji pulih.
 - [ ] Baris crontab terpasang; `docker compose ps` menunjukkan `restart: unless-stopped` dan server dinyalakan ulang dengan baik.
 - [ ] Port 3000 tidak terbuka dari luar (`curl http://IP-SERVER:3000` gagal).

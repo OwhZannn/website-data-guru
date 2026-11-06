@@ -7,6 +7,7 @@ const LABEL: Record<string, string> = {
   SAH: 'SAH',
   DITOLAK: 'Ditolak',
 }
+const IKON: Record<string, string> = { BELUM: '↑', MENUNGGU: '⏳', SAH: '✓', DITOLAK: '!' }
 const TOMBOL: Record<string, string> = { BELUM: 'Unggah', MENUNGGU: 'Ganti file', DITOLAK: 'Unggah ulang' }
 const AKSI: Record<string, string> = {
   unggah: 'Diunggah',
@@ -29,10 +30,15 @@ export default function KartuDokumen(p: {
 }) {
   const tombol = p.bolehUnggah ? TOMBOL[p.status] : undefined
   return (
-    <section className="kartu">
-      <h2>{p.nama}</h2>
-      <span className={`label ${p.status}`}>{LABEL[p.status] ?? p.status}</span>
-      {p.namaFile && p.status !== 'BELUM' && <div>Berkas: {p.namaFile}</div>}
+    <section className={p.status === 'DITOLAK' ? 'kartu ditolak' : 'kartu'}>
+      <div className="kartu-atas">
+        <span className={`ikon ${p.status}`} aria-hidden="true">{IKON[p.status] ?? '•'}</span>
+        <div>
+          <h2>{p.nama}</h2>
+          {p.namaFile && p.status !== 'BELUM' && <div className="kartu-sub">Berkas: {p.namaFile}</div>}
+        </div>
+        <span className={`label ${p.status}`}>{LABEL[p.status] ?? p.status}</span>
+      </div>
       {p.status === 'DITOLAK' && p.alasan && <div className="alasan">Alasan penolakan: {p.alasan}</div>}
       {tombol && <TombolUnggah dokumenId={p.dokumenId} teks={tombol} />}
       {p.riwayat.length > 0 && (

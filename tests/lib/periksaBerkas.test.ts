@@ -24,7 +24,7 @@ describe('periksaBerkas', () => {
     const besar = Buffer.concat([Buffer.from('%PDF-'), Buffer.alloc(BATAS_UKURAN)])
     expect(periksaBerkas({ nama: 'besar.pdf', tipe: 'application/pdf', isi: besar })).toEqual({
       sah: false,
-      pesan: expect.stringContaining('5 MB'),
+      pesan: expect.stringContaining('3 MB'),
     })
   })
   it('menolak berkas kosong', () => {

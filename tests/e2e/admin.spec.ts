@@ -26,7 +26,7 @@ test('admin menolak dengan alasan, lalu guru melihat alasannya', async ({ page, 
   await expect(page).toHaveURL('/admin')
 
   await context.clearCookies()
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await expect(page.getByText('Alasan penolakan: Stempel terpotong')).toBeVisible()
   // guru tidak boleh masuk halaman admin
@@ -62,17 +62,17 @@ test('admin mengunduh rekap CSV berisi header dan guru', async ({ page }) => {
   expect(unduhan.suggestedFilename()).toMatch(/^rekap-.*\.csv$/)
   const { readFile } = await import('node:fs/promises')
   const isi = await readFile((await unduhan.path())!, 'utf8')
-  expect(isi).toContain('NIP;Nama;Dokumen Sah;Dokumen Wajib;Status;Tanggal Verifikasi')
+  expect(isi).toContain('NIP;NIK;Nama;Asal Sekolah;Jabatan;Status Kepegawaian;Tahun Sertifikasi;Sertifikasi Baru;Dokumen Sah;Dokumen Wajib;Status;Tanggal Verifikasi')
   expect(isi).toContain(guru.nama)
 })
 
 test('admin menyaring daftar guru berdasarkan status lengkap', async ({ page }) => {
   const lengkap = await siapkan({ dokumen: [{ status: 'SAH' }] })
   const admin = await buatAdmin()
-  const lain = await db.guru.create({ data: { nama: `Belum ${admin.id.slice(0, 6)}`, nip: `b${admin.id.slice(0, 6)}`, email: `b${admin.id.slice(0, 6)}@contoh.id`, hashSandi: 'x' } })
+  const lain = await db.guru.create({ data: { nama: `Belum ${admin.id.slice(0, 6)}`, username: `b${admin.id.slice(0, 6)}`, nip: `b${admin.id.slice(0, 6)}`, email: `b${admin.id.slice(0, 6)}@contoh.id`, hashSandi: 'x' } })
   await masuk(page, admin.email)
   await expect(page).toHaveURL('/admin')
-  await page.goto('/admin/guru')
+  await page.goto('/admin/guru?per=100') // data tes bisa lebih dari 20 guru
   await expect(page.getByRole('link', { name: lain.nama })).toBeVisible()
   await page.getByLabel('Filter status').selectOption('lengkap')
   await page.getByRole('button', { name: 'Cari' }).click()

@@ -26,7 +26,7 @@ describe('GET /api/admin/rekap', () => {
     expect(r.status).toBe(200)
     expect(r.headers.get('Cache-Control')).toBe('no-store')
     expect(r.headers.get('Content-Disposition')).toMatch(/^attachment; filename="rekap-semester-ganjil-2026-\d{4}-\d{2}-\d{2}\.csv"$/)
-    expect(await r.text()).toContain('NIP;Nama')
+    expect(await r.text()).toContain('NIP;NIK;Nama')
   })
   it('xlsx', async () => {
     const r = await GET(req(`periodeId=${periodeId}&format=xlsx`))
@@ -39,7 +39,7 @@ describe('GET /api/admin/rekap', () => {
     expect((await r.json()).pesan).toBe('Periode tidak ditemukan')
   })
   it('sesi guru mendapat 401', async () => {
-    const g = await prisma.guru.create({ data: { nama: 'G', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
+    const g = await prisma.guru.create({ data: { nama: 'G', username: '1', nip: '1', email: 'g@x.id', hashSandi: 'x' } })
     tokenSekarang = await buatSesi(g.id, 'guru')
     expect((await GET(req(`periodeId=${periodeId}&format=csv`))).status).toBe(401)
   })

@@ -20,7 +20,7 @@ beforeEach(async () => {
   vi.mocked(periksaDrive).mockReset().mockResolvedValue(undefined)
   vi.spyOn(console, 'error').mockImplementation(() => {})
   adminId = (await prisma.admin.create({ data: { email: 'a@x.id', nama: 'A', hashSandi: 'x' } })).id
-  guruId = (await prisma.guru.create({ data: { nip: '1', nama: 'G', email: 'g@x.id', hashSandi: 'x' } })).id
+  guruId = (await prisma.guru.create({ data: { username: '1', nip: '1', nama: 'G', email: 'g@x.id', hashSandi: 'x' } })).id
   tokenSesi = ''
 })
 

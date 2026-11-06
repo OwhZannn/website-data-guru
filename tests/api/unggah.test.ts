@@ -27,7 +27,9 @@ beforeEach(async () => {
   tokenSesi = undefined
   await bersihkanSemua()
   adminId = (await prisma.admin.create({ data: { nama: 'A', email: 'a@x.com', hashSandi: 'x' } })).id
-  guruId = (await prisma.guru.create({ data: { nama: 'Budi', nip: '123', email: 'g@x.com', hashSandi: 'x' } })).id
+  guruId = (await prisma.guru.create({
+    data: { nama: 'Budi', username: '123', nip: '123', email: 'g@x.com', hashSandi: 'x', asalSekolah: 'SMA 1', statusPegawai: 'PNS', tahunSertifikasi: 2015 },
+  })).id
   periodeId = (await prisma.periode.create({ data: { nama: '2026', dibuka: true } })).id
   dokumenId = (await prisma.daftarDokumen.create({ data: { periodeId, nama: 'Ijazah', urutan: 1 } })).id
 })
@@ -36,6 +38,26 @@ const unggah = (lebih: Partial<Parameters<typeof unggahDokumen>[0]> = {}) =>
   unggahDokumen({ guruId, periodeId, dokumenId, nama: 'a.pdf', tipe: 'application/pdf', isi: pdf, oleh: guruId, ...lebih })
 
 describe('unggahDokumen', () => {
+  it('menolak bila profil guru belum lengkap, tanpa menyentuh Drive', async () => {
+    await prisma.guru.update({ where: { id: guruId }, data: { asalSekolah: null } })
+    await expect(unggah()).rejects.toThrow('Lengkapi profil Anda terlebih dahulu')
+    expect(drive.unggahKeDrive).not.toHaveBeenCalled()
+  })
+
+  it('menolak dokumen bersyarat yang tidak berlaku bagi guru, dan menerimanya setelah tugas dicentang', async () => {
+    await prisma.daftarDokumen.update({ where: { id: dokumenId }, data: { berlakuUntuk: 'tbq' } })
+    await expect(unggah()).rejects.toThrow('Dokumen ini tidak diminta untuk Anda')
+    expect(drive.unggahKeDrive).not.toHaveBeenCalled()
+    await prisma.guru.update({ where: { id: guruId }, data: { tugasTbq: true } })
+    await expect(unggah()).resolves.toEqual({ status: 'MENUNGGU' })
+  })
+
+  it('SK pangkat (khusus PNS) ditolak untuk guru PPPK', async () => {
+    await prisma.daftarDokumen.update({ where: { id: dokumenId }, data: { berlakuUntuk: 'pns' } })
+    await prisma.guru.update({ where: { id: guruId }, data: { statusPegawai: 'PPPK' } })
+    await expect(unggah()).rejects.toThrow('Dokumen ini tidak diminta untuk Anda')
+  })
+
   it('mencatat status MENUNGGU setelah unggahan berhasil', async () => {
     const h = await unggah()
     expect(h.status).toBe('MENUNGGU')

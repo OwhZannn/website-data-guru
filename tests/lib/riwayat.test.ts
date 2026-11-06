@@ -47,7 +47,7 @@ describe('namaPelakuRiwayat', () => {
 
   it('memetakan nama admin dan guru, dan "(tidak dikenal)" untuk id yang hilang', async () => {
     const a = await prisma.admin.create({ data: { nama: 'Bu Admin', email: 'a@contoh.id', hashSandi: 'x' } })
-    const g = await prisma.guru.create({ data: { nama: 'Pak Guru', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })
+    const g = await prisma.guru.create({ data: { nama: 'Pak Guru', username: '1', nip: '1', email: 'g@contoh.id', hashSandi: 'x' } })
     const m = await namaPelakuRiwayat([
       { id: 'r1', oleh: a.id, olehTipe: 'admin' },
       { id: 'r2', oleh: g.id, olehTipe: 'guru' },

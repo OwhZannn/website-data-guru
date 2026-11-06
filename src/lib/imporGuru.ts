@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { GalatPengguna } from '@/lib/galat'
 import { hashSandi } from '@/lib/sandi'
 import { catatRiwayat } from '@/lib/riwayat'
+import { acakSandiAngka, bacaGuruBaru, type DataGuruBaru } from '@/lib/identitas'
 
 const ALFABET = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'.replace(/[Ol]/g, '')
 
@@ -12,21 +13,23 @@ export function acakSandiAwal(): string {
   return s
 }
 
-export type BarisGuru = { nama: string; nip: string; email: string }
+export type BarisGuru = { nama: string; nip: string; nik: string; status: string; tahun: string }
 
-/** Satu guru per baris: `nama;nip;email` atau `nama,nip,email` (pemisah dideteksi per baris). */
+/**
+ * Satu guru per baris: `nama;nip;nik;status kepegawaian;tahun sertifikasi` (pemisah `;` atau `,`,
+ * dideteksi per baris). NIP boleh kosong untuk Non ASN, NIK boleh kosong untuk ASN.
+ */
 export function uraiDaftarGuru(teks: string): BarisGuru[] {
   const hasil: BarisGuru[] = []
-  for (const mentah of teks.replace(/^﻿/, '').split(/\r\n|\r|\n/)) {
+  for (const mentah of teks.replace(/^\uFEFF/, '').split(/\r\n|\r|\n/)) {
     if (!mentah.trim()) continue
-    const bagian = mentah.split(mentah.includes(';') ? ';' : ',').map((x) => x.trim())
-    if (bagian[0].toLowerCase() === 'nama') continue
-    hasil.push({ nama: bagian[0] ?? '', nip: bagian[1] ?? '', email: bagian[2] ?? '' })
+    const b = mentah.split(mentah.includes(';') ? ';' : ',').map((x) => x.trim())
+    if (b[0].toLowerCase() === 'nama') continue
+    hasil.push({ nama: b[0] ?? '', nip: b[1] ?? '', nik: b[2] ?? '', status: b[3] ?? '', tahun: b[4] ?? '' })
   }
   return hasil
 }
 
-const POLA_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UKURAN_BATCH = 25
 export const MAKS_BARIS = 500
 
@@ -34,7 +37,7 @@ export type HasilImpor = {
   dibuat: number
   dilewati: number
   ditolak: { baris: number; alasan: string }[]
-  sandiAwal: { nama: string; email: string; sandi: string }[]
+  sandiAwal: { nama: string; username: string; sandi: string }[]
 }
 
 export async function imporGuru(masukan: { baris: BarisGuru[]; adminId: string }): Promise<HasilImpor> {
@@ -46,41 +49,43 @@ export async function imporGuru(masukan: { baris: BarisGuru[]; adminId: string }
   if (!periode) throw new GalatPengguna('Buat periode terlebih dahulu sebelum mengimpor guru')
 
   const ditolak: HasilImpor['ditolak'] = []
-  const sah: (BarisGuru & { baris: number })[] = []
-  const nipTerlihat = new Set<string>()
-  const emailTerlihat = new Set<string>()
+  const sah: (DataGuruBaru & { baris: number })[] = []
+  const terlihat = new Set<string>()
   masukan.baris.forEach((b, i) => {
     const nomor = i + 1
-    const nama = b.nama.trim()
-    const nipMentah = b.nip.trim()
-    const email = b.email.trim().toLowerCase()
-    if (!nama) return void ditolak.push({ baris: nomor, alasan: 'Nama kosong' })
-    if (!nipMentah || !/^[0-9 ]+$/.test(nipMentah)) return void ditolak.push({ baris: nomor, alasan: 'NIP harus berupa angka' })
-    const nip = nipMentah.replace(/ /g, '')
-    if (!nip) return void ditolak.push({ baris: nomor, alasan: 'NIP harus berupa angka' })
-    if (!POLA_EMAIL.test(email)) return void ditolak.push({ baris: nomor, alasan: 'Format email tidak valid' })
-    if (nipTerlihat.has(nip) || emailTerlihat.has(email)) return void ditolak.push({ baris: nomor, alasan: 'NIP atau email ganda dalam daftar' })
-    nipTerlihat.add(nip); emailTerlihat.add(email)
-    sah.push({ nama, nip, email, baris: nomor })
+    let d: DataGuruBaru
+    try {
+      d = bacaGuruBaru({ nama: b.nama, nip: b.nip, nik: b.nik, statusPegawai: b.status, tahunSertifikasi: b.tahun })
+    } catch (e) {
+      return void ditolak.push({ baris: nomor, alasan: e instanceof GalatPengguna ? e.message : 'Baris tidak sah' })
+    }
+    const kunci = [d.username, d.nip, d.nik].filter((x): x is string => !!x)
+    if (kunci.some((k) => terlihat.has(k))) return void ditolak.push({ baris: nomor, alasan: 'NIP atau NIK ganda dalam daftar' })
+    kunci.forEach((k) => terlihat.add(k))
+    sah.push({ ...d, baris: nomor })
   })
 
+  // Guru yang NIP, NIK, atau username-nya sudah terdaftar dilewati (impor ulang aman).
+  const daftar = [...terlihat]
   const ada = await prisma.guru.findMany({
-    where: { OR: [{ nip: { in: [...nipTerlihat] } }, { email: { in: [...emailTerlihat] } }] },
-    select: { nip: true, email: true },
+    where: { OR: [{ username: { in: daftar } }, { nip: { in: daftar } }, { nik: { in: daftar } }] },
+    select: { username: true, nip: true, nik: true },
   })
-  const nipAda = new Set(ada.map((g) => g.nip))
-  const emailAda = new Set(ada.map((g) => g.email))
-  const baru = sah.filter((b) => !nipAda.has(b.nip) && !emailAda.has(b.email))
+  const sudah = new Set(ada.flatMap((g) => [g.username, g.nip, g.nik]).filter((x): x is string => !!x))
+  const baru = sah.filter((b) => ![b.username, b.nip, b.nik].some((k) => k && sudah.has(k)))
   let dilewati = sah.length - baru.length
 
   const sandiAwal: HasilImpor['sandiAwal'] = []
   for (let i = 0; i < baru.length; i += UKURAN_BATCH) {
     const batch = await Promise.all(baru.slice(i, i + UKURAN_BATCH).map(async (b) => {
-      const sandi = acakSandiAwal()
+      const sandi = acakSandiAngka()
       return { b, sandi, hash: await hashSandi(sandi) }
     }))
-    const catat = (x: (typeof batch)[number]) => sandiAwal.push({ nama: x.b.nama, email: x.b.email, sandi: x.sandi })
-    const baris = (x: (typeof batch)[number]) => ({ nama: x.b.nama, nip: x.b.nip, email: x.b.email, hashSandi: x.hash })
+    const catat = (x: (typeof batch)[number]) => sandiAwal.push({ nama: x.b.nama, username: x.b.username, sandi: x.sandi })
+    const baris = (x: (typeof batch)[number]) => {
+      const { baris: _nomor, ...data } = x.b
+      return { ...data, hashSandi: x.hash }
+    }
     try {
       await prisma.guru.createMany({ data: batch.map(baris) })
       batch.forEach(catat)
@@ -93,8 +98,11 @@ export async function imporGuru(masukan: { baris: BarisGuru[]; adminId: string }
         await prisma.guru.create({ data: baris(x) })
         catat(x)
       } catch (e) {
-        const ada = await prisma.guru.findFirst({ where: { OR: [{ nip: x.b.nip }, { email: x.b.email }] }, select: { id: true } }).catch(() => null)
-        if (ada) dilewati += 1
+        const kunci = [x.b.username, x.b.nip, x.b.nik].filter((k): k is string => !!k)
+        const sudahAda = await prisma.guru.findFirst({
+          where: { OR: kunci.flatMap((k) => [{ username: k }, { nip: k }, { nik: k }]) }, select: { id: true },
+        }).catch(() => null)
+        if (sudahAda) dilewati += 1
         else {
           console.error('impor guru: baris gagal disimpan', e)
           ditolak.push({ baris: x.b.baris, alasan: 'Gagal disimpan, coba lagi' })

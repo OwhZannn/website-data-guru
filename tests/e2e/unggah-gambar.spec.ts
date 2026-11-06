@@ -23,7 +23,7 @@ async function jpegBesar(page: Page, lebar: number, tinggi: number, mutu: number
 
 async function siapUnggah(page: Page) {
   const { guru, daftar } = await siapkan({ dokumen: [{ status: 'BELUM' }] })
-  await masuk(page, guru.email)
+  await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
   await page.waitForLoadState('networkidle')
   const dikirim: { ukuran: number; badan: Buffer }[] = []

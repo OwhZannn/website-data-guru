@@ -2,15 +2,18 @@ services:
   web:
     build: .
     restart: unless-stopped
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       # Menimpa DATABASE_URL di .env: jalur absolut di dalam kontainer.
       DATABASE_URL: file:/app/data/prod.db
     volumes:
-      - ./data:/app/data
+      # DIR_DATA = folder data di host (contoh Synology: /volume1/docker/data-guru/data).
+      - ${DIR_DATA:-./data}:/app/data
     ports:
-      # Hanya 127.0.0.1: aplikasi dapat dicapai lewat nginx saja.
-      - "127.0.0.1:${PORT_WEB:-3000}:3000"
+      # Bawaan hanya 127.0.0.1 (lewat reverse proxy di host). Isi BIND_HOST=0.0.0.0 bila proxy berupa kontainer lain.
+      - "${BIND_HOST:-127.0.0.1}:${PORT_WEB:-3000}:3000"
     healthcheck:
       # /api/hidup tidak menyentuh Drive maupun basis data; /api/kesehatan butuh sesi admin.
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/hidup"]

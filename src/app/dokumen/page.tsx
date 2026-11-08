@@ -82,7 +82,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <Kepala sub={guru.nama} aksi={<a href="/profil">Profil &amp; kata sandi</a>} />
+      <Kepala nama={guru.nama} aksi={<a href="/profil">Profil &amp; kata sandi</a>} />
       <main className="dua">
         <div className="dua-kiri">
           <h1>Dokumen Saya</h1>

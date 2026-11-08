@@ -54,3 +54,12 @@ export async function buatAdmin() {
   const id = randomUUID().slice(0, 8)
   return db.admin.create({ data: { nama: `Admin ${id}`, email: `admin-${id}@contoh.id`, hashSandi: await hashSandi(SANDI) } })
 }
+
+/** Tombol dirender server; klik sebelum hidrasi tak berefek, jadi diulang sampai menu terbuka. */
+export async function bukaMenu(page: Page) {
+  const menu = page.getByRole('menu', { name: 'Menu akun' })
+  await expect(async () => {
+    if (!(await menu.isVisible())) await page.getByRole('button', { name: /^Menu akun/ }).click()
+    await expect(menu).toBeVisible({ timeout: 1000 })
+  }).toPass()
+}

@@ -13,7 +13,7 @@ export default async function Profil() {
   const kurang = kolomProfilKurang(guru)
   return (
     <>
-      <Kepala sub={guru.nama} aksi={<a href="/dokumen">Dokumen saya</a>} />
+      <Kepala nama={guru.nama} aksi={<a href="/dokumen">Dokumen saya</a>} />
       <main className="profil-halaman">
         <h1>Profil Saya</h1>
         <p className="redup mb-s4">

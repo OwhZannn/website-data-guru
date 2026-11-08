@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { db, siapkan, masuk, buatAdmin, SANDI } from './bantu'
+import { db, siapkan, masuk, buatAdmin, bukaMenu, SANDI } from './bantu'
 
 const acak = () => Date.now().toString().slice(-8) + Math.floor(Math.random() * 90 + 10)
 const nipAcak = () => `1987${acak()}0000`.slice(0, 18)
@@ -132,7 +132,8 @@ test('guru mengganti kata sandi di halaman Profil', async ({ page, context }) =>
   const { guru } = await siapkan({ dokumen: [] })
   await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
-  await page.getByRole('link', { name: 'Profil & kata sandi' }).click()
+  await bukaMenu(page)
+  await page.getByRole('menuitem', { name: 'Profil & kata sandi' }).click()
   const form = page.getByRole('form', { name: 'Ganti kata sandi' })
   await form.getByLabel('Kata sandi lama').fill(SANDI)
   await form.getByLabel('Kata sandi baru (minimal 8 karakter)').fill('sandi-baru-99')

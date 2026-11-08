@@ -222,3 +222,14 @@ Fixes F1, F2, F5, V4, T4.
 | 3 | Rejection reasons | Editable by admins: new `AlasanTolak` table + `/admin/alasan` page (Phase 3). This is the only database change in the plan. |
 | 4 | Dark mode | Yes, follows device setting (Phase 6) |
 | 5 | Spec language | Indonesian, one spec per phase in `docs/superpowers/specs/` |
+
+---
+
+## Fase 7 — Tema, menu profil, sidebar baru, gerak, perbaikan tata letak (cabang `feat/tema-dan-tata-letak`)
+Detail: [spesifikasi Fase 7](../specs/2026-11-08-fase7-tema-dan-tata-letak-design.md).
+- [x] Perbaikan tata letak: hamburger hanya <1024 px, tanpa jalur kosong di sidebar, tombol filter rata dengan isian, tautan tabel jadi tombol halus, konten admin dipusatkan.
+- [x] Tema Terang / Gelap / Sistem (`data-tema`, `localStorage['tema']`, skrip awal tanpa kilatan).
+- [x] Menu profil kanan atas (avatar, nama, peran, tema, Keluar) dengan papan ketik penuh.
+- [x] Sidebar berkelompok, bisa dilipat ke mode ikon, lencana antrean, laci ponsel senada.
+- [x] Gerak CSS (transisi halaman, hover kartu, dropdown) dengan dukungan `prefers-reduced-motion`.
+- [x] Kontras AA terang dan gelap diuji otomatis; snapshot visual dibuat ulang.

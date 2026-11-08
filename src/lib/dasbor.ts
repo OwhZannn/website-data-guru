@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { hitungStatusGuru } from '@/lib/status'
+import { wajibBagi } from '@/lib/syarat'
 import { namaPelakuRiwayat, TIDAK_DIKENAL } from '@/lib/riwayat'
 import type { Guru } from '@prisma/client'
 
@@ -75,7 +76,7 @@ type GuruBaris = Pick<
  */
 export async function ringkasanDasbor(periodeId: string): Promise<RingkasanDasbor> {
   // 1. Semua guru + semua DokumenGuru dalam periode ini sekaligus
-  const [semuaGuru, daftarDokumen, grupDokumenGuru, perluPersetujuan] = await Promise.all([
+  const [semuaGuru, daftarDokumen, perluPersetujuan] = await Promise.all([
     prisma.guru.findMany({
       select: {
         id: true, aktif: true, disetujui: true,
@@ -88,12 +89,6 @@ export async function ringkasanDasbor(periodeId: string): Promise<RingkasanDasbo
     prisma.daftarDokumen.findMany({
       where: { periodeId, aktif: true },
       orderBy: { urutan: 'asc' },
-    }),
-    // Pivot: jumlah per (dokumenId × status)
-    prisma.dokumenGuru.groupBy({
-      by: ['dokumenId', 'status'],
-      where: { periodeId },
-      _count: { _all: true },
     }),
     prisma.guru.count({ where: { disetujui: false } }),
   ])
@@ -124,35 +119,24 @@ export async function ringkasanDasbor(periodeId: string): Promise<RingkasanDasbo
     else statusGuru.belumMulai++
   }
 
-  // 4. Status dokumen global (semua DokumenGuru periode ini)
+  // 4–5. Status dokumen dan rincian per dokumen, hanya untuk guru aktif dan dokumen yang wajib baginya
+  // (dokumen bersyarat, mis. khusus PNS, tidak dihitung "belum" untuk guru yang tidak wajib).
   const statusDokumen = { sah: 0, menunggu: 0, ditolak: 0 }
-  for (const g of grupDokumenGuru) {
-    if (g.status === 'SAH') statusDokumen.sah += g._count._all
-    else if (g.status === 'MENUNGGU') statusDokumen.menunggu += g._count._all
-    else if (g.status === 'DITOLAK') statusDokumen.ditolak += g._count._all
-  }
-
-  // 5. Per dokumen: pivot dari grup
-  const pivotDok = new Map<string, { sah: number; menunggu: number; ditolak: number }>()
-  for (const g of grupDokumenGuru) {
-    if (!pivotDok.has(g.dokumenId)) pivotDok.set(g.dokumenId, { sah: 0, menunggu: 0, ditolak: 0 })
-    const p = pivotDok.get(g.dokumenId)!
-    if (g.status === 'SAH') p.sah += g._count._all
-    else if (g.status === 'MENUNGGU') p.menunggu += g._count._all
-    else if (g.status === 'DITOLAK') p.ditolak += g._count._all
-  }
-
-  const perDokumen: ItemPerDokumen[] = daftarDokumen.map((d) => {
-    const p = pivotDok.get(d.id) ?? { sah: 0, menunggu: 0, ditolak: 0 }
-    return {
-      id: d.id,
-      nama: d.nama,
-      sah: p.sah,
-      menunggu: p.menunggu,
-      ditolak: p.ditolak,
-      belum: jumlahGuruAktif - p.sah - p.menunggu - p.ditolak,
+  const pivotDok = new Map(daftarDokumen.map((d) => [d.id, { sah: 0, menunggu: 0, ditolak: 0, belum: 0 }]))
+  for (const guru of guruAktif) {
+    const statusPerDok = new Map((dokumenByGuru.get(guru.id) ?? []).map((x) => [x.dokumenId, x.status]))
+    for (const d of daftarDokumen) {
+      if (!wajibBagi(d.berlakuUntuk, guru)) continue
+      const p = pivotDok.get(d.id)!
+      const st = statusPerDok.get(d.id)
+      if (st === 'SAH') { p.sah++; statusDokumen.sah++ }
+      else if (st === 'MENUNGGU') { p.menunggu++; statusDokumen.menunggu++ }
+      else if (st === 'DITOLAK') { p.ditolak++; statusDokumen.ditolak++ }
+      else p.belum++
     }
-  })
+  }
+
+  const perDokumen: ItemPerDokumen[] = daftarDokumen.map((d) => ({ id: d.id, nama: d.nama, ...pivotDok.get(d.id)! }))
 
   // 6. Antrean: semua DokumenGuru MENUNGGU
   const [antreanRaw, daftarDokumenMap] = await Promise.all([

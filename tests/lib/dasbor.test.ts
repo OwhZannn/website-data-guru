@@ -150,6 +150,19 @@ describe('ringkasanDasbor', () => {
     expect(pd1.belum).toBe(2)   // 2 guru belum unggah
   })
 
+  it('dokumen bersyarat hanya dihitung untuk guru yang wajib', async () => {
+    const periode = await prisma.periode.create({ data: { nama: 'P', dibuka: true } })
+    const dokPns = await prisma.daftarDokumen.create({
+      data: { periodeId: periode.id, nama: 'Khusus PNS', urutan: 0, aktif: true, berlakuUntuk: 'pns' },
+    })
+    const pns = await buatGuru()
+    await prisma.guru.update({ where: { id: pns.id }, data: { statusPegawai: 'PNS' } })
+    await buatGuru() // bukan PNS: tidak wajib
+
+    const r = await ringkasanDasbor(periode.id)
+    expect(r.perDokumen.find((d) => d.id === dokPns.id)!.belum).toBe(1)
+  })
+
   it('aktivitasTerbaru mengembalikan maks 15 baris riwayat terbaru', async () => {
     const admin = await buatAdmin()
     const { periode } = await buatPeriodeDanDokumen()

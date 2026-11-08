@@ -21,7 +21,7 @@ export default async function AdminLayout({
   // Ambil data untuk shell — boleh null/kosong jika belum ada sesi (halaman anak akan redirect).
   const { wajibAdmin } = await import('@/lib/auth')
 
-  let adminData: { nama: string } | null = null
+  let adminData: { nama: string; email: string } | null = null
   try {
     adminData = await wajibAdmin()
   } catch {

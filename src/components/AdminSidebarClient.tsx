@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard, Inbox, Users, CalendarDays, MessageSquareX, Shield,
   PanelLeftClose, PanelLeftOpen, X, Menu,
@@ -20,7 +20,7 @@ const MENU: {
   { teks: 'Antrean', href: '/admin/antrean', Ikon: Inbox, cocok: (p) => p.startsWith('/admin/antrean'), badgeKey: 'antrean' },
   { teks: 'Guru', href: '/admin/guru', Ikon: Users, cocok: (p) => p.startsWith('/admin/guru') },
   { teks: 'Periode', href: '/admin/periode', Ikon: CalendarDays, cocok: (p) => p.startsWith('/admin/periode') },
-  { teks: 'Al. Penolakan', href: '/admin/alasan', Ikon: MessageSquareX, cocok: (p) => p.startsWith('/admin/alasan') },
+  { teks: 'Alasan penolakan', href: '/admin/alasan', Ikon: MessageSquareX, cocok: (p) => p.startsWith('/admin/alasan') },
   { teks: 'Admin', href: '/admin/admin', Ikon: Shield, cocok: (p) => p === '/admin/admin' },
 ]
 
@@ -40,6 +40,8 @@ export function AdminSidebar({
   periodeId?: string | null
 }) {
   const pathname = usePathname()
+  // Layout tidak bisa membaca ?periode=; tautan hanya membawa periode yang dipilih di URL.
+  const periodeUrl = useSearchParams().get('periode')
   const [dilipat, setDilipat] = useState(false)
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export function AdminSidebar({
           return (
             <a
               key={m.href}
-              href={buatHref(m.href, periodeId)}
+              href={buatHref(m.href, periodeUrl)}
               className={`admin-nav-butir${aktif ? ' aktif' : ''}`}
               aria-current={aktif ? 'page' : undefined}
               title={dilipat ? m.teks : undefined}
@@ -116,6 +118,8 @@ export function AdminLaci({
   periodeId?: string | null
 }) {
   const pathname = usePathname()
+  // Layout tidak bisa membaca ?periode=; tautan hanya membawa periode yang dipilih di URL.
+  const periodeUrl = useSearchParams().get('periode')
   const [buka, setBuka] = useState(false)
   const laciBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -172,7 +176,7 @@ export function AdminLaci({
             return (
               <a
                 key={m.href}
-                href={buatHref(m.href, periodeId)}
+                href={buatHref(m.href, periodeUrl)}
                 className={`admin-nav-butir${aktif ? ' aktif' : ''}`}
                 aria-current={aktif ? 'page' : undefined}
               >

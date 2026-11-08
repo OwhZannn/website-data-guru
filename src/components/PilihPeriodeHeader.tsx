@@ -1,13 +1,18 @@
-import type { Periode } from '@prisma/client'
+'use client'
 
-/** Pemilih periode kompak untuk header admin. Tidak memerlukan JS. */
+import type { Periode } from '@prisma/client'
+import { useSearchParams } from 'next/navigation'
+
+/** Pemilih periode kompak untuk header admin. Formulir GET biasa, jadi tetap jalan tanpa JS setelah dimuat. */
 export default function PilihPeriodeHeader(p: {
   daftar: Pick<Periode, 'id' | 'nama' | 'dibuka'>[]
   dipilih: string
 }) {
+  // Layout tidak menerima searchParams; periode yang dipilih dibaca dari URL di klien.
+  const dipilih = useSearchParams().get('periode') ?? p.dipilih
   return (
     <form method="get" className="admin-kepala__periode">
-      <select name="periode" aria-label="Pilih periode" defaultValue={p.dipilih}>
+      <select key={dipilih} name="periode" aria-label="Pilih periode" defaultValue={dipilih}>
         {p.daftar.map((x) => (
           <option key={x.id} value={x.id}>
             {x.nama}{x.dibuka ? ' (dibuka)' : ''}

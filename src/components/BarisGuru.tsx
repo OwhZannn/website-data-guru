@@ -3,12 +3,29 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Konfirmasi from './Konfirmasi'
 import { umumkanSandiBaru } from './BannerSandi'
+import ProgressBar from './ui/ProgressBar'
 
 type G = { id: string; nama: string; username: string; aktif: boolean; disetujui: boolean; keterangan?: string }
-type S = { progres: string; label: string }
+type S = { jumlahSah: number; jumlahWajib: number; label: string }
 type Tanya = 'nonaktif' | 'sandi' | 'tolak'
 
-export default function BarisGuru({ guru, status }: { guru: G; status?: S }) {
+/** Format waktu singkat untuk kolom aktivitas: relatif hari ini, atau tanggal. */
+function formatAktivitas(ts: number): string {
+  const d = new Date(ts)
+  const sekarang = new Date()
+  const selisihHari = Math.floor((sekarang.getTime() - d.getTime()) / 86400000)
+  if (selisihHari === 0) return 'Hari ini'
+  if (selisihHari === 1) return 'Kemarin'
+  if (selisihHari < 7) return `${selisihHari} hari lalu`
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+}
+
+export default function BarisGuru({ guru, status, aktivitas, adaPeriode }: {
+  guru: G
+  status?: S
+  aktivitas?: number
+  adaPeriode?: boolean
+}) {
   const router = useRouter()
   const [pesan, setPesan] = useState('')
   const [sibuk, setSibuk] = useState(false)
@@ -31,26 +48,39 @@ export default function BarisGuru({ guru, status }: { guru: G; status?: S }) {
   }
 
   return (
-    <tr className={guru.disetujui ? undefined : 'baris-menunggu'}>
-      <td>
-        <a href={`/admin/guru/${guru.id}`}><b>{guru.nama}</b></a>
+    <tr className={`baris-guru${guru.disetujui ? '' : ' baris-menunggu'}`}>
+      <td data-label="Nama">
+        {/* Stretched link: ::after pseudo-elemen memperluas area klik seluruh baris (CSS) */}
+        <a href={`/admin/guru/${guru.id}`} className="baris-guru__tautan"><b>{guru.nama}</b></a>
         {guru.keterangan && <div className="kartu-sub">{guru.keterangan}</div>}
       </td>
-      <td>{guru.username}</td>
-      {status && (
+      <td data-label="NIP / NIK">{guru.username}</td>
+      {adaPeriode && status && (
         <>
-          <td>{guru.disetujui ? status.progres : '-'}</td>
-          <td>
-            {!guru.disetujui || status.label === '-' ? '-'
+          <td data-label="Progres">
+            {!guru.disetujui || status.label === '-'
+              ? <span className="redup">-</span>
+              : (
+                <div className="progres-mini">
+                  <ProgressBar nilai={status.jumlahSah} maks={status.jumlahWajib} />
+                  <span className="progres-mini__teks">{status.jumlahSah}/{status.jumlahWajib}</span>
+                </div>
+              )}
+          </td>
+          <td data-label="Status">
+            {!guru.disetujui || status.label === '-' ? <span className="redup">-</span>
               : <span className={`label ${status.label.replace(/ /g, '-')}`}>{status.label}</span>}
+          </td>
+          <td data-label="Aktivitas">
+            <span className="redup">{aktivitas ? formatAktivitas(aktivitas) : '-'}</span>
           </td>
         </>
       )}
-      <td>
+      <td data-label="Akun">
         {!guru.disetujui ? <span className="label Perlu-dicek">Menunggu persetujuan</span>
           : guru.aktif ? 'Aktif' : <strong className="galat">Nonaktif</strong>}
       </td>
-      <td className="nowrap">
+      <td data-label="Aksi" className="nowrap">
         {!guru.disetujui ? (
           <>
             <button disabled={sibuk} onClick={() => kirim({ aksi: 'setujui', guruId: guru.id })}>Setujui</button>{' '}

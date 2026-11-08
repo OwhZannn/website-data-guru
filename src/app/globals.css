@@ -819,3 +819,102 @@ tr.baris-menunggu td { background: #fffaf0; }
   color: var(--teks); text-decoration: none; font-size: var(--t-sm);
 }
 .unduh-rekap__menu a:hover { background: var(--latar); }
+
+/* ========== Fase 4: Daftar guru ========== */
+
+/* Tajuk kolom yang bisa diurut */
+.tajuk-urut {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  color: inherit; text-decoration: none; font-weight: 700;
+  white-space: nowrap;
+}
+.tajuk-urut:hover { color: var(--hijau-2); }
+
+/* Filter gabungan */
+.filter-gabungan {
+  background: var(--kartu); border: 1px solid var(--garis); border-radius: var(--r);
+  padding: var(--s-3) var(--s-4); margin-bottom: var(--s-4);
+  display: flex; flex-direction: column; gap: var(--s-3);
+}
+.filter-gabungan__chip {
+  display: flex; flex-wrap: wrap; gap: var(--s-2);
+}
+.chip-filter {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  padding: var(--s-1) var(--s-3); border-radius: var(--r-pill);
+  border: 1.5px solid var(--garis); background: var(--kartu);
+  font-size: var(--t-sm); font-weight: 600; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.chip-filter:hover { border-color: var(--hijau-2); color: var(--hijau); }
+.chip-filter--aktif { background: var(--hijau-muda); border-color: var(--hijau-2); color: var(--hijau); }
+.chip-filter__angka {
+  background: var(--hijau-2); color: #fff;
+  border-radius: var(--r-pill); padding: 1px 6px; font-size: var(--t-xs);
+}
+.chip-filter--aktif .chip-filter__angka { background: var(--hijau); }
+.filter-gabungan__baris {
+  display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center;
+}
+.filter-gabungan__cari { flex: 1; min-width: 160px; margin: 0; }
+.filter-gabungan__pilih { width: auto; min-width: 120px; margin: 0; }
+.tombol-sm {
+  padding: 7px 14px; font-size: var(--t-sm); font-weight: 700;
+  background: var(--hijau-2); color: #fff; border: none; border-radius: var(--r-sm); cursor: pointer;
+}
+.tombol-sm:hover { background: var(--hijau); }
+.hapus-filter {
+  font-size: var(--t-sm); color: var(--redup); text-decoration: underline; white-space: nowrap;
+}
+.hapus-filter:hover { color: var(--tolak); }
+
+/* Tabel guru: sticky header + hover baris */
+.tabel-guru thead th {
+  position: sticky; top: var(--header-tinggi, 56px); z-index: 2;
+  background: #f9fbfa; border-bottom: 2px solid var(--garis);
+}
+.tabel-guru tbody tr { position: relative; }
+.tabel-guru tbody tr:hover td { background: var(--hijau-muda); }
+
+/* Stretched link: area klik seluruh baris tanpa JavaScript */
+.baris-guru__tautan {
+  color: inherit; text-decoration: none;
+}
+.baris-guru__tautan::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+}
+.baris-guru__tautan b { color: var(--hijau-2); }
+.baris-guru__tautan:hover b { text-decoration: underline; color: var(--hijau); }
+/* Tombol di dalam baris tetap bisa diklik (z-index lebih tinggi) */
+.baris-guru td > button,
+.baris-guru td > a:not(.baris-guru__tautan) { position: relative; z-index: 1; }
+
+/* Mini progress bar dalam kolom progres */
+.progres-mini { display: flex; flex-direction: column; gap: 3px; min-width: 56px; }
+.progres-mini__teks { font-size: var(--t-xs); color: var(--redup); font-variant-numeric: tabular-nums; }
+
+/* ========== Kartu ponsel (< 640 px) ========== */
+@media (max-width: 639px) {
+  .tabel-guru thead { display: none; }
+  .tabel-guru, .tabel-guru tbody { display: block; }
+  .tabel-guru tbody tr {
+    display: block;
+    background: var(--kartu); border: 1px solid var(--garis);
+    border-radius: var(--r); margin-bottom: var(--s-3);
+    padding: var(--s-3) var(--s-4); box-shadow: var(--bayang-sm);
+    position: relative;
+  }
+  .tabel-guru tbody tr.baris-menunggu { border-color: #f0cc7c; background: #fffaf0; }
+  .tabel-guru td { display: block; padding: var(--s-1) 0; border: none; }
+  .tabel-guru td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-size: var(--t-xs); font-weight: 700; color: var(--redup);
+    display: block; margin-bottom: 2px;
+  }
+  .tabel-guru td[data-label="Nama"]::before,
+  .tabel-guru td[data-label="Aksi"]::before { display: none; }
+  .tabel-guru td[data-label="Nama"] { font-size: var(--t-base); border-bottom: 1px solid var(--garis); padding-bottom: var(--s-2); margin-bottom: var(--s-1); }
+  .tabel-guru td[data-label="Aksi"] { margin-top: var(--s-2); border-top: 1px solid var(--garis); padding-top: var(--s-2); }
+  /* Pastikan geser tidak memerlukan scroll horizontal */
+  .geser { overflow: visible; }
+}

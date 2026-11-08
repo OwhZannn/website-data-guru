@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
 import BannerDrive from '@/components/BannerDrive'
-import Kepala from '@/components/Kepala'
 
 export const dynamic = 'force-dynamic'
 
 export default async function BerandaAdmin() {
-  const admin = await halamanAdmin()
+  await halamanAdmin()
   const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
   const kelompok = periode
     ? await prisma.dokumenGuru.groupBy({
@@ -23,10 +22,8 @@ export default async function BerandaAdmin() {
 
   return (
     <>
-    <Kepala sub={admin.nama} tab="beranda" />
-    <main className="lebar">
       <BannerDrive />
-      <h1>Beranda Admin</h1>
+      <h1 className="mt-s4">Beranda Admin</h1>
       <div className="panel">
         {periode ? <p>Periode dibuka: <strong>{periode.nama}</strong></p> : <p>Tidak ada periode yang sedang dibuka.</p>}
         {periode && (
@@ -55,7 +52,6 @@ export default async function BerandaAdmin() {
           </table>
         </div>
       )}
-    </main>
     </>
   )
 }

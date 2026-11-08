@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
 import { hitungStatusGuru, type StatusGuru } from '@/lib/status'
-import Kepala from '@/components/Kepala'
 import BarisGuru from '@/components/BarisGuru'
 import BannerSandi from '@/components/BannerSandi'
 import PilihPeriode from '@/components/PilihPeriode'
@@ -27,7 +26,7 @@ const LABEL: Record<string, StatusGuru['label']> = {
 }
 
 export default async function HalamanGuru({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; periode?: string; hal?: string; per?: string }> }) {
-  const admin = await halamanAdmin()
+  await halamanAdmin()
   const sp = await searchParams
   const q = (sp.q ?? '').trim()
   const filter = sp.status && (LABEL[sp.status] || sp.status === 'menunggu') ? sp.status : 'semua'
@@ -70,8 +69,6 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
 
   return (
     <>
-    <Kepala sub={admin.nama} tab="guru" />
-    <main className="lebar">
       <div className="judul-aksi">
         <h1>Guru</h1>
         <span className="aksi mt-0">
@@ -165,7 +162,6 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
           </span>
         )}
       </nav>
-    </main>
     </>
   )
 }

@@ -489,3 +489,174 @@ tr.baris-menunggu td { background: #fffaf0; }
   background: #fdecea; color: #b71c1c; border: 1px solid #b71c1c;
   padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); margin-bottom: var(--s-4);
 }
+
+/* ================================================================
+   FASE 1: Tata letak admin — sidebar, header, laci mobile
+   ================================================================ */
+
+/* Variabel sidebar */
+:root {
+  --sidebar-lebar: 220px;
+  --sidebar-lebar-lipat: 56px;
+  --header-tinggi: 56px;
+}
+
+/* Admin cangkang: mengatur tata letak keseluruhan */
+.admin-cangkang {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* Header admin */
+.admin-kepala {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: var(--s-3);
+  height: var(--header-tinggi); padding: 0 var(--s-4);
+  background: var(--hijau); color: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+.admin-kepala__logo {
+  display: flex; align-items: center; gap: var(--s-2); flex: 1; min-width: 0;
+}
+.admin-kepala__logo img { flex: none; }
+.admin-kepala__judul { font-weight: 700; font-size: var(--t-sm); line-height: 1.2; }
+.admin-kepala__sub   { font-size: var(--t-xs); opacity: .85; }
+.admin-kepala__aksi  { display: flex; align-items: center; gap: var(--s-2); flex-shrink: 0; }
+.admin-kepala button, .admin-kepala a.tombol-ikon {
+  color: #fff; background: transparent; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  transition: background .15s;
+}
+.admin-kepala button:hover, .admin-kepala a.tombol-ikon:hover { background: rgba(255,255,255,.18); }
+.admin-kepala__nama { font-size: var(--t-sm); opacity: .9; white-space: nowrap; }
+
+/* Periode switcher dalam header */
+.admin-kepala__periode { display: flex; align-items: center; gap: var(--s-2); }
+.admin-kepala__periode select {
+  min-height: unset; height: 32px; padding: 0 32px 0 10px; font-size: var(--t-xs);
+  background-color: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3);
+  border-radius: var(--r-sm);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23fff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.admin-kepala__periode select option { background: var(--hijau); }
+.admin-kepala__periode button[type=submit] {
+  min-height: unset; height: 32px; padding: 0 var(--s-3); font-size: var(--t-xs);
+  background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3);
+  border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; width: auto;
+}
+.admin-kepala__periode button[type=submit]:hover { background: rgba(255,255,255,.32); }
+
+/* Tubuh: sidebar + konten */
+.admin-tubuh {
+  display: flex; flex: 1;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  display: none; /* disembunyikan di mobile */
+  flex-direction: column;
+  width: var(--sidebar-lebar);
+  flex-shrink: 0;
+  background: var(--kartu);
+  border-right: 1px solid var(--garis);
+  transition: width .2s ease;
+  overflow: hidden;
+  position: sticky;
+  top: var(--header-tinggi);
+  height: calc(100dvh - var(--header-tinggi));
+}
+.admin-sidebar.dilipat { width: var(--sidebar-lebar-lipat); }
+
+@media (min-width: 1024px) {
+  .admin-sidebar { display: flex; }
+}
+
+.admin-sidebar__header {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: var(--s-2) var(--s-2);
+  border-bottom: 1px solid var(--garis);
+}
+.admin-sidebar__tombol-lipat {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--r-sm);
+  background: none; border: none; cursor: pointer; color: var(--redup);
+  flex-shrink: 0; transition: background .15s;
+}
+.admin-sidebar__tombol-lipat:hover { background: var(--latar); }
+
+.admin-nav { padding: var(--s-2) 0; flex: 1; overflow-y: auto; }
+.admin-nav-butir {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  font-size: var(--t-sm); font-weight: 500; color: var(--redup);
+  text-decoration: none; border-radius: 0;
+  transition: background .12s, color .12s;
+  white-space: nowrap; overflow: hidden;
+  position: relative;
+}
+.admin-nav-butir:hover { background: var(--latar); color: var(--teks); }
+.admin-nav-butir.aktif {
+  color: var(--hijau);
+  background: var(--hijau-muda);
+  font-weight: 700;
+}
+.admin-nav-butir.aktif::before {
+  content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+  width: 3px; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  background: var(--hijau);
+}
+.admin-nav-butir__ikon { flex-shrink: 0; }
+.admin-nav-butir__teks { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.admin-nav-butir__badge {
+  margin-left: auto; flex-shrink: 0;
+  background: var(--tolak); color: #fff;
+  font-size: 10px; font-weight: 700; line-height: 1;
+  padding: 2px 6px; border-radius: var(--r-pill);
+}
+.dilipat .admin-nav-butir { padding: var(--s-2); justify-content: center; }
+.dilipat .admin-nav-butir__teks { display: none; }
+.dilipat .admin-nav-butir__badge { display: none; }
+
+/* Konten utama */
+.admin-konten {
+  flex: 1; min-width: 0;
+  overflow-x: hidden;
+  /* override margin: 0 auto dari selektor `main` */
+  margin: 0;
+  max-width: none;
+}
+
+/* ---- Laci mobile ---- */
+.admin-laci-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,.45);
+}
+.admin-laci-overlay.buka { display: block; }
+
+.admin-laci {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 51;
+  width: min(var(--sidebar-lebar), 85vw);
+  background: var(--kartu);
+  box-shadow: var(--bayang-md);
+  transform: translateX(-100%);
+  transition: transform .22s ease;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.admin-laci.buka { transform: translateX(0); display: flex; }
+
+.admin-laci__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--garis);
+  background: var(--hijau); color: #fff;
+}
+.admin-laci__judul { font-weight: 700; font-size: var(--t-sm); }
+.admin-laci__tutup {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--r-sm);
+  background: rgba(255,255,255,.18); border: none; cursor: pointer; color: #fff;
+}
+.admin-laci__tutup:hover { background: rgba(255,255,255,.32); }

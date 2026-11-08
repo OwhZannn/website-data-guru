@@ -7,7 +7,7 @@ import { daftarRiwayatDokumen, namaPelakuRiwayat } from '@/lib/riwayat'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
 import PilihPeriode from '@/components/PilihPeriode'
 import { ZONA_WAKTU } from '@/lib/waktu'
-import Kepala from '@/components/Kepala'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 import KartuProgres from '@/components/KartuProgres'
 import TombolKeputusan from '@/components/TombolKeputusan'
 import FormProfil from '@/components/FormProfil'
@@ -28,7 +28,7 @@ export default async function DetailGuru({ params, searchParams }: {
   params: Promise<{ id: string }>
   searchParams: Promise<{ periode?: string }>
 }) {
-  const admin = await halamanAdmin()
+  await halamanAdmin()
   const { id } = await params
   const sp = await searchParams
   const guru = await prisma.guru.findUnique({ where: { id } })
@@ -52,11 +52,14 @@ export default async function DetailGuru({ params, searchParams }: {
 
   return (
     <>
-    <Kepala sub={admin.nama} tab="guru" />
-    <main className="dua">
+    <Breadcrumb butir={[
+      { label: 'Beranda', href: '/admin' },
+      { label: 'Guru', href: '/admin/guru' },
+      { label: guru.nama },
+    ]} />
+    <div className="dua">
       <div className="dua-kiri">
       <BannerDrive />
-      <p className="nav-balik"><a href="/admin/guru">← Daftar guru</a></p>
       <h1>Detail Guru</h1>
       <p className="mb-s3"><strong>{guru.nama}</strong><br /><span className="redup">{teksIdentitas(guru)}</span></p>
       <section className="panel" aria-label="Profil guru">
@@ -117,7 +120,7 @@ export default async function DetailGuru({ params, searchParams }: {
         )
       })}
       </div>
-    </main>
+    </div>
     </>
   )
 }

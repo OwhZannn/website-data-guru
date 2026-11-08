@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
-import Kepala from '@/components/Kepala'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 import KelolaDokumen from '@/components/KelolaDokumen'
 
 export const dynamic = 'force-dynamic'
 
 export default async function DaftarDokumenPeriode({ params }: { params: Promise<{ id: string }> }) {
-  const admin = await halamanAdmin()
+  await halamanAdmin()
   const { id } = await params
   const periode = await prisma.periode.findUnique({ where: { id } })
   if (!periode) notFound()
@@ -15,9 +15,12 @@ export default async function DaftarDokumenPeriode({ params }: { params: Promise
 
   return (
     <>
-      <Kepala sub={admin.nama} tab="periode" />
-      <main className="lebar">
-      <p className="nav-balik"><a href="/admin/periode">← Semua periode</a></p>
+      <Breadcrumb butir={[
+        { label: 'Beranda', href: '/admin' },
+        { label: 'Periode', href: '/admin/periode' },
+        { label: periode.nama, href: `/admin/periode/${id}/dokumen` },
+        { label: 'Dokumen' },
+      ]} />
       <h1>Daftar Dokumen</h1>
       <p className="redup">{periode.nama}</p>
       <KelolaDokumen
@@ -25,7 +28,6 @@ export default async function DaftarDokumenPeriode({ params }: { params: Promise
         aktif={dokumen.filter((d) => d.aktif).map((d) => ({ id: d.id, nama: d.nama, urutan: d.urutan, berlakuUntuk: d.berlakuUntuk }))}
         nonaktif={dokumen.filter((d) => !d.aktif).map((d) => ({ id: d.id, nama: d.nama, urutan: d.urutan, berlakuUntuk: d.berlakuUntuk }))}
       />
-      </main>
     </>
   )
 }

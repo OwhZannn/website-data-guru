@@ -1,22 +1,25 @@
 import { halamanAdmin } from '@/lib/halaman'
-import Kepala from '@/components/Kepala'
 import FormGuruBaru from '@/components/FormGuruBaru'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 
 export const dynamic = 'force-dynamic'
 
 export default async function TambahGuru() {
-  const admin = await halamanAdmin()
+  await halamanAdmin()
   return (
     <>
-      <Kepala sub={admin.nama} tab="guru" />
-      <main className="profil-halaman">
-        <p className="nav-balik"><a href="/admin/guru">← Daftar guru</a></p>
+      <Breadcrumb butir={[
+        { label: 'Beranda', href: '/admin' },
+        { label: 'Guru', href: '/admin/guru' },
+        { label: 'Tambah guru' },
+      ]} />
+      <div className="profil-halaman" style={{ maxWidth: 640, margin: '0 auto', padding: '0 16px 48px' }}>
         <h1>Tambah guru</h1>
         <p className="redup mb-s4">
           Isi data guru. Username dan kata sandi awal (8 angka acak) dibuat otomatis dan ditampilkan sekali setelah disimpan.
         </p>
         <FormGuruBaru mode="admin" />
-      </main>
+      </div>
     </>
   )
 }

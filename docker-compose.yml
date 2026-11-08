@@ -10,7 +10,7 @@ services:
       - ./data:/app/data
     ports:
       # Hanya 127.0.0.1: aplikasi dapat dicapai lewat nginx saja.
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${PORT_WEB:-3000}:3000"
     healthcheck:
       # /api/hidup tidak menyentuh Drive maupun basis data; /api/kesehatan butuh sesi admin.
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/hidup"]

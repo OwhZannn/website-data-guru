@@ -118,3 +118,11 @@ model PercobaanMasuk {
   gagal Int      @default(0)
   sejak DateTime
 }
+
+model AlasanTolak {
+  id         String   @id @default(cuid())
+  teks       String
+  urutan     Int      @default(0)
+  aktif      Boolean  @default(true)
+  dibuatPada DateTime @default(now())
+}

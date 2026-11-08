@@ -1,54 +1,167 @@
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
+import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
+import { potongHalaman, nomorHalaman } from '@/lib/paginasi'
+import Breadcrumb from '@/components/ui/Breadcrumb'
+import PilihPeriode from '@/components/PilihPeriode'
+import { ZONA_WAKTU } from '@/lib/waktu'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HalamanAntrean() {
-  await halamanAdmin()
+const waktuWita = (d: Date) =>
+  new Intl.DateTimeFormat('id-ID', { timeZone: ZONA_WAKTU, dateStyle: 'medium', timeStyle: 'short' }).format(d) + ' WITA'
 
-  const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
-  const kelompok = periode
+export default async function HalamanAntrean({ searchParams }: {
+  searchParams: Promise<{ periode?: string; dok?: string; sekolah?: string; hal?: string; per?: string }>
+}) {
+  await halamanAdmin()
+  const sp = await searchParams
+  const daftarPeriode = await semuaPeriode()
+  const periode = pilihPeriode(daftarPeriode, sp.periode)
+
+  const semua = periode
     ? await prisma.dokumenGuru.findMany({
-        where: { periodeId: periode.id, status: 'MENUNGGU' },
-        include: { guru: { select: { id: true, nama: true, username: true } }, dokumen: { select: { nama: true } } },
+        where: {
+          periodeId: periode.id,
+          status: 'MENUNGGU',
+          ...(sp.dok ? { dokumenId: sp.dok } : {}),
+        },
+        include: {
+          guru: { select: { id: true, nama: true, username: true, asalSekolah: true } },
+          dokumen: { select: { id: true, nama: true } },
+        },
         orderBy: { diunggahPada: 'asc' },
       })
     : []
 
+  // Filter sekolah (client-side potong dari array sudah diambil)
+  const terfilter = sp.sekolah
+    ? semua.filter((d) => d.guru.asalSekolah?.toLowerCase().includes(sp.sekolah!.toLowerCase()))
+    : semua
+
+  // Daftar jenis dokumen dan sekolah unik untuk filter
+  const jenisDokumen = periode
+    ? await prisma.daftarDokumen.findMany({ where: { periodeId: periode.id, aktif: true }, orderBy: { urutan: 'asc' }, select: { id: true, nama: true } })
+    : []
+  const sekolahUnik = [...new Set(semua.map((d) => d.guru.asalSekolah).filter(Boolean) as string[])].sort()
+
+  const halaman = potongHalaman(terfilter, sp.hal, sp.per)
+  const nomor = nomorHalaman(halaman.hal, halaman.jumlahHal)
+
+  function urlFilter(o: Record<string, string | undefined>) {
+    const p = new URLSearchParams()
+    if (periode) p.set('periode', periode.id)
+    const merged = { dok: sp.dok, sekolah: sp.sekolah, ...o }
+    if (merged.dok) p.set('dok', merged.dok)
+    if (merged.sekolah) p.set('sekolah', merged.sekolah)
+    return `/admin/antrean?${p}`
+  }
+
   return (
     <>
-      <h1>Antrean Pemeriksaan</h1>
+      <Breadcrumb butir={[{ href: '/admin', label: 'Beranda' }, { label: 'Antrean Pemeriksaan' }]} />
+      <div className="judul-aksi" style={{ marginBottom: 'var(--s-4)' }}>
+        <h1>Antrean Pemeriksaan</h1>
+        {daftarPeriode.length >= 2 && (
+          <PilihPeriode daftar={daftarPeriode} dipilih={periode?.id ?? ''} />
+        )}
+      </div>
+
       {!periode && (
         <p className="redup">Tidak ada periode yang sedang dibuka. <a href="/admin">Kembali ke beranda</a></p>
       )}
-      {periode && kelompok.length === 0 && (
-        <p className="redup">Tidak ada dokumen yang menunggu pemeriksaan di periode <strong>{periode.nama}</strong>. <a href="/admin">Kembali ke beranda</a></p>
-      )}
-      {periode && kelompok.length > 0 && (
+
+      {periode && (
         <>
-          <p className="redup mb-s4">Periode: <strong>{periode.nama}</strong> — {kelompok.length} dokumen menunggu, diurutkan dari yang paling lama.</p>
-          <div className="geser">
-            <table>
-              <thead>
-                <tr>
-                  <th>Guru</th>
-                  <th>NIP / NIK</th>
-                  <th>Dokumen</th>
-                  <th>Diunggah</th>
-                </tr>
-              </thead>
-              <tbody>
-                {kelompok.map((d) => (
-                  <tr key={d.id}>
-                    <td><a href={`/admin/guru/${d.guruId}`}><b>{d.guru.nama}</b></a></td>
-                    <td>{d.guru.username}</td>
-                    <td>{d.dokumen.nama}</td>
-                    <td>{d.diunggahPada ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(d.diunggahPada) : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Filter */}
+          <form method="GET" action="/admin/antrean" style={{ display: 'flex', gap: 'var(--s-3)', flexWrap: 'wrap', marginBottom: 'var(--s-5)', alignItems: 'flex-end' }}>
+            <input type="hidden" name="periode" value={periode.id} />
+            <label style={{ flex: '1 1 180px' }}>
+              <span style={{ fontSize: 'var(--t-sm)', fontWeight: 600 }}>Jenis Dokumen</span>
+              <select name="dok" defaultValue={sp.dok ?? ''} style={{ marginTop: 4 }}>
+                <option value="">Semua</option>
+                {jenisDokumen.map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}
+              </select>
+            </label>
+            <label style={{ flex: '1 1 180px' }}>
+              <span style={{ fontSize: 'var(--t-sm)', fontWeight: 600 }}>Sekolah</span>
+              <select name="sekolah" defaultValue={sp.sekolah ?? ''} style={{ marginTop: 4 }}>
+                <option value="">Semua</option>
+                {sekolahUnik.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </label>
+            <button type="submit" style={{ alignSelf: 'flex-end' }}>Terapkan</button>
+            {(sp.dok || sp.sekolah) && (
+              <a href={urlFilter({ dok: undefined, sekolah: undefined })} className="biasa" style={{ alignSelf: 'flex-end', display: 'inline-block', padding: '8px 16px', borderRadius: 'var(--r-sm)', textDecoration: 'none' }}>Reset</a>
+            )}
+          </form>
+
+          <p className="redup mb-s3">
+            Periode: <strong>{periode.nama}</strong>
+            {periode.dibuka ? '' : ' (ditutup)'}{' '}
+            — {halaman.total} dokumen menunggu
+            {sp.dok || sp.sekolah ? ` (${terfilter.length} setelah filter)` : ''}, diurutkan dari yang paling lama.
+          </p>
+
+          {halaman.isi.length === 0 ? (
+            <p className="redup">Tidak ada dokumen yang menunggu. <a href="/admin">Kembali ke beranda</a></p>
+          ) : (
+            <>
+              <div className="geser">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Guru</th>
+                      <th>NIP / NIK</th>
+                      <th>Sekolah</th>
+                      <th>Dokumen</th>
+                      <th>Diunggah</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {halaman.isi.map((d) => (
+                      <tr key={d.id}>
+                        <td><a href={`/admin/guru/${d.guruId}?periode=${periode.id}`}><b>{d.guru.nama}</b></a></td>
+                        <td>{d.guru.username}</td>
+                        <td>{d.guru.asalSekolah ?? '—'}</td>
+                        <td>{d.dokumen.nama}</td>
+                        <td>{d.diunggahPada ? waktuWita(d.diunggahPada) : '—'}</td>
+                        <td>
+                          <a href={`/admin/guru/${d.guruId}?periode=${periode.id}&dok=${d.id}`} style={{ whiteSpace: 'nowrap' }}>
+                            Periksa →
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Paginasi */}
+              {halaman.jumlahHal > 1 && (
+                <div className="paginasi">
+                  <span className="redup" style={{ fontSize: 'var(--t-sm)' }}>
+                    {halaman.dari}–{halaman.sampai} dari {halaman.total}
+                  </span>
+                  <nav className="paginasi-nomor" aria-label="Halaman">
+                    {nomor.map((n, i) =>
+                      n === null ? (
+                        <span key={`celah-${i}`} className="celah">…</span>
+                      ) : (
+                        <a
+                          key={n}
+                          href={`/admin/antrean?${new URLSearchParams({ ...(periode ? { periode: periode.id } : {}), ...(sp.dok ? { dok: sp.dok } : {}), ...(sp.sekolah ? { sekolah: sp.sekolah } : {}), hal: String(n), per: String(halaman.per) })}`}
+                          aria-current={n === halaman.hal ? 'page' : undefined}
+                        >
+                          {n}
+                        </a>
+                      ),
+                    )}
+                  </nav>
+                </div>
+              )}
+            </>
+          )}
         </>
       )}
     </>

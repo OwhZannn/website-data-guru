@@ -10,4 +10,5 @@ export async function bersihkanSemua(): Promise<void> {
   await prisma.percobaanMasuk.deleteMany()
   await prisma.guru.deleteMany()
   await prisma.admin.deleteMany()
+  await prisma.alasanTolak.deleteMany()
 }

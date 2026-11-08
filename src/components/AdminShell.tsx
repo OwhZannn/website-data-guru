@@ -4,6 +4,7 @@ import type { Periode } from '@prisma/client'
 import { AdminSidebar, AdminLaci } from './AdminSidebarClient'
 import TombolKeluar from './TombolKeluar'
 import PilihPeriodeHeader from './PilihPeriodeHeader'
+import { ToastProvider } from './Toast'
 
 /**
  * Cangkang tata letak halaman admin:
@@ -26,6 +27,7 @@ export default function AdminShell({
   children: ReactNode
 }) {
   return (
+    <ToastProvider>
     <div className="admin-cangkang">
       <header className="admin-kepala">
         {/* Hamburger mobile */}
@@ -62,5 +64,6 @@ export default function AdminShell({
         </main>
       </div>
     </div>
+    </ToastProvider>
   )
 }

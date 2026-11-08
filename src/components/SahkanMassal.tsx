@@ -59,8 +59,8 @@ export default function SahkanMassal({
       <button
         type="button"
         onClick={() => setBuka(true)}
+        className="mb-s3"
         data-testid="tombol-sahkan-massal"
-        style={{ marginBottom: 'var(--s-3)' }}
       >
         Sahkan semua yang menunggu ({dokumen.length})
       </button>
@@ -74,10 +74,10 @@ export default function SahkanMassal({
         onBatal={() => setBuka(false)}
       >
         <p>Dokumen berikut akan disahkan:</p>
-        <ul style={{ margin: '8px 0', paddingLeft: '1.2em' }}>
+        <ul className="daftar-konfirmasi">
           {dokumen.map((d) => <li key={d.id}>{d.nama}</li>)}
         </ul>
-        <p style={{ color: 'var(--redup)', fontSize: 'var(--t-sm)' }}>Hanya dokumen dengan file yang diproses.</p>
+        <p className="redup teks-sm">Hanya dokumen dengan file yang diproses.</p>
       </Konfirmasi>
     </>
   )

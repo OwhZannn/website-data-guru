@@ -33,12 +33,12 @@ export default function PanelPratinjau({
           href={urlDrive}
           target="_blank"
           rel="noopener noreferrer"
-          className="tombol-ikon"
+          className="tombol-garis tombol-garis--sm"
           aria-label="Buka di Drive"
           title="Buka di Drive"
         >
           <ExternalLink size={16} />
-          <span style={{ marginLeft: 4 }}>Buka di Drive</span>
+          <span>Buka di Drive</span>
         </a>
       </div>
 

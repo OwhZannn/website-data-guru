@@ -151,8 +151,8 @@ export default async function DetailGuru({ params, searchParams }: {
             const b = baris.find((x) => x.dokumenId === d.id)
             if (!b || riwayat[i].length === 0) return null
             return (
-              <section key={d.id} style={{ marginTop: 'var(--s-5)' }}>
-                <h3 style={{ marginBottom: 'var(--s-3)' }}>Riwayat — {d.nama}</h3>
+              <section key={d.id} className="mt-s5">
+                <h3 className="mb-s3">Riwayat — {d.nama}</h3>
                 <TimelineRiwayat riwayat={riwayat[i]} namaPelaku={pelaku} />
               </section>
             )

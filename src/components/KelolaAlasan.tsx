@@ -53,14 +53,13 @@ export default function KelolaAlasan({ baris }: { baris: AlasanTolak[] }) {
   return (
     <div>
       {/* Form tambah */}
-      <form onSubmit={tambah} style={{ display: 'flex', gap: 'var(--s-2)', marginBottom: 'var(--s-5)', flexWrap: 'wrap' }}>
+      <form onSubmit={tambah} className="baris-input mb-s5">
         <input
           type="text"
           value={teks}
           onChange={(e) => setTeks(e.target.value)}
           placeholder="Teks alasan baru…"
           maxLength={200}
-          style={{ flex: 1, minWidth: 200, margin: 0 }}
           aria-label="Teks alasan baru"
         />
         <button type="submit" disabled={sibuk || !teks.trim()}>Tambah</button>
@@ -71,17 +70,16 @@ export default function KelolaAlasan({ baris }: { baris: AlasanTolak[] }) {
         <EmptyState ikon={<MessageSquareX size={28} />} teks="Belum ada alasan penolakan. Tambahkan di atas." />
       )}
 
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      <ul className="daftar-polos">
         {baris.map((a, idx) => (
-          <li key={a.id} className="kartu" style={{ opacity: a.aktif ? 1 : 0.55 }}>
+          <li key={a.id} className={`kartu${a.aktif ? '' : ' nonaktif-item'}`}>
             {edit?.id === a.id ? (
-              <form onSubmit={simpanEdit} style={{ display: 'flex', gap: 'var(--s-2)', flexWrap: 'wrap', alignItems: 'center' }}>
+              <form onSubmit={simpanEdit} className="baris-input">
                 <input
                   type="text"
                   value={edit.teks}
                   onChange={(e) => setEdit({ ...edit, teks: e.target.value })}
                   maxLength={200}
-                  style={{ flex: 1, minWidth: 160, margin: 0 }}
                   aria-label="Edit teks alasan"
                   autoFocus
                 />
@@ -89,12 +87,12 @@ export default function KelolaAlasan({ baris }: { baris: AlasanTolak[] }) {
                 <button type="button" className="biasa" disabled={sibuk} onClick={() => setEdit(null)}>Batal</button>
               </form>
             ) : (
-              <div style={{ display: 'flex', gap: 'var(--s-2)', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ flex: 1 }}>
+              <div className="baris-alasan">
+                <span className="baris-alasan__teks">
                   {a.teks}
-                  {!a.aktif && <span className="label BELUM" style={{ marginLeft: 'var(--s-2)' }}>Nonaktif</span>}
+                  {!a.aktif && <span className="label BELUM ml-s2">Nonaktif</span>}
                 </span>
-                <div style={{ display: 'flex', gap: 'var(--s-1)', flexShrink: 0 }}>
+                <div className="baris-alasan__aksi">
                   <button
                     type="button"
                     className="biasa"

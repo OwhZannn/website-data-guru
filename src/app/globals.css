@@ -682,11 +682,9 @@ tr.baris-menunggu td { background: var(--tunggu-baris); }
 /* Konten utama */
 .admin-konten {
   flex: 1; min-width: 0;
-  overflow-x: hidden;
-  /* override margin: 0 auto dari selektor `main` */
-  margin: 0;
-  max-width: none;
+  overflow-x: clip; /* bukan hidden: hidden membuat wadah gulir dan mematikan kepala tabel lengket */
 }
+main.admin-konten { margin: 0 auto; max-width: 1440px; }
 
 /* ---- Laci mobile ---- */
 .admin-laci-overlay {
@@ -830,11 +828,12 @@ tr.baris-menunggu td { background: var(--tunggu-baris); }
 .review-daftar { display: flex; flex-direction: column; gap: var(--s-1); }
 .review-item {
   display: flex; align-items: center; width: 100%; text-align: left;
+  color: var(--teks); /* tombol mewarisi putih dari aturan button; di atas kartu putih itu tak terbaca */
   background: var(--kartu); border: 1px solid var(--garis);
   border-radius: var(--r-sm); padding: var(--s-2) var(--s-3);
   cursor: pointer; font-size: var(--t-sm); transition: border-color .12s;
 }
-.review-item:hover { border-color: var(--hijau-2); }
+.review-item:hover:not(:disabled) { border-color: var(--hijau-2); background: var(--hijau-muda); color: var(--teks); }
 .review-item--aktif { border-color: var(--hijau-2); background: var(--hijau-muda); font-weight: 600; }
 
 /* ---------- Pratinjau Drive ---------- */
@@ -1062,3 +1061,82 @@ details.kelompok:not([open]) > summary::after { content: ' ▼'; font-size: .7em
   padding: var(--s-3); margin-top: var(--s-4);
 }
 .kerangka-tabel > .kerangka:last-child { margin-bottom: 0; }
+
+
+/* ================================================================
+   FASE 7a: Perbaikan tata letak
+   ================================================================ */
+
+/* Hamburger hanya untuk layar sempit; di desktop sidebar sudah terlihat. */
+@media (min-width: 1024px) {
+  .admin-kepala__hamburger-slot { display: none; }
+}
+
+/* Utilitas tambahan menggantikan atribut style sebaris */
+.mb-s5 { margin-bottom: var(--s-5); }
+.mt-s5 { margin-top: var(--s-5); }
+.ml-s2 { margin-left: var(--s-2); }
+.halaman-sempit { max-width: 640px; margin: 0 auto; padding: 0 var(--s-4) var(--s-8); }
+.daftar-polos { list-style: none; padding: 0; margin: 0; }
+.baris-input { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.baris-input input { flex: 1 1 200px; margin: 0; }
+.baris-alasan { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.baris-alasan__teks { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.baris-alasan__aksi { display: flex; flex-wrap: wrap; gap: var(--s-1); flex-shrink: 0; }
+.baris-alasan__aksi button { padding: 6px 12px; font-size: 13px; }
+.review-bantuan { display: flex; justify-content: flex-end; margin-bottom: var(--s-2); }
+.tombol-kecil { display: inline-flex; align-items: center; gap: var(--s-1); padding: 4px 10px; font-size: var(--t-sm); }
+.label--kecil { font-size: var(--t-xs); }
+.review-alasan { color: var(--tolak); font-size: var(--t-sm); margin: 0 0 var(--s-3); }
+.review-selesai { margin-top: var(--s-5); text-align: center; }
+.review-selesai__judul { font-weight: 700; color: var(--sah); }
+.review-selesai button { margin-right: var(--s-3); }
+.dialog-kepala { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-3); }
+.dialog-kepala button { padding: 4px 10px; }
+.tabel-pintasan { width: 100%; border-collapse: collapse; }
+.tabel-pintasan td { padding: var(--s-2) 0; }
+.tabel-pintasan td:first-child { padding-right: var(--s-3); font-family: ui-monospace, monospace; font-weight: 700; }
+.timeline { list-style: none; padding: 0; margin: 0; }
+.timeline-item { display: flex; gap: var(--s-3); position: relative; padding-bottom: var(--s-4); }
+.timeline-garis { position: absolute; left: 7px; top: 20px; bottom: 0; width: 2px; background: var(--garis); }
+.timeline-ikon { flex-shrink: 0; margin-top: 2px; }
+.timeline-teks { font-size: var(--t-sm); color: var(--redup); }
+.timeline-alasan { margin-top: var(--s-1); color: var(--tolak); font-size: var(--t-sm); }
+.daftar-konfirmasi { margin: var(--s-2) 0; padding-left: 1.2em; }
+
+/* Formulir filter: label di atas, kontrol dan tombol rata bawah, lebar terbatas */
+.form-filter { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: flex-end; margin-bottom: var(--s-5); }
+.medan { display: block; flex: 1 1 200px; max-width: 320px; min-width: 0; }
+.medan__label { display: block; font-size: var(--t-sm); font-weight: 600; margin-bottom: var(--s-1); }
+.medan select, .medan input { margin: 0; }
+.form-filter > button, .form-filter > .tombol-sekunder { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 519px) {
+  .medan { flex-basis: 100%; max-width: none; }
+}
+
+/* Tautan di dalam tabel: nama polos, aksi seperti tombol halus */
+.tautan-nama { font-weight: 700; color: var(--tautan); text-decoration: none; }
+.tautan-nama:hover { color: var(--tautan-kuat); text-decoration: underline; }
+.tombol-tabel {
+  display: inline-flex; align-items: center; gap: var(--s-1); white-space: nowrap;
+  padding: 5px 12px; border-radius: var(--r-pill); font-size: var(--t-sm); font-weight: 700;
+  color: var(--tautan); text-decoration: none; border: 1px solid var(--garis-input); background: var(--permukaan);
+}
+.tombol-tabel:hover { background: var(--hijau-muda); border-color: var(--hijau-2); color: var(--tautan-kuat); }
+.tombol-sekunder {
+  padding: 0 18px; border-radius: var(--r-pill); font-weight: 700; font-size: 15px; text-decoration: none;
+  color: var(--teks); background: var(--belum-bg);
+}
+.tombol-sekunder:hover { background: var(--permukaan-3); color: var(--teks); }
+.tombol-garis--sm { min-height: 32px; padding: 0 12px; font-size: var(--t-sm); gap: var(--s-1); }
+
+/* Tabel: kepala lengket di layar lebar (wadah gulir mematikan sticky, jadi dilepas saat tabel muat) */
+.tabel-lengket thead th { position: sticky; top: var(--header-tinggi, 56px); z-index: 2; border-bottom: 2px solid var(--garis); }
+@media (min-width: 1100px) {
+  .geser:has(> table.tabel-lengket), .geser:has(> table.tabel-guru) { overflow: visible; }
+  .geser > table thead th:first-child { border-top-left-radius: var(--r); }
+  .geser > table thead th:last-child { border-top-right-radius: var(--r); }
+  .geser > table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--r); }
+  .geser > table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--r); }
+}
+tbody tr:hover td { background: var(--permukaan-2); }

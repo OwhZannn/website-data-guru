@@ -62,7 +62,7 @@ export default async function HalamanAntrean({ searchParams }: {
   return (
     <>
       <Breadcrumb butir={[{ href: '/admin', label: 'Beranda' }, { label: 'Antrean Pemeriksaan' }]} />
-      <div className="judul-aksi" style={{ marginBottom: 'var(--s-4)' }}>
+      <div className="judul-aksi mb-s4">
         <h1>Antrean Pemeriksaan</h1>
         {daftarPeriode.length >= 2 && (
           <PilihPeriode daftar={daftarPeriode} dipilih={periode?.id ?? ''} />
@@ -76,25 +76,25 @@ export default async function HalamanAntrean({ searchParams }: {
       {periode && (
         <>
           {/* Filter */}
-          <form method="GET" action="/admin/antrean" style={{ display: 'flex', gap: 'var(--s-3)', flexWrap: 'wrap', marginBottom: 'var(--s-5)', alignItems: 'flex-end' }}>
+          <form method="GET" action="/admin/antrean" className="form-filter">
             <input type="hidden" name="periode" value={periode.id} />
-            <label style={{ flex: '1 1 180px' }}>
-              <span style={{ fontSize: 'var(--t-sm)', fontWeight: 600 }}>Jenis Dokumen</span>
-              <select name="dok" defaultValue={sp.dok ?? ''} style={{ marginTop: 4 }}>
+            <label className="medan">
+              <span className="medan__label">Jenis Dokumen</span>
+              <select name="dok" defaultValue={sp.dok ?? ''}>
                 <option value="">Semua</option>
                 {jenisDokumen.map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}
               </select>
             </label>
-            <label style={{ flex: '1 1 180px' }}>
-              <span style={{ fontSize: 'var(--t-sm)', fontWeight: 600 }}>Sekolah</span>
-              <select name="sekolah" defaultValue={sp.sekolah ?? ''} style={{ marginTop: 4 }}>
+            <label className="medan">
+              <span className="medan__label">Sekolah</span>
+              <select name="sekolah" defaultValue={sp.sekolah ?? ''}>
                 <option value="">Semua</option>
                 {sekolahUnik.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </label>
-            <button type="submit" style={{ alignSelf: 'flex-end' }}>Terapkan</button>
+            <button type="submit">Terapkan</button>
             {(sp.dok || sp.sekolah) && (
-              <a href={urlFilter({ dok: undefined, sekolah: undefined })} className="biasa" style={{ alignSelf: 'flex-end', display: 'inline-block', padding: '8px 16px', borderRadius: 'var(--r-sm)', textDecoration: 'none' }}>Reset</a>
+              <a href={urlFilter({ dok: undefined, sekolah: undefined })} className="tombol-sekunder">Reset</a>
             )}
           </form>
 
@@ -110,7 +110,7 @@ export default async function HalamanAntrean({ searchParams }: {
           ) : (
             <>
               <div className="geser">
-                <table>
+                <table className="tabel-lengket">
                   <thead>
                     <tr>
                       <th>Guru</th>
@@ -124,13 +124,13 @@ export default async function HalamanAntrean({ searchParams }: {
                   <tbody>
                     {halaman.isi.map((d) => (
                       <tr key={d.id}>
-                        <td><a href={`/admin/guru/${d.guruId}?periode=${periode.id}`}><b>{d.guru.nama}</b></a></td>
+                        <td><a className="tautan-nama" href={`/admin/guru/${d.guruId}?periode=${periode.id}`}>{d.guru.nama}</a></td>
                         <td>{d.guru.username}</td>
                         <td>{d.guru.asalSekolah ?? '—'}</td>
                         <td>{d.dokumen.nama}</td>
                         <td>{d.diunggahPada ? waktuWita(d.diunggahPada) : '—'}</td>
                         <td>
-                          <a href={`/admin/guru/${d.guruId}?periode=${periode.id}&dok=${d.id}`} style={{ whiteSpace: 'nowrap' }}>
+                          <a className="tombol-tabel" href={`/admin/guru/${d.guruId}?periode=${periode.id}&dok=${d.id}`}>
                             Periksa →
                           </a>
                         </td>
@@ -142,7 +142,7 @@ export default async function HalamanAntrean({ searchParams }: {
               {/* Paginasi */}
               {halaman.jumlahHal > 1 && (
                 <div className="paginasi">
-                  <span className="redup" style={{ fontSize: 'var(--t-sm)' }}>
+                  <span className="redup teks-sm">
                     {halaman.dari}–{halaman.sampai} dari {halaman.total}
                   </span>
                   <nav className="paginasi-nomor" aria-label="Halaman">

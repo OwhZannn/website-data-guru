@@ -111,17 +111,17 @@ export default async function BerandaAdmin({
                 <tr>
                   <th>Guru</th>
                   <th>Dokumen</th>
-                  <th><Clock size={12} style={{ verticalAlign: 'middle' }} /></th>
+                  <th><Clock size={12} aria-hidden="true" /><span className="sr-only">Menunggu sejak</span></th>
                 </tr>
               </thead>
               <tbody>
                 {data.antrean.map((item) => (
                   <tr key={item.dokumenGuruId}>
                     <td>
-                      <a href={`/admin/guru/${item.guruId}`}>{item.namaGuru}</a>
+                      <a className="tautan-nama" href={`/admin/guru/${item.guruId}`}>{item.namaGuru}</a>
                     </td>
                     <td>{item.namaDokumen}</td>
-                    <td className="redup" style={{ whiteSpace: 'nowrap' }}>
+                    <td className="redup nowrap">
                       {selisihWaktuIndonesia(item.menungguSejak)}
                     </td>
                   </tr>

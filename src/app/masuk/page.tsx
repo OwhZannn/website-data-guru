@@ -1,5 +1,6 @@
 'use client'
 import InputSandi from '@/components/InputSandi'
+import PilihTema from '@/components/PilihTema'
 import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -36,6 +37,7 @@ export default function Masuk() {
 
   return (
     <main className="masuk">
+      <div className="pojok-tema"><PilihTema ringkas /></div>
       <div className="masuk-kartu">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo-kemenag.png" alt="Logo Kementerian Agama" width={92} height={82} />

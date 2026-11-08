@@ -1,10 +1,12 @@
 import FormGuruBaru from '@/components/FormGuruBaru'
+import PilihTema from '@/components/PilihTema'
 
 export const metadata = { title: 'Buat akun guru · Verval Sertifikasi Guru' }
 
 export default function Daftar() {
   return (
     <main className="masuk">
+      <div className="pojok-tema"><PilihTema ringkas /></div>
       <div className="masuk-kartu lebar-daftar">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-kemenag.png" alt="Logo Kementerian Agama" width={72} height={64} />

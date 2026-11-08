@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Konfirmasi from './Konfirmasi'
 import { useToast } from './Toast'
 
-type DokItem = { id: string; nama: string }
+type DokItem = { id: string; nama: string; fileId: string }
 
 export default function SahkanMassal({
   guruId,
@@ -30,7 +30,7 @@ export default function SahkanMassal({
       const r = await fetch('/api/admin/keputusan/massal', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ guruId, periodeId }),
+        body: JSON.stringify({ guruId, periodeId, dokumen: dokumen.map((d) => ({ id: d.id, fileId: d.fileId })) }),
       })
       const j = await r.json().catch(() => null)
       if (!r.ok || !j?.ok) {
@@ -38,7 +38,12 @@ export default function SahkanMassal({
         setBuka(false)
         return
       }
-      tampilkan(`${j.jumlah} dokumen berhasil disahkan.`, 'sukses')
+      tampilkan(
+        j.dilewati > 0
+          ? `${j.jumlah} dokumen disahkan. ${j.dilewati} dilewati karena sudah berubah, periksa ulang.`
+          : `${j.jumlah} dokumen berhasil disahkan.`,
+        'sukses',
+      )
       setBuka(false)
       router.refresh()
     } catch {

@@ -127,7 +127,7 @@ export default async function DetailGuru({ params, searchParams }: {
         <SahkanMassal
           guruId={guru.id}
           periodeId={periode.id}
-          dokumen={menungguDenganFile.map((d) => ({ id: d.dokumenGuruId, nama: d.nama }))}
+          dokumen={menungguDenganFile.map((d) => ({ id: d.dokumenGuruId, nama: d.nama, fileId: d.fileId! }))}
         />
       )}
       </div>

@@ -38,8 +38,10 @@ describe('POST /api/admin/keputusan/massal', () => {
     tokenSekarang = await buatSesi(adminId, 'admin')
   })
 
+  const semua = () => [{ id: dok1Id, fileId: 'f1' }, { id: dok2Id, fileId: 'f2' }]
+
   it('sahkan semua dokumen MENUNGGU dengan file', async () => {
-    const r = await POST(req({ guruId, periodeId }))
+    const r = await POST(req({ guruId, periodeId, dokumen: semua() }))
     const j = await r.json()
     expect(r.status).toBe(200)
     expect(j.ok).toBe(true)
@@ -52,7 +54,7 @@ describe('POST /api/admin/keputusan/massal', () => {
   })
 
   it('menulis riwayat untuk setiap dokumen', async () => {
-    await POST(req({ guruId, periodeId }))
+    await POST(req({ guruId, periodeId, dokumen: semua() }))
     const riwayat = await prisma.riwayat.findMany({ where: { guruId, periodeId } })
     expect(riwayat).toHaveLength(2)
     expect(riwayat.every((r) => r.aksi === 'sahkan')).toBe(true)
@@ -63,7 +65,7 @@ describe('POST /api/admin/keputusan/massal', () => {
   it('dokumen tanpa file dilewati', async () => {
     // Update dok1 agar tidak punya file
     await prisma.dokumenGuru.update({ where: { id: dok1Id }, data: { fileId: null } })
-    const r = await POST(req({ guruId, periodeId }))
+    const r = await POST(req({ guruId, periodeId, dokumen: semua() }))
     const j = await r.json()
     expect(j.jumlah).toBe(1)
     expect((await prisma.dokumenGuru.findUnique({ where: { id: dok1Id } }))!.status).toBe('MENUNGGU')
@@ -72,20 +74,35 @@ describe('POST /api/admin/keputusan/massal', () => {
 
   it('tidak ada dokumen menunggu → jumlah 0', async () => {
     await prisma.dokumenGuru.updateMany({ where: { guruId, periodeId }, data: { status: 'SAH' } })
-    const r = await POST(req({ guruId, periodeId }))
+    const r = await POST(req({ guruId, periodeId, dokumen: semua() }))
     const j = await r.json()
     expect(j.ok).toBe(true)
     expect(j.jumlah).toBe(0)
   })
 
+  it('file yang diganti setelah halaman dibuka tidak disahkan', async () => {
+    await prisma.dokumenGuru.update({ where: { id: dok1Id }, data: { fileId: 'f1-baru' } })
+    const j = await (await POST(req({ guruId, periodeId, dokumen: semua() }))).json()
+    expect(j.jumlah).toBe(1)
+    expect(j.dilewati).toBe(1)
+    expect((await prisma.dokumenGuru.findUnique({ where: { id: dok1Id } }))!.status).toBe('MENUNGGU')
+  })
+
+  it('dokumen guru lain tidak bisa disahkan lewat guruId ini', async () => {
+    const lain = await prisma.guru.create({ data: { nama: 'L', username: '2', nip: '2', hashSandi: 'x' } })
+    const j = await (await POST(req({ guruId: lain.id, periodeId, dokumen: semua() }))).json()
+    expect(j.jumlah).toBe(0)
+    expect((await prisma.dokumenGuru.findUnique({ where: { id: dok1Id } }))!.status).toBe('MENUNGGU')
+  })
+
   it('401 untuk bukan admin', async () => {
     tokenSekarang = await buatSesi(guruId, 'guru')
-    const r = await POST(req({ guruId, periodeId }))
+    const r = await POST(req({ guruId, periodeId, dokumen: semua() }))
     expect(r.status).toBe(401)
   })
 
   it('guru tidak ada → 400', async () => {
-    const r = await POST(req({ guruId: 'tidak-ada', periodeId }))
+    const r = await POST(req({ guruId: 'tidak-ada', periodeId, dokumen: semua() }))
     expect(r.status).toBe(400)
   })
 

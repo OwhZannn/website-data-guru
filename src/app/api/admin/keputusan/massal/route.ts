@@ -6,9 +6,12 @@ import { catatRiwayat } from '@/lib/riwayat'
 
 export const runtime = 'nodejs'
 
+// Klien mengirim file yang tampil di konfirmasi; hanya file itu yang disahkan.
+// File yang diganti guru setelah halaman dibuka tidak ikut disahkan tanpa dilihat.
 const skema = z.object({
   guruId: z.string().min(1),
   periodeId: z.string().min(1),
+  dokumen: z.array(z.object({ id: z.string().min(1), fileId: z.string().min(1) })).min(1).max(200),
 })
 
 const gagal = (pesan: string, status = 400) => Response.json({ ok: false, pesan }, { status })
@@ -18,38 +21,32 @@ export async function POST(req: Request) {
     const admin = await wajibAdmin()
     const hasil = skema.safeParse(await req.json().catch(() => null))
     if (!hasil.success) return gagal('Permintaan tidak sah')
-    const { guruId, periodeId } = hasil.data
+    const { guruId, periodeId, dokumen } = hasil.data
 
     const guru = await prisma.guru.findUnique({ where: { id: guruId } })
     if (!guru) throw new GalatPengguna('Guru tidak ditemukan')
 
-    const menunggu = await prisma.dokumenGuru.findMany({
-      where: { guruId, periodeId, status: 'MENUNGGU', fileId: { not: null } },
-    })
-    if (menunggu.length === 0) return Response.json({ ok: true, jumlah: 0 })
-
     const sekarang = new Date()
-    await prisma.$transaction(async (tx) => {
-      for (const dok of menunggu) {
-        await tx.dokumenGuru.update({
-          where: { id: dok.id },
+    const jumlah = await prisma.$transaction(async (tx) => {
+      let n = 0
+      for (const d of dokumen) {
+        // Pembaruan bersyarat: hanya bila masih MENUNGGU dengan file yang sama.
+        const { count } = await tx.dokumenGuru.updateMany({
+          where: { id: d.id, guruId, periodeId, status: 'MENUNGGU', fileId: d.fileId },
           data: { status: 'SAH', alasan: null, diperiksaOleh: admin.id, diperiksaPada: sekarang },
         })
+        if (count !== 1) continue
+        const baris = await tx.dokumenGuru.findUniqueOrThrow({ where: { id: d.id } })
         await catatRiwayat(
-          {
-            periodeId: dok.periodeId,
-            guruId: dok.guruId,
-            dokumenId: dok.dokumenId,
-            aksi: 'sahkan',
-            oleh: admin.id,
-            olehTipe: 'admin',
-          },
+          { periodeId, guruId, dokumenId: baris.dokumenId, aksi: 'sahkan', oleh: admin.id, olehTipe: 'admin' },
           tx,
         )
+        n++
       }
+      return n
     })
 
-    return Response.json({ ok: true, jumlah: menunggu.length })
+    return Response.json({ ok: true, jumlah, dilewati: dokumen.length - jumlah })
   } catch (e) {
     if (e instanceof Response) return e
     if (e instanceof GalatPengguna) return gagal(e.message)

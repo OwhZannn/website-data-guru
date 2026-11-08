@@ -8,8 +8,11 @@ import { tanggalLokal } from '@/lib/waktu'
 import KartuDokumen from '@/components/KartuDokumen'
 import Kepala from '@/components/Kepala'
 import KartuProgres from '@/components/KartuProgres'
-import { dokumenWajib, profilLengkap, TUGAS } from '@/lib/syarat'
+import KartuLangkahBerikutnya from '@/components/KartuLangkahBerikutnya'
+import { dokumenWajib, profilLengkap, kolomProfilKurang, TUGAS } from '@/lib/syarat'
 import PilihTugas from '@/components/PilihTugas'
+import EmptyState from '@/components/ui/EmptyState'
+import { FileX, CalendarOff } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,16 +34,51 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
   const status = hitungStatusGuru(dokumen, baris, guru)
   const riwayat = await Promise.all(dokumen.map((d) => daftarRiwayatDokumen(guru.id, d.id)))
 
-  // Dokumen yang ditolak tampil paling atas supaya langsung diperbaiki.
-  const URUT: Record<string, number> = { DITOLAK: 0, BELUM: 1, MENUNGGU: 2, SAH: 3 }
-  const kartu = dokumen
-    .map((d, i) => ({ d, b: baris.find((x) => x.dokumenId === d.id), r: riwayat[i] }))
-    .sort((x, y) => (URUT[x.b?.status ?? 'BELUM'] ?? 9) - (URUT[y.b?.status ?? 'BELUM'] ?? 9))
-  const jumlahTolak = baris.filter((b) => b.status === 'DITOLAK' && dokumen.some((d) => d.id === b.dokumenId)).length
-  const jumlahTunggu = baris.filter((b) => b.status === 'MENUNGGU' && dokumen.some((d) => d.id === b.dokumenId)).length
+  // Kelompokkan berdasarkan status; dalam satu kelompok urutan admin dipertahankan.
+  const semua = dokumen.map((d, i) => ({
+    d,
+    b: baris.find((x) => x.dokumenId === d.id),
+    r: riwayat[i],
+    st: (baris.find((x) => x.dokumenId === d.id)?.status ?? 'BELUM') as string,
+  }))
+
+  const perluTindakan = [
+    ...semua.filter((x) => x.st === 'DITOLAK'),
+    ...semua.filter((x) => x.st === 'BELUM'),
+  ]
+  const sedangDiperiksa = semua.filter((x) => x.st === 'MENUNGGU')
+  const sudahSah = semua.filter((x) => x.st === 'SAH')
+
+  const jumlahTolak = perluTindakan.filter((x) => x.st === 'DITOLAK').length
+  const jumlahBelum = perluTindakan.filter((x) => x.st === 'BELUM').length
+  const jumlahTunggu = sedangDiperiksa.length
+
   const keterangan = status.jumlahWajib > 0 && status.jumlahSah === status.jumlahWajib
     ? 'Semua dokumen sudah sah. Terima kasih.'
     : [jumlahTolak && `${jumlahTolak} perlu diperbaiki`, jumlahTunggu && `${jumlahTunggu} sedang diperiksa`].filter(Boolean).join(' · ')
+
+  // SAH-only: buka details supaya tidak kolaps saat itu satu-satunya kelompok
+  const sahSaja = perluTindakan.length === 0 && sedangDiperiksa.length === 0 && sudahSah.length > 0
+
+  function renderKartu(item: typeof semua[number]) {
+    return (
+      <KartuDokumen
+        key={item.d.id}
+        dokumenId={item.d.id}
+        nama={item.d.nama}
+        status={item.b?.status ?? 'BELUM'}
+        alasan={item.b?.alasan ?? null}
+        namaFile={item.b?.namaFile ?? null}
+        bolehUnggah={dibuka && lengkapProfil}
+        riwayat={item.r.map((x) => ({
+          id: x.id,
+          aksi: x.aksi,
+          alasan: x.alasan,
+          waktuTeks: tanggalLokal(x.waktu),
+        }))}
+      />
+    )
+  }
 
   return (
     <>
@@ -49,6 +87,12 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
         <div className="dua-kiri">
           <h1>Dokumen Saya</h1>
           {!adaDibuka && <p role="status" className="info">Masa pengunggahan sedang ditutup.</p>}
+          {daftarPeriode.length === 0 && (
+            <EmptyState
+              ikon={<CalendarOff size={36} />}
+              teks="Belum ada periode unggah yang tersedia."
+            />
+          )}
           {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
           {periode && !dibuka && adaDibuka && <p role="status" className="info">Periode ini sudah ditutup; hanya dapat dilihat.</p>}
           {!lengkapProfil && (
@@ -67,9 +111,17 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
             <PilihTugas awal={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>} terkunci={!dibuka} />
           )}
         </div>
+        {periode && dokumen.length === 0 && lengkapProfil && (
+          <div className="dua-kanan">
+            <EmptyState
+              ikon={<FileX size={36} />}
+              teks="Tidak ada dokumen wajib untuk periode ini."
+            />
+          </div>
+        )}
         {periode && dokumen.length > 0 && (
           <div className="dua-kanan">
-            {status.lengkap && (
+            {status.lengkap ? (
               <section className="siaga" aria-label="Langkah berikutnya">
                 <h2>Berkas Anda sudah lulus verval.</h2>
                 <p className="mb-0">Langkah berikutnya: unggah berkas yang sama ke aplikasi SIAGA, lalu cetak SKMT dan SPTJM.</p>
@@ -79,24 +131,32 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
                   <li>Cetak SKMT dan SPTJM dari SIAGA.</li>
                 </ol>
               </section>
+            ) : (
+              <KartuLangkahBerikutnya ditolak={jumlahTolak} belum={jumlahBelum} menunggu={jumlahTunggu} />
             )}
-            {kartu.map(({ d, b, r }) => (
-              <KartuDokumen
-                key={d.id}
-                dokumenId={d.id}
-                nama={d.nama}
-                status={b?.status ?? 'BELUM'}
-                alasan={b?.alasan ?? null}
-                namaFile={b?.namaFile ?? null}
-                bolehUnggah={dibuka && lengkapProfil}
-                riwayat={r.map((x) => ({
-                  id: x.id,
-                  aksi: x.aksi,
-                  alasan: x.alasan,
-                  waktuTeks: tanggalLokal(x.waktu),
-                }))}
-              />
-            ))}
+
+            {perluTindakan.length > 0 && (
+              <section className="kelompok" id="perlu-tindakan" aria-label="Perlu tindakan">
+                <h3 className="kelompok__judul kelompok__judul--tolak">Perlu tindakan</h3>
+                {perluTindakan.map(renderKartu)}
+              </section>
+            )}
+
+            {sedangDiperiksa.length > 0 && (
+              <section className="kelompok" id="sedang-diperiksa" aria-label="Sedang diperiksa">
+                <h3 className="kelompok__judul kelompok__judul--tunggu">Sedang diperiksa</h3>
+                {sedangDiperiksa.map(renderKartu)}
+              </section>
+            )}
+
+            {sudahSah.length > 0 && (
+              <details id="sudah-sah" className="kelompok" open={sahSaja || undefined}>
+                <summary className="kelompok__judul kelompok__judul--sah">
+                  Sudah sah ({sudahSah.length})
+                </summary>
+                {sudahSah.map(renderKartu)}
+              </details>
+            )}
           </div>
         )}
       </main>

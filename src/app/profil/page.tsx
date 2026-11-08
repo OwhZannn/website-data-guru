@@ -1,5 +1,5 @@
 import { halamanGuru } from '@/lib/halaman'
-import { profilLengkap } from '@/lib/syarat'
+import { profilLengkap, kolomProfilKurang } from '@/lib/syarat'
 import Kepala from '@/components/Kepala'
 import FormProfil from '@/components/FormProfil'
 import FormGantiSandi from '@/components/FormGantiSandi'
@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function Profil() {
   const guru = await halamanGuru()
   const lengkap = profilLengkap(guru)
+  const kurang = kolomProfilKurang(guru)
   return (
     <>
       <Kepala sub={guru.nama} aksi={<a href="/dokumen">Dokumen saya</a>} />
@@ -19,9 +20,18 @@ export default async function Profil() {
           <strong className="redup-teks">{guru.nama}</strong> · {teksIdentitas(guru)}
         </p>
         {!lengkap && (
-          <p className="info" role="status">
-            Lengkapi profil ini dulu. Dokumen yang perlu Anda unggah ditentukan dari jabatan dan status kepegawaian Anda. Tugas tambahan dicentang di halaman Dokumen Saya.
-          </p>
+          <div className="info" role="status">
+            <p className="mb-s2">Lengkapi profil ini dulu. Dokumen yang perlu Anda unggah ditentukan dari jabatan dan status kepegawaian Anda. Tugas tambahan dicentang di halaman Dokumen Saya.</p>
+            {kurang.length > 0 && (
+              <ul className="daftar-kurang" aria-label="Kolom yang perlu dilengkapi">
+                {kurang.map((item) => (
+                  <li key={item.kolom}>
+                    <a href={`/profil#${item.id}`}>{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
         <FormProfil awal={guru} setelahSimpan={lengkap ? undefined : '/dokumen'} />
         <div className="spacer-s5" />

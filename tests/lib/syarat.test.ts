@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { wajibBagi, dokumenWajib, profilLengkap, type ProfilSyarat } from '../../src/lib/syarat'
+import { wajibBagi, dokumenWajib, profilLengkap, kolomProfilKurang, type ProfilSyarat } from '../../src/lib/syarat'
 import { hitungStatusGuru } from '../../src/lib/status'
 
 const polos: ProfilSyarat = {
@@ -89,5 +89,45 @@ describe('hitungStatusGuru dengan profil', () => {
 
   it('tanpa profil, semua dokumen aktif dihitung seperti sebelumnya', () => {
     expect(hitungStatusGuru(daftar, []).jumlahWajib).toBe(3)
+  })
+})
+
+describe('kolomProfilKurang', () => {
+  it('mengembalikan tiga kolom ketika semua kosong', () => {
+    const hasil = kolomProfilKurang({ asalSekolah: null, statusPegawai: null, tahunSertifikasi: null })
+    expect(hasil).toHaveLength(3)
+    expect(hasil.map((x) => x.kolom)).toEqual(['asalSekolah', 'statusPegawai', 'tahunSertifikasi'])
+    expect(hasil.map((x) => x.id)).toEqual(['asal-sekolah', 'status-pegawai', 'tahun-sertifikasi'])
+  })
+
+  it('tidak mengembalikan apa pun ketika profil lengkap', () => {
+    const hasil = kolomProfilKurang({ asalSekolah: 'SMA 1', statusPegawai: 'PNS', tahunSertifikasi: 2015 })
+    expect(hasil).toHaveLength(0)
+  })
+
+  it('hanya melaporkan kolom yang benar-benar kosong', () => {
+    const hanya_sekolah = kolomProfilKurang({ asalSekolah: null, statusPegawai: 'PPPK', tahunSertifikasi: 2020 })
+    expect(hanya_sekolah).toHaveLength(1)
+    expect(hanya_sekolah[0].kolom).toBe('asalSekolah')
+
+    const hanya_status = kolomProfilKurang({ asalSekolah: 'MAN 1', statusPegawai: null, tahunSertifikasi: 2018 })
+    expect(hanya_status).toHaveLength(1)
+    expect(hanya_status[0].kolom).toBe('statusPegawai')
+
+    const hanya_tahun = kolomProfilKurang({ asalSekolah: 'MAN 1', statusPegawai: 'NON_ASN', tahunSertifikasi: null })
+    expect(hanya_tahun).toHaveLength(1)
+    expect(hanya_tahun[0].kolom).toBe('tahunSertifikasi')
+  })
+
+  it('asal sekolah hanya spasi dianggap kosong', () => {
+    const hasil = kolomProfilKurang({ asalSekolah: '   ', statusPegawai: 'PNS', tahunSertifikasi: 2015 })
+    expect(hasil).toHaveLength(1)
+    expect(hasil[0].kolom).toBe('asalSekolah')
+  })
+
+  it('status pegawai tidak valid dianggap kosong', () => {
+    const hasil = kolomProfilKurang({ asalSekolah: 'SMA 1', statusPegawai: 'TIDAK_VALID', tahunSertifikasi: 2015 })
+    expect(hasil).toHaveLength(1)
+    expect(hasil[0].kolom).toBe('statusPegawai')
   })
 })

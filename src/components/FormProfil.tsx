@@ -46,8 +46,8 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   const a = p.awal
   return (
     <form method="post" onSubmit={kirim} className="panel profil">
-      <label>Asal sekolah
-        <input name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder="Contoh: SMA Negeri 1 Mataram" />
+      <label htmlFor="asal-sekolah">Asal sekolah
+        <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder="Contoh: SMA Negeri 1 Mataram" />
       </label>
       <fieldset>
         <legend>Jabatan</legend>
@@ -61,14 +61,14 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
         </div>
       </fieldset>
       <div className="profil-dua">
-        <label>Status kepegawaian
-          <select name="statusPegawai" defaultValue={a.statusPegawai ?? ''} required>
+        <label htmlFor="status-pegawai">Status kepegawaian
+          <select id="status-pegawai" name="statusPegawai" defaultValue={a.statusPegawai ?? ''} required>
             <option value="" disabled>Pilih…</option>
             {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         </label>
-        <label>Tahun sertifikasi
-          <input name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder="Contoh: 2015" />
+        <label htmlFor="tahun-sertifikasi">Tahun sertifikasi
+          <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder="Contoh: 2015" />
         </label>
       </div>
 

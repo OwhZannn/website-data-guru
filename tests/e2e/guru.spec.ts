@@ -23,6 +23,8 @@ test('dokumen yang sudah sah tidak bisa diganti', async ({ page }) => {
   const { guru } = await siapkan({ dokumen: [{ status: 'SAH' }, { status: 'MENUNGGU' }] })
   await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
+  // Kelompok "Sudah sah" dikolaps secara bawaan; buka dulu agar kartu terlihat.
+  await page.locator('details#sudah-sah').evaluate((el) => el.setAttribute('open', ''))
   await expect(page.getByText('SAH', { exact: true })).toBeVisible()
   await expect(page.getByText('Progres: 1 dari 2 dokumen sah')).toBeVisible()
   // hanya satu tombol (milik dokumen yang menunggu); kartu sah tanpa tombol
@@ -51,7 +53,7 @@ test('jaringan putus: tampil pesan dan tombol coba lagi mengirim ulang berkas ya
   await page.route('**/api/dokumen/unggah', (r) => r.abort('failed'))
   await page.getByTestId(`berkas-${daftar[0].id}`).setInputFiles(pdf())
   await expect(page.getByText('Koneksi terputus. Periksa jaringan Anda lalu coba lagi.')).toBeVisible()
-  await expect(page.getByText('Belum diunggah')).toBeVisible()
+  await expect(page.getByText('Belum diunggah', { exact: true })).toBeVisible()
   await page.unroute('**/api/dokumen/unggah')
   await page.getByRole('button', { name: 'Coba lagi' }).click()
   await expect(page.getByText('Menunggu diperiksa')).toBeVisible()

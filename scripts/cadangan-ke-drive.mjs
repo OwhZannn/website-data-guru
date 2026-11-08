@@ -1,5 +1,5 @@
 // Unggah cadangan terbaru ke Drive: node scripts/cadangan-ke-drive.mjs [dirCadangan]
-// Memakai GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, DRIVE_FOLDER_ID.
+// Memakai GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN; DRIVE_FOLDER_ID opsional (kosong = akar Drive).
 import { createReadStream, existsSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -34,8 +34,8 @@ export const namaDiDrive = (berkas) => berkas
 
 async function utama() {
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, DRIVE_FOLDER_ID } = process.env
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN || !DRIVE_FOLDER_ID) {
-    console.error('Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, dan DRIVE_FOLDER_ID di lingkungan.')
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
+    console.error('Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REFRESH_TOKEN di lingkungan.')
     process.exit(1)
   }
   const dir = process.argv[2] ?? process.env.DIR_CADANGAN ?? 'data/cadangan'
@@ -48,12 +48,13 @@ async function utama() {
   const auth = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
   auth.setCredentials({ refresh_token: GOOGLE_REFRESH_TOKEN })
   const drive = google.drive({ version: 'v3', auth })
-  const q = `name = '${NAMA_SUBFOLDER}' and '${DRIVE_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`
+  const induk = DRIVE_FOLDER_ID || 'root'
+  const q = `name = '${NAMA_SUBFOLDER}' and '${induk}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`
   const { data } = await drive.files.list({ q, fields: 'files(id)', pageSize: 1 })
   let folderId = data.files?.[0]?.id
   if (!folderId) {
     const dibuat = await drive.files.create({
-      requestBody: { name: NAMA_SUBFOLDER, mimeType: 'application/vnd.google-apps.folder', parents: [DRIVE_FOLDER_ID] },
+      requestBody: { name: NAMA_SUBFOLDER, mimeType: 'application/vnd.google-apps.folder', parents: [induk] },
       fields: 'id',
     })
     folderId = dibuat.data.id

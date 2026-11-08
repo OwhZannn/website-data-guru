@@ -16,7 +16,6 @@ function drive(): drive_v3.Drive {
   const id = env('GOOGLE_CLIENT_ID')
   const rahasia = env('GOOGLE_CLIENT_SECRET')
   const token = env('GOOGLE_REFRESH_TOKEN')
-  env('DRIVE_FOLDER_ID')
   if (!klien) {
     const auth = new google.auth.OAuth2(id, rahasia)
     auth.setCredentials({ refresh_token: token })
@@ -27,9 +26,41 @@ function drive(): drive_v3.Drive {
 
 const escapeQuery = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
+const NAMA_INDUK = 'Dokumen Guru'
+let indukOtomatis: Promise<string> | null = null
+
+/**
+ * Folder induk: DRIVE_FOLDER_ID bila diisi. Bila kosong, aplikasi mencari atau membuat folder "Dokumen Guru"
+ * di akarnya sendiri (scope drive.file hanya melihat berkas buatan aplikasi, jadi folder manual tidak terlihat).
+ */
+async function indukDrive(): Promise<string> {
+  const diatur = process.env.DRIVE_FOLDER_ID
+  if (diatur) return diatur
+  indukOtomatis ??= (async () => {
+    const d = drive()
+    const { data } = await d.files.list({
+      q: `name = '${NAMA_INDUK}' and 'root' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      orderBy: 'createdTime',
+      fields: 'files(id)',
+      pageSize: 1,
+    })
+    const ada = data.files?.[0]?.id
+    if (ada) return ada
+    const dibuat = await d.files.create({
+      requestBody: { name: NAMA_INDUK, mimeType: 'application/vnd.google-apps.folder' },
+      fields: 'id',
+    })
+    return dibuat.data.id as string
+  })().catch((e) => {
+    indukOtomatis = null
+    throw e
+  })
+  return indukOtomatis
+}
+
 export async function folderGuru(nip: string, nama: string): Promise<string> {
   if (palsu()) return 'folder-palsu'
-  const induk = env('DRIVE_FOLDER_ID')
+  const induk = await indukDrive()
   const namaFolder = amanUntukNamaFolder(`${nip} - ${nama}`)
   const d = drive()
   const { data } = await d.files.list({
@@ -87,7 +118,7 @@ export async function unduhInfoFile(
 /** Pemeriksaan kesehatan: satu panggilan ringan ke folder induk, dengan batas waktu. */
 export async function periksaDrive(batasMs = 5000): Promise<void> {
   if (palsu()) return
-  const induk = env('DRIVE_FOLDER_ID')
+  const induk = await indukDrive()
   const ac = new AbortController()
   const t = setTimeout(() => ac.abort(), batasMs)
   try {

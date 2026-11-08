@@ -660,3 +660,88 @@ tr.baris-menunggu td { background: #fffaf0; }
   background: rgba(255,255,255,.18); border: none; cursor: pointer; color: #fff;
 }
 .admin-laci__tutup:hover { background: rgba(255,255,255,.32); }
+
+/* ================================================================
+   FASE 2: Beranda Admin — grid & komponen
+   ================================================================ */
+
+/* Baris stat cards: 2 kolom mobile, 5 kolom desktop */
+.stat-baris {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+@media (min-width: 1024px) {
+  .stat-baris { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* Blok progres periode */
+.progres-periode {
+  margin-bottom: var(--s-2);
+  font-size: var(--t-sm); color: var(--redup);
+}
+
+/* Dua kolom tengah: antrean + kolom kanan */
+.dua-kolom {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-5);
+  margin-bottom: var(--s-5);
+}
+@media (min-width: 1024px) {
+  .dua-kolom { grid-template-columns: 1fr 1fr; }
+}
+
+/* Tabel antrean ringkas */
+.tabel-antrean { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.tabel-antrean th {
+  text-align: left; color: var(--redup); font-weight: 600;
+  padding: var(--s-1) var(--s-2); border-bottom: 1px solid var(--garis);
+}
+.tabel-antrean td { padding: var(--s-2); border-bottom: 1px solid var(--garis); vertical-align: middle; }
+.tabel-antrean tr:last-child td { border-bottom: none; }
+
+/* Timeline aktivitas */
+.aktivitas { list-style: none; padding: 0; margin: 0; font-size: var(--t-sm); }
+.aktivitas li {
+  display: flex; gap: var(--s-2); align-items: baseline;
+  padding: var(--s-2) 0; border-bottom: 1px solid var(--garis);
+}
+.aktivitas li:last-child { border-bottom: none; }
+.aktivitas__waktu { color: var(--redup); flex-shrink: 0; }
+.aktivitas__teks { flex: 1; min-width: 0; overflow-wrap: break-word; }
+
+/* Bar per dokumen */
+.per-dokumen-baris { margin-bottom: var(--s-3); }
+.per-dokumen-nama { font-size: var(--t-sm); font-weight: 600; margin-bottom: var(--s-1); }
+.per-dokumen-angka { font-size: var(--t-xs); color: var(--redup); margin-top: var(--s-1); }
+
+/* Kartu perlu persetujuan */
+.kartu-persetujuan {
+  background: var(--info-bg); border: 1px solid #c3d7f7; border-radius: var(--r);
+  padding: var(--s-4) var(--s-5);
+}
+.kartu-persetujuan h2 { margin: 0 0 var(--s-2); font-size: var(--t-base); }
+
+/* Unduh dropdown (native details) */
+.unduh-rekap { position: relative; }
+.unduh-rekap summary {
+  cursor: pointer; list-style: none; font-size: var(--t-sm); font-weight: 600;
+  color: var(--hijau-2); padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-sm);
+}
+.unduh-rekap summary::-webkit-details-marker { display: none; }
+.unduh-rekap summary::after { content: ' ▾'; }
+.unduh-rekap[open] summary::after { content: ' ▴'; }
+.unduh-rekap__menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 10;
+  background: var(--kartu); border: 1px solid var(--garis);
+  border-radius: var(--r-sm); box-shadow: var(--bayang-md);
+  min-width: 180px; padding: var(--s-1) 0;
+}
+.unduh-rekap__menu a {
+  display: block; padding: var(--s-2) var(--s-4);
+  color: var(--teks); text-decoration: none; font-size: var(--t-sm);
+}
+.unduh-rekap__menu a:hover { background: var(--latar); }

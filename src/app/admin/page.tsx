@@ -7,7 +7,7 @@ import StatCard from '@/components/ui/StatCard'
 import Section from '@/components/ui/Section'
 import EmptyState from '@/components/ui/EmptyState'
 import ProgressBar from '@/components/ui/ProgressBar'
-import { FolderOpen, Clock } from 'lucide-react'
+import { FolderOpen, Clock, CheckCircle2, Activity, FileText } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -104,7 +104,7 @@ export default async function BerandaAdmin({
           }
         >
           {data.antrean.length === 0 ? (
-            <p className="redup">Tidak ada dokumen menunggu pemeriksaan.</p>
+            <EmptyState ikon={<CheckCircle2 size={28} />} teks="Tidak ada dokumen menunggu pemeriksaan." />
           ) : (
             <table className="tabel-antrean">
               <thead>
@@ -147,7 +147,7 @@ export default async function BerandaAdmin({
           {/* Aktivitas terbaru */}
           <Section judul="Aktivitas terbaru">
             {data.aktivitasTerbaru.length === 0 ? (
-              <p className="redup">Belum ada aktivitas.</p>
+              <EmptyState ikon={<Activity size={28} />} teks="Belum ada aktivitas." />
             ) : (
               <ul className="aktivitas">
                 {data.aktivitasTerbaru.map((a) => {
@@ -189,7 +189,7 @@ export default async function BerandaAdmin({
         }
       >
         {data.perDokumen.length === 0 ? (
-          <p className="redup">Belum ada dokumen pada periode ini.</p>
+          <EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen pada periode ini." aksi={<a className="tombol-garis" href="/admin/periode">Atur dokumen periode</a>} />
         ) : (
           data.perDokumen.map((d) => {
             const total = totalGuru || 1

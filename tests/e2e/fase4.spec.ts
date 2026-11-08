@@ -19,6 +19,8 @@ test('urut nama desc menampilkan guru berurutan terbalik', async ({ page }) => {
 
   // Citra harus muncul sebelum Budi, Budi sebelum Andi
   const tautan = page.getByRole('link', { name: new RegExp(`${prefix}`) })
+  // Halaman dialirkan setelah kerangka memuat; tunggu baris tampil sebelum menghitung.
+  await expect(tautan).toHaveCount(3)
   const jumlah = await tautan.count()
   expect(jumlah).toBeGreaterThanOrEqual(3)
 

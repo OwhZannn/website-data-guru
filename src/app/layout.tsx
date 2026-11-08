@@ -6,7 +6,15 @@ import './globals.css'
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta', display: 'swap' })
 
 export const metadata = { title: 'Verval Sertifikasi Guru', icons: { icon: '/logo-kemenag.png' } }
-export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#006316' }
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  colorScheme: 'light dark' as const,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#006316' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b1a12' },
+  ],
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

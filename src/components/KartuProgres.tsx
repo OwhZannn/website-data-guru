@@ -7,7 +7,7 @@ export default function KartuProgres(p: { sah: number; wajib: number; keterangan
         className="cincin"
         role="img"
         aria-label={`${persen} persen`}
-        style={{ background: `conic-gradient(#fff 0 ${persen}%, rgba(255,255,255,.25) 0)` }}
+        style={{ background: `conic-gradient(var(--di-aksen) 0 ${persen}%, var(--kaca-2) 0)` }}
       >
         <span>{p.sah}/{p.wajib}</span>
       </div>

@@ -1,3 +1,5 @@
+import { CalendarX, CheckCircle2 } from 'lucide-react'
+import EmptyState from '@/components/ui/EmptyState'
 import { prisma } from '@/lib/db'
 import { halamanAdmin } from '@/lib/halaman'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
@@ -68,7 +70,7 @@ export default async function HalamanAntrean({ searchParams }: {
       </div>
 
       {!periode && (
-        <p className="redup">Tidak ada periode yang sedang dibuka. <a href="/admin">Kembali ke beranda</a></p>
+        <EmptyState ikon={<CalendarX size={28} />} teks="Tidak ada periode yang sedang dibuka." aksi={<a className="tombol-garis" href="/admin">Kembali ke beranda</a>} />
       )}
 
       {periode && (
@@ -104,7 +106,7 @@ export default async function HalamanAntrean({ searchParams }: {
           </p>
 
           {halaman.isi.length === 0 ? (
-            <p className="redup">Tidak ada dokumen yang menunggu. <a href="/admin">Kembali ke beranda</a></p>
+            <EmptyState ikon={<CheckCircle2 size={28} />} teks="Tidak ada dokumen yang menunggu." aksi={<a className="tombol-garis" href="/admin">Kembali ke beranda</a>} />
           ) : (
             <>
               <div className="geser">

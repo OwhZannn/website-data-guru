@@ -27,7 +27,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toast-wadah" aria-live="polite" aria-atomic="false" role="status">
         {daftar.map((t) => (
-          <div key={t.id} className={`toast toast--${t.tipe}`} role="alert">
+          <div key={t.id} className={`toast toast--${t.tipe}`}>
             {t.pesan}
             <button
               type="button"

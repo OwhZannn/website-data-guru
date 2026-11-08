@@ -1,4 +1,6 @@
 'use client'
+import { FileText } from 'lucide-react'
+import EmptyState from './ui/EmptyState'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BERLAKU, LABEL_BERLAKU } from '@/lib/syarat'
@@ -81,7 +83,7 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
       {pesan && <p className="galat" role="alert">{pesan}</p>}
 
       <h2>Dokumen aktif</h2>
-      {aktif.length === 0 ? <p>Belum ada dokumen aktif.</p> : (
+      {aktif.length === 0 ? <EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen aktif." /> : (
         <ol className="daftar-kartu">
           {aktif.map((d, i) => (
             <li key={d.id} aria-label={d.nama}>

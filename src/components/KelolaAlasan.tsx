@@ -1,4 +1,6 @@
 'use client'
+import { MessageSquareX } from 'lucide-react'
+import EmptyState from './ui/EmptyState'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AlasanTolak } from '@prisma/client'
@@ -66,7 +68,7 @@ export default function KelolaAlasan({ baris }: { baris: AlasanTolak[] }) {
       {pesan && <p className="galat mb-s3">{pesan}</p>}
 
       {baris.length === 0 && (
-        <p className="redup">Belum ada alasan penolakan. Tambahkan di atas.</p>
+        <EmptyState ikon={<MessageSquareX size={28} />} teks="Belum ada alasan penolakan. Tambahkan di atas." />
       )}
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

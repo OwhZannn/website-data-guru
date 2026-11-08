@@ -1,3 +1,5 @@
+import { FileText } from 'lucide-react'
+import EmptyState from '@/components/ui/EmptyState'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import BannerDrive from '@/components/BannerDrive'
@@ -157,7 +159,7 @@ export default async function DetailGuru({ params, searchParams }: {
           })}
         </>
       ) : (
-        <p className="redup">{periode ? 'Tidak ada dokumen wajib untuk periode ini.' : 'Pilih periode untuk melihat dokumen.'}</p>
+        <EmptyState ikon={<FileText size={28} />} teks={periode ? 'Tidak ada dokumen wajib untuk periode ini.' : 'Pilih periode untuk melihat dokumen.'} />
       )}
       </div>
     </div>

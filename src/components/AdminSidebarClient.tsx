@@ -126,11 +126,29 @@ export function AdminLaci({
   /* tutup laci saat pathname berubah (navigasi) */
   useEffect(() => { setBuka(false) }, [pathname])
 
-  /* tutup dengan Escape */
+  const laciRef = useRef<HTMLDivElement>(null)
+  const pernahBuka = useRef(false)
+
+  /* Fokus masuk ke laci saat dibuka, Tab terkunci di dalamnya, Escape menutup. */
   useEffect(() => {
-    if (!buka) return
+    if (!buka) {
+      // Kembalikan fokus ke tombol pembuka hanya setelah laci benar-benar pernah dibuka.
+      if (pernahBuka.current) laciBtnRef.current?.focus()
+      return
+    }
+    pernahBuka.current = true
+    const laci = laciRef.current
+    const fokusable = () =>
+      Array.from(laci?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? [])
+    fokusable()[0]?.focus()
     function handler(e: KeyboardEvent) {
-      if (e.key === 'Escape') setBuka(false)
+      if (e.key === 'Escape') { setBuka(false); return }
+      if (e.key !== 'Tab') return
+      const el = fokusable()
+      if (el.length === 0) return
+      const pertama = el[0], terakhir = el[el.length - 1]
+      if (e.shiftKey && document.activeElement === pertama) { e.preventDefault(); terakhir.focus() }
+      else if (!e.shiftKey && document.activeElement === terakhir) { e.preventDefault(); pertama.focus() }
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
@@ -143,7 +161,6 @@ export function AdminLaci({
         onClick={() => setBuka(true)}
         aria-label="Buka menu navigasi"
         aria-expanded={buka}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'transparent', border: 'none', cursor: 'pointer', color: '#fff', borderRadius: 6 }}
         className="hamburger-btn"
       >
         <Menu size={22} strokeWidth={1.8} />
@@ -154,6 +171,7 @@ export function AdminLaci({
         aria-hidden="true"
       />
       <div
+        ref={laciRef}
         className={`admin-laci${buka ? ' buka' : ''}`}
         role="dialog"
         aria-modal="true"

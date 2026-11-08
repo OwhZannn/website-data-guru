@@ -1,7 +1,11 @@
 # Dashboard UI/UX Audit & Improvement Plan
 
-Date: 2026-11-08 · Status: decisions made (see §4), ready for per-phase specs
+Date: 2026-11-08 · Status: implemented (Phases 0–6) on branch `feat/dasbor-ui-ux`
 Scope: every screen (admin + teacher + auth). Builds on [Tampilan "Bersih Modern"](../specs/2026-11-06-tampilan-bersih-modern-design.md) — keeps its colors, logo, and font. Flows stay the same. The only database change is the `AlasanTolak` table (Phase 3); new API routes are listed in their phases.
+
+
+> **Implementation status (2026-11-08):** all phases done, one Indonesian spec per phase in `docs/superpowers/specs/2026-11-08-fase{0..6}-*.md`.
+> Changes from the plan: bulk approve takes the exact list of files shown in the confirmation (a file replaced by the teacher after the page loaded is skipped, not approved unseen); Phase 6 added the `--garis-input` contrast fix and replaced all hard-coded colors with tokens.
 
 ---
 
@@ -127,76 +131,76 @@ Each phase is shippable alone. Effort: S ≤ 1 day, M 2–3 days, L ≈ 1 week.
 
 ### Phase 0 — Design foundation (M)
 Fixes V1, V2, V3, V5, F4.
-- [ ] Add tokens to `globals.css`: spacing scale (`--s-1…--s-8`), type scale (`--t-xs…--t-2xl`), radii, elevation levels, status colors already exist → add `--info`.
-- [ ] Add an icon set: `lucide-react` (tree-shaken, MIT). Replace `↑ ⏳ ✓ !` in `KartuDokumen`, labels, buttons.
-- [ ] New small primitives in `src/components/ui/`: `StatCard`, `Badge` (wraps `.label`), `Section` (title + actions slot), `EmptyState` (icon, text, action), `ProgressBar` (single + stacked), `Breadcrumb`.
-- [ ] Replace inline `style={{}}` with utility classes or primitives (16 files).
-- [ ] Contrast check all text/background pairs to WCAG AA; adjust `--redup`/`--tunggu` if needed.
+- [x] Add tokens to `globals.css`: spacing scale (`--s-1…--s-8`), type scale (`--t-xs…--t-2xl`), radii, elevation levels, status colors already exist → add `--info`.
+- [x] Add an icon set: `lucide-react` (tree-shaken, MIT). Replace `↑ ⏳ ✓ !` in `KartuDokumen`, labels, buttons.
+- [x] New small primitives in `src/components/ui/`: `StatCard`, `Badge` (wraps `.label`), `Section` (title + actions slot), `EmptyState` (icon, text, action), `ProgressBar` (single + stacked), `Breadcrumb`.
+- [x] Replace inline `style={{}}` with utility classes or primitives (16 files).
+- [x] Contrast check all text/background pairs to WCAG AA; adjust `--redup`/`--tunggu` if needed.
 - Done when: no glyph icons, no inline margin styles, Lighthouse a11y ≥ 95 on all pages.
 
 ### Phase 1 — Admin layout & navigation (M)
 Fixes N1, N3, N4.
-- [ ] `AdminShell` layout (`src/app/admin/layout.tsx`): collapsible left sidebar on ≥1024px, bottom/drawer nav on mobile. Items: Beranda, Antrean (badge = pending count), Guru, Periode, Alasan penolakan, Admin.
-- [ ] Global period switcher in header (reuses `pilihPeriode`, stored in `?periode=`), so every admin page shares one period context.
-- [ ] Breadcrumbs on detail pages.
-- [ ] Make `Kepala` tab prop optional/legacy; teacher pages keep the simple header.
+- [x] `AdminShell` layout (`src/app/admin/layout.tsx`): collapsible left sidebar on ≥1024px, bottom/drawer nav on mobile. Items: Beranda, Antrean (badge = pending count), Guru, Periode, Alasan penolakan, Admin.
+- [x] Global period switcher in header (reuses `pilihPeriode`, stored in `?periode=`), so every admin page shares one period context.
+- [x] Breadcrumbs on detail pages.
+- [x] Make `Kepala` tab prop optional/legacy; teacher pages keep the simple header.
 - Done when: every admin page reachable in ≤ 2 clicks; existing e2e nav tests updated.
 
 ### Phase 2 — Admin home dashboard (L)
 Fixes A1–A6, F3.
-- [ ] New `src/lib/dasbor.ts` with one aggregated query per period: totals by teacher status (reuse `hitungStatusGuru`), docs by status, docs by type × status, pending registrations, oldest pending items (`DokumenGuru` MENUNGGU ordered by last `Riwayat.waktu` asc), last 15 `Riwayat` rows.
-- [ ] Stat cards row (Total guru aktif, Lengkap, Menunggu diperiksa, Ada ditolak, Belum mulai) — each links to `/admin/guru?status=…`.
-- [ ] Stacked progress bar for the period + "x% lengkap".
-- [ ] "Antrean pemeriksaan": teacher, document, waiting time ("3 hari"), button to review; oldest first; top 10 + "Lihat semua".
-- [ ] "Perlu persetujuan" card for unapproved registrations.
-- [ ] "Per dokumen" table/bar chart (pure CSS bars, no chart lib) to show which document is most often rejected or missing.
-- [ ] "Aktivitas terbaru" timeline from `Riwayat`.
-- [ ] Rekap buttons move into a "Unduh" dropdown in the section header.
-- [ ] No-period state: `EmptyState` with "Buka periode" action.
-- [ ] Unit tests for `dasbor.ts`; e2e for counts and links.
+- [x] New `src/lib/dasbor.ts` with one aggregated query per period: totals by teacher status (reuse `hitungStatusGuru`), docs by status, docs by type × status, pending registrations, oldest pending items (`DokumenGuru` MENUNGGU ordered by last `Riwayat.waktu` asc), last 15 `Riwayat` rows.
+- [x] Stat cards row (Total guru aktif, Lengkap, Menunggu diperiksa, Ada ditolak, Belum mulai) — each links to `/admin/guru?status=…`.
+- [x] Stacked progress bar for the period + "x% lengkap".
+- [x] "Antrean pemeriksaan": teacher, document, waiting time ("3 hari"), button to review; oldest first; top 10 + "Lihat semua".
+- [x] "Perlu persetujuan" card for unapproved registrations.
+- [x] "Per dokumen" table/bar chart (pure CSS bars, no chart lib) to show which document is most often rejected or missing.
+- [x] "Aktivitas terbaru" timeline from `Riwayat`.
+- [x] Rekap buttons move into a "Unduh" dropdown in the section header.
+- [x] No-period state: `EmptyState` with "Buka periode" action.
+- [x] Unit tests for `dasbor.ts`; e2e for counts and links.
 - Done when: an admin can answer "how many are done / what's next" without leaving home.
 
 ### Phase 3 — Review workflow (L)
 Fixes R1–R5, N2, F2.
-- [ ] Queue route `/admin/antrean` (list of all MENUNGGU docs, filter by document type / school).
-- [ ] Review view on teacher detail: split pane — left `<iframe>` Drive preview (`https://drive.google.com/file/d/{id}/preview`), right decision panel + history. Fallback link if preview blocked.
-- [ ] Keyboard shortcuts `S`, `T`, `J`, `K`, `?` (help overlay); skip when focus is in an input.
-- [ ] Auto-advance to next pending doc; "Teacher berikutnya ›" at the end.
-- [ ] Rejection reason presets (chips: "File tidak terbaca", "Bukan dokumen yang diminta", "Sudah kedaluwarsa", "Tanda tangan/stempel kurang") + free text. Editable by admins:
+- [x] Queue route `/admin/antrean` (list of all MENUNGGU docs, filter by document type / school).
+- [x] Review view on teacher detail: split pane — left `<iframe>` Drive preview (`https://drive.google.com/file/d/{id}/preview`), right decision panel + history. Fallback link if preview blocked.
+- [x] Keyboard shortcuts `S`, `T`, `J`, `K`, `?` (help overlay); skip when focus is in an input.
+- [x] Auto-advance to next pending doc; "Teacher berikutnya ›" at the end.
+- [x] Rejection reason presets (chips: "File tidak terbaca", "Bukan dokumen yang diminta", "Sudah kedaluwarsa", "Tanda tangan/stempel kurang") + free text. Editable by admins:
   - New Prisma model `AlasanTolak { id, teks, urutan, aktif, dibuatPada }` + migration; seed with the four reasons above.
   - New API `src/app/api/admin/alasan/route.ts` (list/create/update/reorder/deactivate; admin only, zod validation).
   - New page `/admin/alasan` (sidebar item "Alasan penolakan") using the same list/form pattern as `KelolaDokumen`.
   - The stored rejection reason stays plain text on `DokumenGuru`/`Riwayat`, so editing or deactivating a preset never changes past decisions.
-- [ ] Bulk "Sahkan semua yang menunggu" for one teacher (approved): behind `Konfirmasi` that lists every document affected; new batch endpoint that runs in one transaction and writes one `Riwayat` row per document.
-- [ ] History as a vertical timeline with icons and actor badges.
-- [ ] Toast component for action results (`role="status"`, aria-live).
+- [x] Bulk "Sahkan semua yang menunggu" for one teacher (approved): behind `Konfirmasi` that lists every document affected; new batch endpoint that runs in one transaction and writes one `Riwayat` row per document.
+- [x] History as a vertical timeline with icons and actor badges.
+- [x] Toast component for action results (`role="status"`, aria-live).
 - Done when: reviewing 10 documents needs no tab switching and ≤ 2 actions per document.
 
 ### Phase 4 — Teacher list (M)
 Fixes T1–T5, A3.
-- [ ] Sortable columns via `?urut=nama|sekolah|progres|aktivitas&arah=asc|desc`.
-- [ ] Inline mini progress bar column (sah / wajib).
-- [ ] Combined filter bar: status chips + search + school + employee type (`LABEL_PEGAWAI`), with "Hapus filter".
-- [ ] Sticky header, whole-row click, hover state.
-- [ ] Card layout below 640px instead of horizontal scroll.
-- [ ] "Belum disetujui" as its own chip with count (already sorted to top).
+- [x] Sortable columns via `?urut=nama|sekolah|progres|aktivitas&arah=asc|desc`.
+- [x] Inline mini progress bar column (sah / wajib).
+- [x] Combined filter bar: status chips + search + school + employee type (`LABEL_PEGAWAI`), with "Hapus filter".
+- [x] Sticky header, whole-row click, hover state.
+- [x] Card layout below 640px instead of horizontal scroll.
+- [x] "Belum disetujui" as its own chip with count (already sorted to top).
 - Done when: `paginasi.spec.ts` and new sort/filter e2e pass.
 
 ### Phase 5 — Teacher experience (M)
 Fixes G1–G4.
-- [ ] Top "what to do next" card: counts of Ditolak / Belum / Menunggu with one primary action.
-- [ ] Group document cards: *Perlu tindakan* (DITOLAK, BELUM) → *Sedang diperiksa* → *Sah* (collapsed by default).
-- [ ] Drag-and-drop on `TombolUnggah` + upload percentage (XHR progress) while keeping current validation (`periksaBerkas`, `kecilkanGambar`).
-- [ ] Profile completeness checklist linking to the exact missing fields.
+- [x] Top "what to do next" card: counts of Ditolak / Belum / Menunggu with one primary action.
+- [x] Group document cards: *Perlu tindakan* (DITOLAK, BELUM) → *Sedang diperiksa* → *Sah* (collapsed by default).
+- [x] Drag-and-drop on `TombolUnggah` + upload percentage (XHR progress) while keeping current validation (`periksaBerkas`, `kecilkanGambar`).
+- [x] Profile completeness checklist linking to the exact missing fields.
 - Done when: `guru.spec.ts`, `guru-periode.spec.ts` pass with updated selectors.
 
 ### Phase 6 — States, polish & quality (S–M)
 Fixes F1, F2, F5, V4, T4.
-- [ ] `loading.tsx` skeletons for admin home, guru list, detail, dokumen.
-- [ ] `EmptyState` everywhere a list can be empty.
-- [ ] Focus management for `Konfirmasi` and toasts.
-- [ ] Dark mode (approved): `prefers-color-scheme: dark` overrides of the Phase 0 tokens; logo kept as-is on a light badge; recheck AA contrast for all status colors in dark.
-- [ ] Playwright visual snapshots for key screens at 375px and 1440px.
+- [x] `loading.tsx` skeletons for admin home, guru list, detail, dokumen.
+- [x] `EmptyState` everywhere a list can be empty.
+- [x] Focus management for `Konfirmasi` and toasts.
+- [x] Dark mode (approved): `prefers-color-scheme: dark` overrides of the Phase 0 tokens; logo kept as-is on a light badge; recheck AA contrast for all status colors in dark.
+- [x] Playwright visual snapshots for key screens at 375px and 1440px.
 
 ---
 

@@ -10,9 +10,9 @@ export default async function TambahGuru() {
     <>
       <Kepala sub={admin.nama} tab="guru" />
       <main className="profil-halaman">
-        <p style={{ margin: '4px 0 0' }}><a href="/admin/guru">← Daftar guru</a></p>
+        <p className="nav-balik"><a href="/admin/guru">← Daftar guru</a></p>
         <h1>Tambah guru</h1>
-        <p className="redup" style={{ margin: '0 0 14px' }}>
+        <p className="redup mb-s4">
           Isi data guru. Username dan kata sandi awal (8 angka acak) dibuat otomatis dan ditampilkan sekali setelah disimpan.
         </p>
         <FormGuruBaru mode="admin" />

@@ -50,7 +50,7 @@ export default function BarisGuru({ guru, status }: { guru: G; status?: S }) {
         {!guru.disetujui ? <span className="label Perlu-dicek">Menunggu persetujuan</span>
           : guru.aktif ? 'Aktif' : <strong className="galat">Nonaktif</strong>}
       </td>
-      <td style={{ whiteSpace: 'nowrap' }}>
+      <td className="nowrap">
         {!guru.disetujui ? (
           <>
             <button disabled={sibuk} onClick={() => kirim({ aksi: 'setujui', guruId: guru.id })}>Setujui</button>{' '}

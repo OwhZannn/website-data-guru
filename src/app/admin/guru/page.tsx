@@ -74,13 +74,13 @@ export default async function HalamanGuru({ searchParams }: { searchParams: Prom
     <main className="lebar">
       <div className="judul-aksi">
         <h1>Guru</h1>
-        <span className="aksi" style={{ marginTop: 0 }}>
+        <span className="aksi mt-0">
           <a className="tombol" href="/admin/guru/tambah">Tambah guru</a>
           <a className="tombol-garis" href="/admin/guru/impor">Impor guru</a>
         </span>
       </div>
       {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} lain={{ q, status: filter }} />}
-      {periode && <p className="redup" style={{ margin: '0 0 4px' }}>Status dokumen periode {periode.nama}{periode.dibuka ? ' (dibuka)' : ' (ditutup)'} · {totalAktif} guru aktif</p>}
+      {periode && <p className="redup mb-s1">Status dokumen periode {periode.nama}{periode.dibuka ? ' (dibuka)' : ' (ditutup)'} · {totalAktif} guru aktif</p>}
       <BannerSandi />
       {menunggu > 0 && (
         <p className="info" role="status">

@@ -15,8 +15,8 @@ export default async function Profil() {
       <Kepala sub={guru.nama} aksi={<a href="/dokumen">Dokumen saya</a>} />
       <main className="profil-halaman">
         <h1>Profil Saya</h1>
-        <p className="redup" style={{ margin: '0 0 14px' }}>
-          <strong style={{ color: 'var(--teks)' }}>{guru.nama}</strong> · {teksIdentitas(guru)}
+        <p className="redup mb-s4">
+          <strong className="redup-teks">{guru.nama}</strong> · {teksIdentitas(guru)}
         </p>
         {!lengkap && (
           <p className="info" role="status">
@@ -24,7 +24,7 @@ export default async function Profil() {
           </p>
         )}
         <FormProfil awal={guru} setelahSimpan={lengkap ? undefined : '/dokumen'} />
-        <div style={{ height: 20 }} />
+        <div className="spacer-s5" />
         <FormGantiSandi />
       </main>
     </>

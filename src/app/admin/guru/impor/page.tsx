@@ -9,8 +9,8 @@ export default async function HalamanImporGuru() {
   return (
     <>
       <Kepala sub={admin.nama} tab="guru" />
-      <main className="lebar" style={{ maxWidth: 880 }}>
-        <p style={{ margin: '4px 0 0' }}><a href="/admin/guru">← Daftar guru</a></p>
+      <main className="lebar w-impor">
+        <p className="nav-balik"><a href="/admin/guru">← Daftar guru</a></p>
         <h1>Impor guru</h1>
         <section className="panel">
           <ImporGuru />

@@ -31,7 +31,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
   return (
     <div>
       <form className="panel" onSubmit={(e) => { e.preventDefault(); void kirim({ aksi: 'buat', nama }).then(() => setNama('')) }}>
-        <h2 style={{ margin: '0 0 12px' }}>Buat periode baru</h2>
+        <h2 className="mb-s3 mt-0">Buat periode baru</h2>
         <div className="baris-form">
           <label>Nama periode
             <input name="nama" aria-label="Nama periode" placeholder="Contoh: Verval Sertifikasi 2027" value={nama} onChange={(e) => setNama(e.target.value)} />
@@ -47,7 +47,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
             <div className="periode-atas">
               <div>
                 <strong>{p.nama}</strong> <span className={p.dibuka ? 'lencana buka' : 'lencana'}>{p.dibuka ? 'Dibuka' : 'Ditutup'}</span>
-                <p className="kartu-sub" style={{ margin: '4px 0 0' }}>
+                <p className="kartu-sub mt-s1">
                   {p.dibuka ? 'Guru sedang bisa mengunggah dokumen.' : 'Guru tidak bisa mengunggah. Admin tetap bisa memeriksa.'}
                 </p>
               </div>

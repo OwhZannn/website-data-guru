@@ -1,4 +1,5 @@
 import type { Riwayat } from '@prisma/client'
+import { Upload, Clock, CheckCircle2, AlertCircle } from 'lucide-react'
 import TombolUnggah from './TombolUnggah'
 
 const LABEL: Record<string, string> = {
@@ -7,7 +8,12 @@ const LABEL: Record<string, string> = {
   SAH: 'SAH',
   DITOLAK: 'Ditolak',
 }
-const IKON: Record<string, string> = { BELUM: '↑', MENUNGGU: '⏳', SAH: '✓', DITOLAK: '!' }
+const IKON: Record<string, React.ReactNode> = {
+  BELUM: <Upload size={16} aria-hidden="true" />,
+  MENUNGGU: <Clock size={16} aria-hidden="true" />,
+  SAH: <CheckCircle2 size={16} aria-hidden="true" />,
+  DITOLAK: <AlertCircle size={16} aria-hidden="true" />,
+}
 const TOMBOL: Record<string, string> = { BELUM: 'Unggah', MENUNGGU: 'Ganti file', DITOLAK: 'Unggah ulang' }
 const AKSI: Record<string, string> = {
   unggah: 'Diunggah',
@@ -32,7 +38,7 @@ export default function KartuDokumen(p: {
   return (
     <section className={p.status === 'DITOLAK' ? 'kartu ditolak' : 'kartu'}>
       <div className="kartu-atas">
-        <span className={`ikon ${p.status}`} aria-hidden="true">{IKON[p.status] ?? '•'}</span>
+        <span className={`ikon-status ${p.status}`}>{IKON[p.status] ?? <span aria-hidden="true">•</span>}</span>
         <div>
           <h2>{p.nama}</h2>
           {p.namaFile && p.status !== 'BELUM' && <div className="kartu-sub">Berkas: {p.namaFile}</div>}

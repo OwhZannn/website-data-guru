@@ -57,7 +57,7 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
     <>
       {kosong && (
         <div className="panel">
-          <p style={{ margin: '0 0 10px' }}>Periode ini belum punya dokumen. Isi dengan 16 dokumen baku verval sertifikasi guru PAI, lalu ubah seperlunya.</p>
+          <p className="mb-s3">Periode ini belum punya dokumen. Isi dengan 16 dokumen baku verval sertifikasi guru PAI, lalu ubah seperlunya.</p>
           <button type="button" disabled={sibuk} onClick={() => kirim({ aksi: 'isi_baku', periodeId })}>Isi dengan daftar baku</button>
         </div>
       )}
@@ -119,7 +119,7 @@ export default function KelolaDokumen({ periodeId, aktif, nonaktif }: { periodeI
           <h2>Dokumen nonaktif</h2>
           <ul className="daftar-kartu">
             {nonaktif.map((d) => (
-              <li key={d.id} style={{ opacity: 0.55 }}>
+              <li key={d.id} className="nonaktif-item">
                 {d.nama} <small>({LABEL_BERLAKU[d.berlakuUntuk] ?? d.berlakuUntuk})</small>{' '}
                 <button type="button" className="biasa" disabled={sibuk}
                   onClick={() => denganPeringatan(d.id, async () => { await kirim({ aksi: 'aktifkan', periodeId, dokumenId: d.id }) })}>

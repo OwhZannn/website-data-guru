@@ -56,11 +56,11 @@ export default async function DetailGuru({ params, searchParams }: {
     <main className="dua">
       <div className="dua-kiri">
       <BannerDrive />
-      <p style={{ margin: '4px 0 0' }}><a href="/admin/guru">← Daftar guru</a></p>
+      <p className="nav-balik"><a href="/admin/guru">← Daftar guru</a></p>
       <h1>Detail Guru</h1>
-      <p style={{ margin: '0 0 12px' }}><strong>{guru.nama}</strong><br /><span className="redup">{teksIdentitas(guru)}</span></p>
+      <p className="mb-s3"><strong>{guru.nama}</strong><br /><span className="redup">{teksIdentitas(guru)}</span></p>
       <section className="panel" aria-label="Profil guru">
-        {!profilLengkap(guru) && <p className="info" style={{ margin: '0 0 10px' }}>Profil belum lengkap. Guru ini belum bisa mengunggah.</p>}
+        {!profilLengkap(guru) && <p className="info mb-s3">Profil belum lengkap. Guru ini belum bisa mengunggah.</p>}
         <dl className="profil-ringkas">
           <dt>Sekolah</dt><dd>{guru.asalSekolah ?? '-'}</dd>
           <dt>Jabatan</dt><dd>{LABEL_JABATAN[guru.jabatan] ?? guru.jabatan}</dd>
@@ -68,9 +68,9 @@ export default async function DetailGuru({ params, searchParams }: {
           <dt>Sertifikasi</dt><dd>{guru.tahunSertifikasi ?? '-'}{guru.sertifikasiBaru ? ' · sertifikasi baru' : ''}</dd>
           <dt>Tugas</dt><dd>{tugas.length ? tugas.join(', ') : 'Tidak ada'}</dd>
         </dl>
-        <details style={{ marginTop: 12 }}>
-          <summary style={{ fontWeight: 700, color: 'var(--hijau-2)' }}>Koreksi profil dan tugas</summary>
-          <div style={{ marginTop: 10 }}>
+        <details className="mt-s3">
+          <summary className="ringkas-detail-summary">Koreksi profil dan tugas</summary>
+          <div className="mt-s3">
             <FormProfil awal={guru} guruId={guru.id} />
             <PilihTugas awal={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>} guruId={guru.id} />
           </div>
@@ -82,7 +82,7 @@ export default async function DetailGuru({ params, searchParams }: {
         )}
       </section>
       {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
-      {periode && <p className="redup" style={{ margin: '0 0 8px' }}>{periode.nama}{periode.dibuka ? '' : ' (ditutup)'}</p>}
+      {periode && <p className="redup mb-s2">{periode.nama}{periode.dibuka ? '' : ' (ditutup)'}</p>}
       <KartuProgres sah={status.jumlahSah} wajib={status.jumlahWajib} />
       </div>
       <div className="dua-kanan">

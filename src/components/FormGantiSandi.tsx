@@ -44,8 +44,8 @@ export default function FormGantiSandi() {
 
   return (
     <form method="post" onSubmit={kirim} className="panel profil" id="sandi" aria-labelledby="judul-sandi">
-      <h2 id="judul-sandi" style={{ margin: '0 0 4px' }}>Ganti kata sandi</h2>
-      <p className="redup" style={{ margin: '0 0 14px', fontSize: '.92rem' }}>Setelah diganti, perangkat lain yang sedang masuk akan dikeluarkan.</p>
+      <h2 id="judul-sandi" className="mb-s1 mt-0">Ganti kata sandi</h2>
+      <p className="redup mb-s4 teks-sm">Setelah diganti, perangkat lain yang sedang masuk akan dikeluarkan.</p>
       <label>Kata sandi lama<InputSandi name="sandiLama" autoComplete="current-password" required /></label>
       <div className="profil-dua">
         <label>Kata sandi baru (minimal 8 karakter)<InputSandi name="sandiBaru" autoComplete="new-password" required minLength={8} /></label>

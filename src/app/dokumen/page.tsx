@@ -53,13 +53,13 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
           {periode && !dibuka && adaDibuka && <p role="status" className="info">Periode ini sudah ditutup; hanya dapat dilihat.</p>}
           {!lengkapProfil && (
             <div className="info" role="status">
-              <p style={{ margin: '0 0 8px' }}>Lengkapi profil Anda dulu. Dokumen yang perlu diunggah ditentukan dari jabatan dan status kepegawaian Anda.</p>
+              <p className="mb-s2">Lengkapi profil Anda dulu. Dokumen yang perlu diunggah ditentukan dari jabatan dan status kepegawaian Anda.</p>
               <a className="tombol" href="/profil">Lengkapi profil</a>
             </div>
           )}
           {periode && dokumen.length > 0 && (
             <>
-              <p className="redup" style={{ margin: '0 0 8px' }}>{periode.nama}</p>
+              <p className="redup mb-s2">{periode.nama}</p>
               <KartuProgres sah={status.jumlahSah} wajib={status.jumlahWajib} keterangan={keterangan || undefined} />
             </>
           )}
@@ -72,7 +72,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
             {status.lengkap && (
               <section className="siaga" aria-label="Langkah berikutnya">
                 <h2>Berkas Anda sudah lulus verval.</h2>
-                <p style={{ margin: 0 }}>Langkah berikutnya: unggah berkas yang sama ke aplikasi SIAGA, lalu cetak SKMT dan SPTJM.</p>
+                <p className="mb-0">Langkah berikutnya: unggah berkas yang sama ke aplikasi SIAGA, lalu cetak SKMT dan SPTJM.</p>
                 <ol>
                   <li>Masuk ke aplikasi SIAGA.</li>
                   <li>Unggah setiap berkas di bawah ini. Semuanya sudah dinyatakan sah.</li>

@@ -23,6 +23,7 @@
     "@prisma/client": "^6.19.3",
     "exceljs": "4.4.0",
     "googleapis": "^189.0.0",
+    "lucide-react": "^1.70.0",
     "next": "^15.5.29",
     "prisma": "^6.19.3",
     "react": "^19.3.1",

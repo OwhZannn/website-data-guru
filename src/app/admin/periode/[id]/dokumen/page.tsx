@@ -17,7 +17,7 @@ export default async function DaftarDokumenPeriode({ params }: { params: Promise
     <>
       <Kepala sub={admin.nama} tab="periode" />
       <main className="lebar">
-      <p style={{ margin: '4px 0 0' }}><a href="/admin/periode">← Semua periode</a></p>
+      <p className="nav-balik"><a href="/admin/periode">← Semua periode</a></p>
       <h1>Daftar Dokumen</h1>
       <p className="redup">{periode.nama}</p>
       <KelolaDokumen

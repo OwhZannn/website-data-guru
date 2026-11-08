@@ -14,8 +14,30 @@
   --tolak-bg: #fde2e1; --tolak: #b42318;
   --tunggu-bg: #fdf0d5; --tunggu: #8a5a00;
   --belum-bg: #eceeed; --belum: #4f5d56;
+  --info-bg: #e8f1fc; --info: #1a5eb8;
   --r: 14px;
+  --r-sm: 6px;
+  --r-pill: 999px;
   --bayang: 0 1px 2px rgba(16, 40, 28, .06), 0 4px 14px rgba(16, 40, 28, .05);
+  --bayang-sm: 0 1px 2px rgba(16, 40, 28, .06);
+  --bayang-md: 0 4px 12px rgba(16, 40, 28, .10);
+  /* Skala jarak */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+  /* Skala tipografi */
+  --t-xs: 0.75rem;
+  --t-sm: 0.85rem;
+  --t-base: 1rem;
+  --t-md: 1.05rem;
+  --t-lg: 1.1rem;
+  --t-xl: 1.45rem;
+  --t-2xl: 1.7rem;
 }
 
 * { box-sizing: border-box; }
@@ -142,7 +164,7 @@ td button { padding: 6px 12px; font-size: 13px; }
 .alasan { background: #fff5f4; border: 1px solid #f5c2bf; color: #7a1b13; border-radius: 10px; padding: 10px 12px; margin: 10px 0 0; font-size: .9rem; }
 .galat { color: var(--tolak); margin: 8px 0; font-weight: 600; }
 .ok { color: var(--sah); margin: 8px 0; font-weight: 600; }
-.info { background: var(--tunggu-bg); color: var(--tunggu); border-radius: 12px; padding: 10px 14px; margin: 0 0 14px; font-weight: 600; }
+.info { background: var(--info-bg); color: var(--info); border-radius: 12px; padding: 10px 14px; margin: 0 0 14px; font-weight: 600; }
 .riwayat { font-size: .82rem; color: var(--redup); margin: 12px 0 0; padding: 10px 0 0 18px; border-top: 1px dashed var(--garis); }
 .redup { color: var(--redup); }
 
@@ -360,3 +382,110 @@ tr.baris-menunggu td { background: #fffaf0; }
   display: flex; align-items: center; justify-content: center; border-radius: 10px; background: transparent; color: var(--redup);
 }
 .sandi-mata:hover:not(:disabled) { background: var(--hijau-muda); color: var(--hijau); }
+
+/* ================================================================
+   FASE 0: Kelas utilitas & komponen UI primitif
+   ================================================================ */
+
+/* ---------- Utilitas jarak & ukuran ---------- */
+.mt-s3 { margin-top: var(--s-3); }
+.mt-s4 { margin-top: var(--s-4); }
+.mt-s6 { margin-top: var(--s-6); }
+.mb-s3 { margin-bottom: var(--s-3); }
+.mb-s4 { margin-bottom: var(--s-4); }
+.mb-s2 { margin-bottom: var(--s-2); }
+.mb-s1 { margin-bottom: var(--s-1); }
+.mb-0  { margin-bottom: 0; }
+.mt-0  { margin-top: 0; }
+.py-s5 { padding-top: var(--s-5); padding-bottom: var(--s-5); }
+.redup-teks { color: var(--teks); }
+.w-impor { max-width: 880px; }
+.spacer-s5 { height: var(--s-5); }
+
+/* ---------- Navigasi konteks (kembali) ---------- */
+.nav-balik { margin: var(--s-1) 0 0; }
+.nav-balik a { color: var(--hijau-2); font-size: var(--t-sm); text-decoration: none; }
+.nav-balik a:hover { color: var(--hijau); }
+
+/* ---------- StatCard ---------- */
+.stat-card {
+  display: block; border-radius: var(--r); padding: var(--s-3) var(--s-4);
+  background: var(--kartu); border: 1px solid var(--garis); box-shadow: var(--bayang-sm);
+  text-decoration: none; color: var(--teks);
+}
+.stat-card__nilai {
+  display: block; font-size: 1.6rem; font-weight: 800; line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-card__label { display: block; font-size: var(--t-xs); color: var(--redup); margin-top: var(--s-1); }
+.stat-card--sah   { background: var(--sah-bg); }  .stat-card--sah .stat-card__nilai   { color: var(--sah); }
+.stat-card--tolak { background: var(--tolak-bg); } .stat-card--tolak .stat-card__nilai { color: var(--tolak); }
+.stat-card--tunggu{ background: var(--tunggu-bg); } .stat-card--tunggu .stat-card__nilai{ color: var(--tunggu); }
+.stat-card--belum { background: var(--belum-bg); } .stat-card--belum .stat-card__nilai { color: var(--belum); }
+
+/* ---------- Badge ---------- */
+/* dipakai lewat className="label <STATUS>" — tidak butuh CSS baru */
+
+/* ---------- Section ---------- */
+.ui-section { margin: var(--s-6) 0 var(--s-3); }
+.ui-section__kepala {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.ui-section__judul { font-size: var(--t-lg); font-weight: 700; margin: 0; }
+.ui-section__aksi  { display: flex; gap: var(--s-2); align-items: center; flex-shrink: 0; }
+
+/* ---------- EmptyState ---------- */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: var(--s-8) var(--s-4); text-align: center; gap: var(--s-3);
+  color: var(--redup);
+}
+.empty-state__ikon {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--belum-bg);
+  display: flex; align-items: center; justify-content: center; color: var(--belum);
+  flex-shrink: 0;
+}
+.empty-state__teks { font-size: var(--t-sm); max-width: 320px; }
+
+/* ---------- ProgressBar ---------- */
+.progress-bar { width: 100%; height: 8px; border-radius: var(--r-pill); background: var(--garis); overflow: hidden; }
+.progress-bar__isi { height: 100%; border-radius: var(--r-pill); background: var(--hijau-2); transition: width .3s; }
+.progress-bar--bertumpuk { display: flex; }
+.progress-bar--bertumpuk .progress-bar__segmen { height: 100%; }
+.progress-bar__segmen--sah     { background: var(--sah); }
+.progress-bar__segmen--tunggu  { background: var(--tunggu); }
+.progress-bar__segmen--tolak   { background: var(--tolak); }
+.progress-bar__segmen--belum   { background: var(--garis); }
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-2); align-items: center; font-size: var(--t-sm); margin: var(--s-1) 0 0; padding: 0; list-style: none; }
+.breadcrumb__butir { display: flex; align-items: center; gap: var(--s-2); color: var(--redup); }
+.breadcrumb__butir a { color: var(--hijau-2); text-decoration: none; }
+.breadcrumb__butir a:hover { color: var(--hijau); }
+.breadcrumb__butir[aria-current="page"] { color: var(--teks); font-weight: 600; }
+.breadcrumb__pemisah { color: var(--redup); font-size: var(--t-xs); user-select: none; }
+
+/* ---------- Ikon status kartu dokumen ---------- */
+.ikon-status { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+.ikon-status.BELUM   { background: var(--belum-bg); color: var(--belum); }
+.ikon-status.MENUNGGU{ background: var(--tunggu-bg); color: var(--tunggu); }
+.ikon-status.SAH     { background: var(--sah-bg); color: var(--sah); }
+.ikon-status.DITOLAK { background: var(--tolak-bg); color: var(--tolak); }
+
+/* ================================================================
+   FASE 0: Kelas utilitas tambahan
+   ================================================================ */
+.mt-0  { margin-top: 0; }
+.mt-s1 { margin-top: var(--s-1); }
+.nowrap { white-space: nowrap; }
+.teks-sm { font-size: var(--t-sm); }
+.bantuan-atas { margin-top: -6px; }
+.nonaktif-item { opacity: 0.55; }
+.ringkas-detail-summary { font-weight: 700; color: var(--hijau-2); cursor: pointer; }
+.sandi-baru-baris { margin: var(--s-2) 0; }
+.daftar-impor { font-size: var(--t-sm); margin: 0 0 var(--s-3); padding-left: 20px; }
+.banner-drive {
+  background: #fdecea; color: #b71c1c; border: 1px solid #b71c1c;
+  padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); margin-bottom: var(--s-4);
+}

@@ -41,8 +41,8 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
   return (
     <div>
       <form method="post" className="panel" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
-        <h2 style={{ margin: '0 0 4px' }}>Tambah admin</h2>
-        <p className="redup" style={{ margin: '0 0 14px', fontSize: '.9rem' }}>Sandi awal dibuat otomatis dan ditampilkan sekali setelah admin ditambahkan.</p>
+        <h2 className="mb-s1 mt-0">Tambah admin</h2>
+        <p className="redup mb-s4 teks-sm">Sandi awal dibuat otomatis dan ditampilkan sekali setelah admin ditambahkan.</p>
         <div className="baris-form">
           <label>Nama lengkap
             <input name="nama" aria-label="Nama admin" placeholder="Contoh: Budi Santoso" value={nama} onChange={(e) => setNama(e.target.value)} required />
@@ -55,12 +55,12 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
         {pesan && <p className="galat" role="alert">{pesan}</p>}
         {baru && (
           <div role="status" className="sandi-baru">
-            <p style={{ margin: 0 }}>Sandi awal untuk <b>{baru.email}</b>:</p>
-            <p style={{ margin: '6px 0' }}>
+            <p className="mb-0">Sandi awal untuk <b>{baru.email}</b>:</p>
+            <p className="sandi-baru-baris">
               <code data-testid="sandi-baru">{baru.sandi}</code>{' '}
               <button type="button" className="biasa" onClick={() => navigator.clipboard?.writeText(baru.sandi).catch(() => {})}>Salin</button>
             </p>
-            <p style={{ margin: 0 }}><strong>Catat sekarang: sandi ini hanya tampil sekali dan tidak dapat dilihat lagi.</strong></p>
+            <p className="mb-0"><strong>Catat sekarang: sandi ini hanya tampil sekali dan tidak dapat dilihat lagi.</strong></p>
           </div>
         )}
       </form>

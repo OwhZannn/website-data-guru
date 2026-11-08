@@ -61,7 +61,7 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
       {akun && (
         <section className="akun-baru" role="status" aria-label="Akun berhasil dibuat">
           <h2>{mode === 'admin' ? 'Guru berhasil ditambahkan.' : 'Akun berhasil dibuat.'}</h2>
-          <p style={{ margin: 0 }}>
+          <p className="mb-0">
             {mode === 'admin'
               ? <>Berikan data masuk berikut kepada <b>{akun.nama}</b>.</>
               : <>Simpan data masuk berikut. Akun Anda baru bisa dipakai setelah <b>disetujui admin</b>.</>}
@@ -106,7 +106,7 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
             </label>
           )}
         </div>
-        <p className="redup bantuan" style={{ marginTop: -6 }}>
+        <p className="redup bantuan bantuan-atas">
           {nonAsn ? 'Non ASN masuk memakai NIK sebagai username.' : 'PNS, PPPK, dan Paruh waktu masuk memakai NIP sebagai username.'}
         </p>
         <fieldset>

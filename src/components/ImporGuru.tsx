@@ -34,11 +34,11 @@ export default function ImporGuru() {
 
   return (
     <section>
-      <p style={{ marginTop: 0 }}>
+      <p className="mt-0">
         Satu guru per baris dengan urutan <code>Nama;NIP;NIK;Status Kepegawaian;Tahun Sertifikasi</code>
         (pemisah titik koma atau koma). Bisa ditempel langsung dari Excel yang disimpan sebagai CSV.
       </p>
-      <ul className="redup" style={{ fontSize: '.9rem', margin: '0 0 12px', paddingLeft: 20 }}>
+      <ul className="redup daftar-impor">
         <li>Status: <b>PNS</b>, <b>PPPK</b>, <b>Paruh waktu</b>, atau <b>Non ASN</b>.</li>
         <li>PNS, PPPK, dan Paruh waktu wajib NIP (18 angka) dan masuk dengan NIP. Non ASN wajib NIK (16 angka) dan masuk dengan NIK.</li>
         <li>Kolom yang tidak dipakai boleh dikosongkan, misalnya NIK untuk PNS. Guru yang NIP/NIK-nya sudah terdaftar dilewati.</li>

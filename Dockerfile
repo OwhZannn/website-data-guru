@@ -22,6 +22,8 @@ COPY --from=pembangun --chown=app:app /app/.next/static ./.next/static
 COPY --from=pembangun --chown=app:app /app/public ./public
 COPY --from=pembangun --chown=app:app /app/prisma ./prisma
 COPY --chown=app:app deploy/entrypoint.sh ./entrypoint.sh
+COPY --chown=app:app deploy/admin-awal.mjs ./admin-awal.mjs
+COPY --chown=app:app scripts/buat-admin.mjs ./scripts/buat-admin.mjs
 RUN chmod +x entrypoint.sh
 # Prisma CLI lengkap dengan seluruh dependensinya, terpisah dari node_modules server (versi = package-lock).
 RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli && npm init -y >/dev/null \

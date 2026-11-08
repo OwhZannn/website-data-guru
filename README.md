@@ -59,6 +59,8 @@ node scripts/buat-admin.mjs "Nama Lengkap" email@sekolah.sch.id
 
 Sandi acak dicetak **sekali saja**; catat dan minta admin menggantinya setelah masuk.
 
+**Lewat lingkungan (tanpa SSH, cocok untuk Komodo):** isi `ADMIN_EMAIL`, `ADMIN_SANDI` (min. 8 karakter), dan `ADMIN_NAMA` (opsional), lalu deploy. Admin dibuat saat kontainer mulai bila belum ada; yang sudah ada tidak diubah. Setelah berhasil masuk, hapus `ADMIN_SANDI` dari lingkungan. Bila lupa sandi, isi `ADMIN_RESET=1` bersama sandi baru sekali jalan, lalu hapus keduanya.
+
 ### Akun guru
 
 - **Admin** masuk memakai **email**. **Guru** masuk memakai **username**: NIP untuk PNS, PPPK, dan Paruh waktu, atau NIK untuk Non ASN.

@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Satu proses per cabang/PR; yang lama dibatalkan saat ada dorongan baru.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  tes-unit:
+    name: Tipe dan tes unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Periksa tipe
+        run: npx tsc --noEmit -p .
+      - name: Tes unit dan API (vitest)
+        run: npx vitest run
+
+  build:
+    name: Build produksi
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: next build
+        run: npm run build
+
+  tes-e2e:
+    name: Tes e2e (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Pasang Chromium
+        run: npx playwright install --with-deps chromium
+      # Gambar acuan uji visual dibuat di macOS (-darwin) sehingga tidak cocok di Linux.
+      # Halamannya tetap dibuka (terang dan gelap, ponsel dan lebar); hanya perbandingan gambar dilewati.
+      - name: Playwright
+        run: npx playwright test --ignore-snapshots
+      - name: Unggah laporan bila gagal
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laporan-playwright
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

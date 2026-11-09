@@ -31,3 +31,6 @@ export function nomorHalaman(hal: number, jumlahHal: number): (number | null)[] 
   })
   return hasil
 }
+
+/** Ringkasan satu halaman (hasil `potongHalaman` tanpa isinya), dipakai footer DataTable. */
+export type RingkasanHalaman = Omit<ReturnType<typeof potongHalaman>, 'isi'>

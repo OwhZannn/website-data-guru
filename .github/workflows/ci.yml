@@ -46,8 +46,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma generate
+      # Pemeriksaan tipe saat build melebihi heap bawaan Node (±2 GB) di runner.
       - name: next build
         run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
   tes-e2e:
     name: Tes e2e (Playwright)

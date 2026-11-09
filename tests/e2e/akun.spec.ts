@@ -171,8 +171,15 @@ test('admin mengganti kata sandi sendiri lewat menu Akun saya', async ({ page, c
   await expect(page).toHaveURL('/masuk')
   await context.clearCookies()
 
-  await masuk(page, admin.email)
+  // Sandi lama sudah tidak berlaku: galat tampil langsung, tanpa menunggu pengalihan yang tidak akan terjadi.
+  await page.goto('/masuk')
+  await expect(page.locator('button[type=submit]')).toBeEnabled()
+  await page.fill('[name=username]', admin.email)
+  await page.fill('[name=sandi]', SANDI)
+  await page.locator('button[type=submit]').click()
+  await expect(page.getByRole('alert')).toBeVisible()
   await expect(page).toHaveURL('/masuk')
+
   await masuk(page, admin.email, 'sandi-admin-baru-1')
   await expect(page).toHaveURL('/admin')
 })

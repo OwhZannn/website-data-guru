@@ -5,6 +5,8 @@ const PORT = 3100
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
+  // Runner CI jauh lebih lambat dari laptop (±2×); beri ruang agar tes yang sah tidak habis waktu.
+  timeout: process.env.CI ? 60_000 : 30_000,
   fullyParallel: false,
   workers: 1,
   // Server dev menyusun halaman saat pertama dibuka; di mesin yang sibuk itu bisa lebih dari 5 detik.

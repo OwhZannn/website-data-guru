@@ -38,37 +38,27 @@ export default function TimelineRiwayat({ riwayat, namaPelaku }: Props) {
   if (riwayat.length === 0) return <p className="redup">Belum ada riwayat.</p>
 
   return (
-    <ol className="timeline" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+    <ol className="timeline">
       {riwayat.map((r, idx) => {
         const nama = namaPelaku.get(r.id) ?? r.oleh
         const label = LABEL_AKSI[r.aksi] ?? r.aksi
         return (
-          <li key={r.id} className="timeline-item" style={{ display: 'flex', gap: 'var(--s-3)', position: 'relative', paddingBottom: 'var(--s-4)' }}>
+          <li key={r.id} className="timeline-item">
             {/* Garis vertikal */}
             {idx < riwayat.length - 1 && (
-              <span
-                aria-hidden="true"
-                style={{
-                  position: 'absolute',
-                  left: 7,
-                  top: 20,
-                  bottom: 0,
-                  width: 2,
-                  background: 'var(--garis)',
-                }}
-              />
+              <span aria-hidden="true" className="timeline-garis" />
             )}
             {/* Ikon */}
-            <span style={{ flexShrink: 0, marginTop: 2 }}>{ikonAksi(r.aksi)}</span>
+            <span className="timeline-ikon">{ikonAksi(r.aksi)}</span>
             {/* Konten */}
             <div>
-              <div style={{ fontSize: 'var(--t-sm)', color: 'var(--redup)' }}>
+              <div className="timeline-teks">
                 {waktuWita(r.waktu)} — {label} oleh {nama}
                 {r.olehTipe === 'admin' ? ' (admin)' : ''}
                 {r.alasan ? `: ${r.alasan}` : ''}
               </div>
               {r.alasan && (
-                <div style={{ marginTop: 'var(--s-1)', color: 'var(--tolak)', fontSize: 'var(--t-sm)' }}>
+                <div className="timeline-alasan">
                   Alasan: {r.alasan}
                 </div>
               )}

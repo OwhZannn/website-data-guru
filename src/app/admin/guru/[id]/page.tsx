@@ -7,7 +7,6 @@ import { halamanAdmin } from '@/lib/halaman'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen, namaPelakuRiwayat } from '@/lib/riwayat'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
-import PilihPeriode from '@/components/PilihPeriode'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import KartuProgres from '@/components/KartuProgres'
 import FormProfil from '@/components/FormProfil'
@@ -88,81 +87,96 @@ export default async function DetailGuru({ params, searchParams }: {
     }
   }
 
-  return (
+  const badge = status.label.replace(/ /g, '-')
+  const profil: [string, string][] = [
+    ['Sekolah', guru.asalSekolah ?? '-'],
+    ['Jabatan', LABEL_JABATAN[guru.jabatan] ?? guru.jabatan],
+    ['Status', LABEL_PEGAWAI[guru.statusPegawai ?? ''] ?? '-'],
+    ['Sertifikasi', `${guru.tahunSertifikasi ?? '-'}${guru.sertifikasiBaru ? ' · sertifikasi baru' : ''}`],
+    ['Tugas', tugas.length ? tugas.join(', ') : 'Tidak ada'],
+  ]
+
+  const adaDokumen = !!periode && dokReview.length > 0
+  const riwayatDokumen = dokumen.map((d, i) => {
+    const b = baris.find((x) => x.dokumenId === d.id)
+    if (!b || riwayat[i].length === 0) return null
+    return (
+      <section key={d.id} className="riwayat-dok">
+        <h3>Riwayat — {d.nama}</h3>
+        <TimelineRiwayat riwayat={riwayat[i]} namaPelaku={pelaku} />
+      </section>
+    )
+  })
+  const adaRiwayat = riwayatProfil.length > 0 || riwayatDokumen.some(Boolean)
+  const panelRiwayat = adaRiwayat ? (
     <>
-    <Breadcrumb butir={[
-      { label: 'Beranda', href: '/admin' },
-      { label: 'Guru', href: '/admin/guru' },
-      { label: guru.nama },
-    ]} />
-    <div className="dua">
-      <div className="dua-kiri">
+      {riwayatProfil.length > 0 && (
+        <ul className="riwayat" aria-label="Riwayat profil">
+          {riwayatProfil.map((r) => <li key={r.id}>{waktuWita(r.waktu)} — {r.olehTipe === 'admin' ? 'admin' : 'guru'}: {r.alasan}</li>)}
+        </ul>
+      )}
+      {riwayatDokumen}
+    </>
+  ) : null
+
+  return (
+    <div className="detail-guru">
+      <Breadcrumb butir={[
+        { label: 'Beranda', href: '/admin' },
+        { label: 'Guru', href: '/admin/guru' },
+        { label: guru.nama },
+      ]} />
       <BannerDrive />
-      <h1>Detail Guru</h1>
-      <p className="mb-s3"><strong>{guru.nama}</strong><br /><span className="redup">{teksIdentitas(guru)}</span></p>
-      <section className="panel" aria-label="Profil guru">
-        {!profilLengkap(guru) && <p className="info mb-s3">Profil belum lengkap. Guru ini belum bisa mengunggah.</p>}
-        <dl className="profil-ringkas">
-          <dt>Sekolah</dt><dd>{guru.asalSekolah ?? '-'}</dd>
-          <dt>Jabatan</dt><dd>{LABEL_JABATAN[guru.jabatan] ?? guru.jabatan}</dd>
-          <dt>Status</dt><dd>{LABEL_PEGAWAI[guru.statusPegawai ?? ''] ?? '-'}</dd>
-          <dt>Sertifikasi</dt><dd>{guru.tahunSertifikasi ?? '-'}{guru.sertifikasiBaru ? ' · sertifikasi baru' : ''}</dd>
-          <dt>Tugas</dt><dd>{tugas.length ? tugas.join(', ') : 'Tidak ada'}</dd>
+      <header className="detail-bar">
+        <div className="detail-bar__nama">
+          <h1>{guru.nama}</h1>
+          <span className={`label ${badge}`}>{status.label}</span>
+          <span className="redup detail-bar__id">{teksIdentitas(guru)}</span>
+        </div>
+        <div className="detail-bar__aksi">
+          {periode && <span className="redup detail-bar__periode">{periode.nama}{periode.dibuka ? '' : ' (ditutup)'}</span>}
+          <KartuProgres ringkas sah={status.jumlahSah} wajib={status.jumlahWajib} />
+          {periode && menungguDenganFile.length > 0 && (
+            <SahkanMassal
+              guruId={guru.id}
+              periodeId={periode.id}
+              dokumen={menungguDenganFile.map((d) => ({ id: d.dokumenGuruId, nama: d.nama, fileId: d.fileId! }))}
+            />
+          )}
+        </div>
+      </header>
+      <section className="detail-profil" aria-label="Profil guru">
+        {!profilLengkap(guru) && <p className="info detail-profil__info">Profil belum lengkap. Guru ini belum bisa mengunggah.</p>}
+        <dl className="detail-profil__daftar">
+          {profil.map(([k, v]) => (
+            <div key={k} className="detail-profil__butir"><dt>{k}</dt><dd>{v}</dd></div>
+          ))}
         </dl>
-        <details className="mt-s3">
+        <details className="koreksi">
           <summary className="ringkas-detail-summary">Koreksi profil dan tugas</summary>
-          <div className="mt-s3">
+          <div className="koreksi__isi">
             <FormProfil awal={guru} guruId={guru.id} />
             <PilihTugas awal={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>} guruId={guru.id} />
           </div>
         </details>
-        {riwayatProfil.length > 0 && (
-          <ul className="riwayat" aria-label="Riwayat profil">
-            {riwayatProfil.map((r) => <li key={r.id}>{waktuWita(r.waktu)} — {r.olehTipe === 'admin' ? 'admin' : 'guru'}: {r.alasan}</li>)}
-          </ul>
-        )}
       </section>
-      {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
-      {periode && <p className="redup mb-s2">{periode.nama}{periode.dibuka ? '' : ' (ditutup)'}</p>}
-      <KartuProgres sah={status.jumlahSah} wajib={status.jumlahWajib} />
-      {periode && menungguDenganFile.length > 0 && (
-        <SahkanMassal
+      {adaDokumen ? (
+        <ReviewPanel
           guruId={guru.id}
           periodeId={periode.id}
-          dokumen={menungguDenganFile.map((d) => ({ id: d.dokumenGuruId, nama: d.nama, fileId: d.fileId! }))}
+          dokumen={dokReview}
+          dokTerpilihId={sp.dok ?? null}
+          alasanPreset={alasanPreset}
+          guruBerikutnyaId={guruBerikutnya?.id ?? null}
+          guruBerikutnyaNama={guruBerikutnya?.nama ?? null}
+          riwayat={panelRiwayat}
         />
-      )}
-      </div>
-      <div className="dua-kanan">
-      {/* Mode review: split pane dengan pratinjau + keputusan */}
-      {periode && dokReview.length > 0 ? (
-        <>
-          <ReviewPanel
-            guruId={guru.id}
-            periodeId={periode.id}
-            dokumen={dokReview}
-            dokTerpilihId={sp.dok ?? null}
-            alasanPreset={alasanPreset}
-            guruBerikutnyaId={guruBerikutnya?.id ?? null}
-            guruBerikutnyaNama={guruBerikutnya?.nama ?? null}
-          />
-          {/* Timeline riwayat per dokumen */}
-          {dokumen.map((d, i) => {
-            const b = baris.find((x) => x.dokumenId === d.id)
-            if (!b || riwayat[i].length === 0) return null
-            return (
-              <section key={d.id} style={{ marginTop: 'var(--s-5)' }}>
-                <h3 style={{ marginBottom: 'var(--s-3)' }}>Riwayat — {d.nama}</h3>
-                <TimelineRiwayat riwayat={riwayat[i]} namaPelaku={pelaku} />
-              </section>
-            )
-          })}
-        </>
       ) : (
-        <EmptyState ikon={<FileText size={28} />} teks={periode ? 'Tidak ada dokumen wajib untuk periode ini.' : 'Pilih periode untuk melihat dokumen.'} />
+        <>
+          <EmptyState ikon={<FileText size={28} />} teks={periode ? 'Tidak ada dokumen wajib untuk periode ini.' : 'Pilih periode untuk melihat dokumen.'} />
+          {panelRiwayat && <div className="detail-riwayat-lepas">{panelRiwayat}</div>}
+        </>
       )}
-      </div>
     </div>
-    </>
   )
 }

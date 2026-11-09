@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import DataTable, { type Kolom } from './ui/DataTable'
 
 type Hasil = {
   dibuat: number; dilewati: number
@@ -31,6 +32,13 @@ export default function ImporGuru() {
       setSibuk(false)
     }
   }
+
+  const kolomSandi: Kolom<Hasil['sandiAwal'][number]>[] = [
+    { id: 'nama', label: 'Nama', tanpaLabelPonsel: true, sel: (s) => s.nama },
+    { id: 'username', label: 'Username (NIP/NIK)', sel: (s) => s.username },
+    { id: 'sandi', label: 'Sandi', sel: (s) => <code>{s.sandi}</code> },
+    { id: 'aksi', label: 'Aksi', tanpaLabelPonsel: true, kelas: 'nowrap', sel: (s) => <button onClick={() => salin(`${s.nama}\t${s.username}\t${s.sandi}`)}>Salin</button> },
+  ]
 
   return (
     <section>
@@ -65,17 +73,12 @@ Nur Hasanah;;5201014507900001;Non ASN;2021`}</pre>
             <>
               <p role="alert"><strong>Sandi awal hanya ditampilkan sekali ini dan tidak dapat dilihat lagi.</strong> Salin sekarang.</p>
               <button onClick={() => salin(hasil.sandiAwal.map((s) => `${s.nama}\t${s.username}\t${s.sandi}`).join('\n'))}>Salin semua</button>
-              <div className="geser"><table>
-                <thead><tr><th>Nama</th><th>Username (NIP/NIK)</th><th>Sandi</th><th></th></tr></thead>
-                <tbody>
-                  {hasil.sandiAwal.map((s) => (
-                    <tr key={s.username}>
-                      <td>{s.nama}</td><td>{s.username}</td><td><code>{s.sandi}</code></td>
-                      <td><button onClick={() => salin(`${s.nama}\t${s.username}\t${s.sandi}`)}>Salin</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                kelas="dt--ringkas" keterangan="Sandi awal guru baru"
+                kolom={kolomSandi} baris={hasil.sandiAwal} kunciBaris={(s) => s.username}
+                jumlahTeks={`${hasil.sandiAwal.length} sandi awal`}
+                kosong={null}
+              />
             </>
           )}
         </div>

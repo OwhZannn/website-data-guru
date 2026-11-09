@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { db, siapkan, masuk, buatAdmin, SANDI } from './bantu'
+import { db, siapkan, masuk, buatAdmin, bukaMenu, SANDI } from './bantu'
 
 const acak = () => Date.now().toString().slice(-8) + Math.floor(Math.random() * 90 + 10)
 const nipAcak = () => `1987${acak()}0000`.slice(0, 18)
@@ -116,7 +116,7 @@ test('menutup periode meminta konfirmasi dulu', async ({ page }) => {
   await masuk(page, admin.email)
   await expect(page).toHaveURL('/admin')
   await page.goto('/admin/periode')
-  const kartu = page.locator(`li[data-periode="${periode.nama}"]`)
+  const kartu = page.locator(`tr[data-periode="${periode.nama}"]`)
   await kartu.getByRole('button', { name: 'Tutup periode' }).click()
   const dialog = page.getByRole('dialog', { name: `Tutup ${periode.nama}?` })
   await expect(dialog.getByText(/guru tidak bisa lagi mengunggah/)).toBeVisible()
@@ -132,7 +132,8 @@ test('guru mengganti kata sandi di halaman Profil', async ({ page, context }) =>
   const { guru } = await siapkan({ dokumen: [] })
   await masuk(page, guru.username)
   await expect(page).toHaveURL('/dokumen')
-  await page.getByRole('link', { name: 'Profil & kata sandi' }).click()
+  await bukaMenu(page)
+  await page.getByRole('menuitem', { name: 'Profil & kata sandi' }).click()
   const form = page.getByRole('form', { name: 'Ganti kata sandi' })
   await form.getByLabel('Kata sandi lama').fill(SANDI)
   await form.getByLabel('Kata sandi baru (minimal 8 karakter)').fill('sandi-baru-99')
@@ -145,4 +146,52 @@ test('guru mengganti kata sandi di halaman Profil', async ({ page, context }) =>
   // Alamat lama tetap berfungsi.
   await page.goto('/ganti-sandi')
   await expect(page).toHaveURL(/\/profil/)
+})
+
+test('admin mengganti kata sandi sendiri lewat menu Akun saya', async ({ page, context }) => {
+  const admin = await buatAdmin()
+  await masuk(page, admin.email)
+  await expect(page).toHaveURL('/admin')
+  await bukaMenu(page)
+  await page.getByRole('menuitem', { name: 'Akun saya' }).click()
+  await expect(page).toHaveURL('/admin/akun')
+  await expect(page.getByRole('heading', { name: 'Akun saya' })).toBeVisible()
+  await expect(page.getByLabel('Data akun').getByText(admin.nama)).toBeVisible()
+  await expect(page.getByLabel('Data akun').getByText(admin.email)).toBeVisible()
+
+  const form = page.getByRole('form', { name: 'Ganti kata sandi' })
+  await form.getByLabel('Kata sandi lama').fill(SANDI)
+  await form.getByLabel('Kata sandi baru (minimal 8 karakter)').fill('sandi-admin-baru-1')
+  await form.getByLabel('Ulangi kata sandi baru').fill('sandi-admin-baru-1')
+  await form.getByRole('button', { name: 'Simpan kata sandi' }).click()
+  await expect(form.getByText('Kata sandi berhasil diganti.')).toBeVisible()
+
+  await bukaMenu(page)
+  await page.getByRole('menuitem', { name: 'Keluar' }).click()
+  await expect(page).toHaveURL('/masuk')
+  await context.clearCookies()
+
+  // Sandi lama sudah tidak berlaku: galat tampil langsung, tanpa menunggu pengalihan yang tidak akan terjadi.
+  await page.goto('/masuk')
+  await expect(page.locator('button[type=submit]')).toBeEnabled()
+  await page.fill('[name=username]', admin.email)
+  await page.fill('[name=sandi]', SANDI)
+  await page.locator('button[type=submit]').click()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page).toHaveURL('/masuk')
+
+  await masuk(page, admin.email, 'sandi-admin-baru-1')
+  await expect(page).toHaveURL('/admin')
+})
+
+test('admin: sandi lama salah di halaman Akun saya menampilkan galat', async ({ page }) => {
+  const admin = await buatAdmin()
+  await masuk(page, admin.email)
+  await page.goto('/admin/akun')
+  const form = page.getByRole('form', { name: 'Ganti kata sandi' })
+  await form.getByLabel('Kata sandi lama').fill('salah-total')
+  await form.getByLabel('Kata sandi baru (minimal 8 karakter)').fill('sandi-admin-baru-1')
+  await form.getByLabel('Ulangi kata sandi baru').fill('sandi-admin-baru-1')
+  await form.getByRole('button', { name: 'Simpan kata sandi' }).click()
+  await expect(form.getByRole('alert')).toHaveText('Kata sandi lama salah')
 })

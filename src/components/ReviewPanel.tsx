@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { HelpCircle, X } from 'lucide-react'
 import TombolKeputusan from './TombolKeputusan'
@@ -24,6 +24,8 @@ type Props = {
   /** link ke guru berikutnya dengan dokumen menunggu, bila ada */
   guruBerikutnyaId: string | null
   guruBerikutnyaNama: string | null
+  /** riwayat guru ini; tampil di kolom kanan dengan tinggi terbatas dan gulir sendiri */
+  riwayat?: ReactNode
 }
 
 const PINTASAN = [
@@ -42,6 +44,7 @@ export default function ReviewPanel({
   alasanPreset,
   guruBerikutnyaId,
   guruBerikutnyaNama,
+  riwayat,
 }: Props) {
   const router = useRouter()
   const { tampilkan } = useToast()
@@ -163,14 +166,14 @@ export default function ReviewPanel({
       {/* Panel kanan: daftar + keputusan */}
       <div className="review-kanan">
         {/* Pintasan keyboard */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--s-2)' }}>
+        <div className="review-bantuan">
+          <span className="review-judul">Dokumen ({dokumen.length})</span>
           <button
             type="button"
-            className="biasa"
+            className="biasa tombol-kecil"
             onClick={() => setBantuanBuka(true)}
             aria-label="Pintasan keyboard"
             title="Pintasan keyboard (?)"
-            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', fontSize: 'var(--t-sm)' }}
           >
             <HelpCircle size={14} />
             <span>Pintasan</span>
@@ -190,20 +193,20 @@ export default function ReviewPanel({
               }}
               data-testid={`dok-item-${d.dokumenGuruId}`}
             >
-              <span className={`label ${d.status}`} style={{ fontSize: 'var(--t-xs)' }}>
+              <span className={`label label--kecil ${d.status}`}>
                 {d.status === 'MENUNGGU' ? 'Menunggu' : d.status === 'SAH' ? 'SAH' : d.status === 'BELUM' ? 'Belum' : 'Ditolak'}
               </span>
-              <span role="heading" aria-level={3} style={{ marginLeft: 'var(--s-2)' }}>{d.nama}</span>
+              <span role="heading" aria-level={3} className="ml-s2">{d.nama}</span>
             </button>
           ))}
         </div>
 
         {/* Panel keputusan untuk dokumen terpilih */}
         {dok && (
-          <div className="review-keputusan" style={{ marginTop: 'var(--s-4)' }}>
-            <h3 style={{ margin: '0 0 var(--s-3)' }}>{dok.nama}</h3>
+          <div className="review-keputusan">
+            <h3>{dok.nama}</h3>
             {dok.alasan && (
-              <p style={{ color: 'var(--tolak)', fontSize: 'var(--t-sm)', marginBottom: 'var(--s-3)' }}>
+              <p className="review-alasan">
                 Alasan: {dok.alasan}
               </p>
             )}
@@ -227,12 +230,11 @@ export default function ReviewPanel({
 
         {/* Setelah semua selesai */}
         {semuaSelesai && (
-          <div className="review-selesai" style={{ marginTop: 'var(--s-5)', textAlign: 'center' }}>
-            <p style={{ fontWeight: 700, color: 'var(--sah)' }}>Semua dokumen sudah diputuskan ✓</p>
+          <div className="review-selesai">
+            <p className="review-selesai__judul">Semua dokumen sudah diputuskan ✓</p>
             {guruBerikutnyaId && (
               <a
                 href={`/admin/guru/${guruBerikutnyaId}?periode=${periodeId}`}
-                style={{ marginRight: 'var(--s-3)' }}
                 data-testid="link-guru-berikutnya"
               >
                 Guru berikutnya: {guruBerikutnyaNama} ›
@@ -240,6 +242,15 @@ export default function ReviewPanel({
             )}
             <a href={`/admin/antrean?periode=${periodeId}`}>Kembali ke antrean</a>
           </div>
+        )}
+
+        {riwayat && (
+          <section className="review-riwayat" aria-label="Riwayat">
+            <h3 className="review-riwayat__judul">Riwayat</h3>
+            <div className="review-riwayat__gulir" role="region" aria-label="Daftar riwayat" tabIndex={0}>
+              {riwayat}
+            </div>
+          </section>
         )}
       </div>
 
@@ -252,24 +263,23 @@ export default function ReviewPanel({
       >
         {bantuanBuka && (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--s-3)' }}>
-              <h2 id="bantuan-judul" style={{ margin: 0 }}>Pintasan Keyboard</h2>
+            <div className="dialog-kepala">
+              <h2 id="bantuan-judul" className="mt-0 mb-0">Pintasan Keyboard</h2>
               <button
                 type="button"
                 className="biasa"
                 onClick={() => setBantuanBuka(false)}
                 aria-label="Tutup bantuan"
-                style={{ padding: 4 }}
               >
                 <X size={16} />
               </button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="tabel-pintasan">
               <tbody>
                 {PINTASAN.map((p) => (
-                  <tr key={p.tombol} style={{ borderBottom: '1px solid var(--garis)' }}>
-                    <td style={{ padding: '8px 12px 8px 0', fontFamily: 'monospace', fontWeight: 700 }}>{p.tombol}</td>
-                    <td style={{ padding: '8px 0' }}>{p.label}</td>
+                  <tr key={p.tombol}>
+                    <td className="tabel-pintasan__tombol">{p.tombol}</td>
+                    <td>{p.label}</td>
                   </tr>
                 ))}
               </tbody>

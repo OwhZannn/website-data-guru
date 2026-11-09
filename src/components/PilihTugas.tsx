@@ -12,6 +12,9 @@ export default function PilihTugas(p: { awal: Record<KunciTugas, boolean>; guruI
   const router = useRouter()
   const terpasang = useTerpasang()
   const [nilai, setNilai] = useState(p.awal)
+  const jumlahDipilih = Object.values(nilai).filter(Boolean).length
+  // Admin yang mengoreksi tugas guru melihat daftar terbuka; guru melihat ringkasan dulu.
+  const dibukaAwal = p.guruId !== undefined
   const [sibuk, setSibuk] = useState<KunciTugas | null>(null)
   const [pesan, setPesan] = useState('')
   const admin = p.guruId !== undefined
@@ -40,8 +43,11 @@ export default function PilihTugas(p: { awal: Record<KunciTugas, boolean>; guruI
   }
 
   return (
-    <section className="panel tugas" aria-label="Tugas tambahan">
-      <h2>Tugas tambahan</h2>
+    <details className="panel tugas" aria-label="Tugas tambahan" open={dibukaAwal}>
+      <summary>
+        <span className="tugas__judul">Tugas tambahan</span>
+        <span className="tugas__ringkas">{jumlahDipilih > 0 ? `${jumlahDipilih} dipilih` : 'Belum ada'}</span>
+      </summary>
       <p className="redup">Centang yang sesuai. Unggahan laporannya akan muncul di daftar dokumen.</p>
       <div className="tugas-daftar">
         {TUGAS.map(([k, l]) => (
@@ -57,6 +63,6 @@ export default function PilihTugas(p: { awal: Record<KunciTugas, boolean>; guruI
         ))}
       </div>
       {pesan && <p className="galat" role="alert">{pesan}</p>}
-    </section>
+    </details>
   )
 }

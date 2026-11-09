@@ -19,8 +19,10 @@ test('guru melihat alasan penolakan di periode lampau (hanya baca); id periode a
   await expect(page.getByRole('button', { name: 'Unggah' })).toBeVisible()
   await expect(page.getByRole('option', { name: asing.periode.nama })).toHaveCount(0)
 
+  // Tanpa tombol: mengganti pilihan langsung memuat periode itu.
+  await expect(page.getByRole('button', { name: 'Tampilkan' })).toHaveCount(0)
+  await expect(page.locator('form[data-siap] [aria-label="Pilih periode"]')).toBeVisible() // menunggu hidrasi
   await page.getByLabel('Pilih periode').selectOption(lama.periode.id)
-  await page.getByRole('button', { name: 'Tampilkan' }).click()
   await expect(page).toHaveURL(`/dokumen?periode=${lama.periode.id}`)
   await expect(page.getByText('Alasan penolakan: Stempel buram')).toBeVisible()
   await expect(page.getByRole('list', { name: `Riwayat ${lama.daftar[0].nama}` })).toContainText('Stempel buram')

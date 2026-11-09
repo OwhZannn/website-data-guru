@@ -13,7 +13,7 @@ export default async function TambahGuru() {
         { label: 'Guru', href: '/admin/guru' },
         { label: 'Tambah guru' },
       ]} />
-      <div className="profil-halaman" style={{ maxWidth: 640, margin: '0 auto', padding: '0 16px 48px' }}>
+      <div className="halaman-sempit">
         <h1>Tambah guru</h1>
         <p className="redup mb-s4">
           Isi data guru. Username dan kata sandi awal (8 angka acak) dibuat otomatis dan ditampilkan sekali setelah disimpan.

@@ -2,13 +2,14 @@ import type { ReactNode } from 'react'
 import type { Admin } from '@prisma/client'
 import type { Periode } from '@prisma/client'
 import { AdminSidebar, AdminLaci } from './AdminSidebarClient'
-import TombolKeluar from './TombolKeluar'
+import MenuProfil from './MenuProfil'
 import PilihPeriodeHeader from './PilihPeriodeHeader'
 import { ToastProvider } from './Toast'
+import TransisiHalaman from './TransisiHalaman'
 
 /**
  * Cangkang tata letak halaman admin:
- * - Header sticky dengan logo, pemilih periode, nama admin, tombol keluar
+ * - Header sticky dengan logo, pemilih periode, dan menu profil (tema + keluar)
  * - Sidebar kiri (≥1024 px) yang bisa dilipat
  * - Laci navigasi mobile (<1024 px)
  * - Area konten utama
@@ -20,7 +21,7 @@ export default function AdminShell({
   jumlahAntrean,
   children,
 }: {
-  admin: Pick<Admin, 'nama'>
+  admin: Pick<Admin, 'nama' | 'email'>
   daftarPeriode: Pick<Periode, 'id' | 'nama' | 'dibuka'>[]
   periodeId?: string | null
   jumlahAntrean: number
@@ -50,17 +51,20 @@ export default function AdminShell({
           <PilihPeriodeHeader daftar={daftarPeriode} dipilih={periodeId ?? ''} />
         )}
 
-        {/* Nama + keluar */}
         <div className="admin-kepala__aksi">
-          <span className="admin-kepala__nama">{admin.nama}</span>
-          <TombolKeluar />
+          <MenuProfil
+            nama={admin.nama}
+            peran="Admin"
+            keterangan={admin.email}
+            tautan={[{ href: '/admin/akun', teks: 'Akun saya', ikon: 'akun' }]}
+          />
         </div>
       </header>
 
       <div className="admin-tubuh">
         <AdminSidebar jumlahAntrean={jumlahAntrean} periodeId={periodeId} />
         <main className="admin-konten lebar">
-          {children}
+          <TransisiHalaman>{children}</TransisiHalaman>
         </main>
       </div>
     </div>

@@ -54,12 +54,12 @@ test.describe('Sidebar admin — desktop (1280×800)', () => {
     const admin = await buatAdmin()
     await masuk(page, admin.email)
 
-    const tombol = page.getByRole('button', { name: 'Lipat sidebar' })
+    const tombol = page.getByRole('button', { name: 'Lipat menu' })
     await expect(tombol).toBeVisible()
     await tombol.click()
 
     // Setelah dilipat, tombol berganti label
-    await expect(page.getByRole('button', { name: 'Buka sidebar' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Buka menu samping' })).toBeVisible()
   })
 })
 

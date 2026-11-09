@@ -2,6 +2,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Konfirmasi from './Konfirmasi'
+import DataTable, { type Kolom } from './ui/DataTable'
+import PageHeader from './ui/PageHeader'
+import EmptyState from './ui/EmptyState'
+import { CalendarX } from 'lucide-react'
 
 type P = { id: string; nama: string; dibuka: boolean }
 
@@ -28,50 +32,68 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
     }
   }
 
+  const kolom: Kolom<P>[] = [
+    {
+      id: 'nama', label: 'Periode', tanpaLabelPonsel: true,
+      sel: (p) => (
+        <>
+          <b>{p.nama}</b>
+          <div className="kartu-sub">{p.dibuka ? 'Guru sedang bisa mengunggah dokumen.' : 'Guru tidak bisa mengunggah. Admin tetap bisa memeriksa.'}</div>
+        </>
+      ),
+    },
+    { id: 'status', label: 'Status', sel: (p) => <span className={p.dibuka ? 'lencana buka' : 'lencana'}>{p.dibuka ? 'Dibuka' : 'Ditutup'}</span> },
+    {
+      id: 'dokumen', label: 'Dokumen', kelas: 'nowrap',
+      sel: (p) => (
+        <span className="aksi-baris">
+          <a className="tombol-tabel" href={`/admin/periode/${p.id}/dokumen`}>Daftar dokumen</a>
+          <a className="tombol-tabel" href={`/api/admin/rekap?periodeId=${p.id}&format=xlsx`}>Rekap XLSX</a>
+          <a className="tombol-tabel" href={`/api/admin/rekap?periodeId=${p.id}&format=csv`}>Rekap CSV</a>
+        </span>
+      ),
+    },
+    {
+      id: 'salin', label: 'Salin dokumen',
+      sel: (p) => periode.length > 1 ? (
+        <span className="aksi-baris">
+          <select aria-label={`Sumber salinan untuk ${p.nama}`} value={sumber[p.id] ?? ''} onChange={(e) => setSumber({ ...sumber, [p.id]: e.target.value })}>
+            <option value="">Dari periode lain…</option>
+            {periode.filter((x) => x.id !== p.id).map((x) => <option key={x.id} value={x.id}>{x.nama}</option>)}
+          </select>
+          <button className="biasa" disabled={sibuk || !sumber[p.id]} onClick={() => kirim({ aksi: 'salin', dariPeriodeId: sumber[p.id], kePeriodeId: p.id }, (j) => `${j.jumlah} dokumen disalin ke ${p.nama}`)}>Salin</button>
+        </span>
+      ) : <span className="redup">—</span>,
+    },
+    {
+      id: 'aksi', label: 'Aksi', tanpaLabelPonsel: true, kelas: 'nowrap',
+      sel: (p) => p.dibuka
+        ? <button className="garis-bahaya" disabled={sibuk} onClick={() => setTutup(p)}>Tutup periode</button>
+        : <button disabled={sibuk} onClick={() => kirim({ aksi: 'buka', periodeId: p.id })}>Buka</button>,
+    },
+  ]
+
   return (
-    <div>
-      <form className="panel" onSubmit={(e) => { e.preventDefault(); void kirim({ aksi: 'buat', nama }).then(() => setNama('')) }}>
-        <h2 className="mb-s3 mt-0">Buat periode baru</h2>
-        <div className="baris-form">
-          <label>Nama periode
-            <input name="nama" aria-label="Nama periode" placeholder="Contoh: Verval Sertifikasi 2027" value={nama} onChange={(e) => setNama(e.target.value)} />
-          </label>
-          <button type="submit" disabled={sibuk}>Buat periode</button>
-        </div>
-      </form>
+    <>
+      <PageHeader
+        judul="Periode"
+        keterangan="Buka, tutup, rekap, dan salin dokumen"
+        aksi={(
+          <form className="form-inline" onSubmit={(e) => { e.preventDefault(); void kirim({ aksi: 'buat', nama }).then(() => setNama('')) }}>
+            <input name="nama" aria-label="Nama periode" placeholder="Nama periode baru, mis. Verval Sertifikasi 2027" value={nama} onChange={(e) => setNama(e.target.value)} />
+            <button type="submit" disabled={sibuk}>Buat periode</button>
+          </form>
+        )}
+      />
       {pesan && <p role="status" className="info">{pesan}</p>}
-      <h2>Daftar periode ({periode.length})</h2>
-      <ul className="daftar-periode">
-        {periode.map((p) => (
-          <li key={p.id} data-periode={p.nama} className={p.dibuka ? 'dibuka' : undefined}>
-            <div className="periode-atas">
-              <div>
-                <strong>{p.nama}</strong> <span className={p.dibuka ? 'lencana buka' : 'lencana'}>{p.dibuka ? 'Dibuka' : 'Ditutup'}</span>
-                <p className="kartu-sub mt-s1">
-                  {p.dibuka ? 'Guru sedang bisa mengunggah dokumen.' : 'Guru tidak bisa mengunggah. Admin tetap bisa memeriksa.'}
-                </p>
-              </div>
-              {p.dibuka
-                ? <button className="garis-bahaya" disabled={sibuk} onClick={() => setTutup(p)}>Tutup periode</button>
-                : <button disabled={sibuk} onClick={() => kirim({ aksi: 'buka', periodeId: p.id })}>Buka</button>}
-            </div>
-            <div className="periode-aksi">
-              <a className="tombol-garis" href={`/admin/periode/${p.id}/dokumen`}>Daftar dokumen</a>
-              <a className="tombol-garis" href={`/api/admin/rekap?periodeId=${p.id}&format=xlsx`}>Rekap XLSX</a>
-              <a className="tombol-garis" href={`/api/admin/rekap?periodeId=${p.id}&format=csv`}>Rekap CSV</a>
-              {periode.length > 1 && (
-                <span className="periode-salin">
-                  <select aria-label={`Sumber salinan untuk ${p.nama}`} value={sumber[p.id] ?? ''} onChange={(e) => setSumber({ ...sumber, [p.id]: e.target.value })}>
-                    <option value="">Salin dokumen dari periode lain…</option>
-                    {periode.filter((x) => x.id !== p.id).map((x) => <option key={x.id} value={x.id}>{x.nama}</option>)}
-                  </select>
-                  <button className="biasa" disabled={sibuk || !sumber[p.id]} onClick={() => kirim({ aksi: 'salin', dariPeriodeId: sumber[p.id], kePeriodeId: p.id }, (j) => `${j.jumlah} dokumen disalin ke ${p.nama}`)}>Salin</button>
-                </span>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+      <DataTable
+        keterangan="Daftar periode" judul={`Daftar periode (${periode.length})`}
+        kolom={kolom} baris={periode} kunciBaris={(p) => p.id}
+        kelasBaris={(p) => (p.dibuka ? 'baris-dibuka' : undefined)}
+        atributBaris={(p) => ({ 'data-periode': p.nama })}
+        jumlahTeks={`${periode.length} periode`}
+        kosong={<EmptyState ikon={<CalendarX size={28} />} teks="Belum ada periode. Buat periode pertama di kanan atas." />}
+      />
       <Konfirmasi
         buka={tutup !== null} judul={`Tutup ${tutup?.nama ?? ''}?`} teksYa="Ya, tutup periode" bahaya sibuk={sibuk}
         onBatal={() => setTutup(null)}
@@ -80,6 +102,6 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
         <p>Setelah ditutup, <b>guru tidak bisa lagi mengunggah atau mengganti berkas</b> pada periode ini, dan tombol unggah hilang dari halaman mereka.</p>
         <p>Admin tetap bisa memeriksa, mengesahkan, menolak, dan mengunduh rekap. Periode bisa dibuka lagi kapan saja.</p>
       </Konfirmasi>
-    </div>
+    </>
   )
 }

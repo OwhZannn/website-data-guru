@@ -28,6 +28,7 @@ test('guru tanpa profil diminta melengkapinya; setelah itu dokumen sesuai tugas 
   await expect(page.getByText('Progres: 0 dari 1 dokumen sah')).toBeVisible()
 
   // Centang TBQ di halaman dokumen: unggahan Laporan TBQ langsung muncul.
+  await page.getByText('Tugas tambahan', { exact: true }).click() // ringkasan terlipat bagi guru
   await page.getByLabel('Jam tambahan TBQ').check()
   await expect(page.getByRole('heading', { name: tbq.nama })).toBeVisible()
   await expect(page.getByText(pangkat.nama)).toHaveCount(0) // PPPK: SK pangkat tidak diminta

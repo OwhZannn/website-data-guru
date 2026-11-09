@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { wajibGuru } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { hashSandi, periksaSandi } from '@/lib/sandi'
+import { gantiSandi } from '@/lib/gantiSandi'
 
 const skema = z.object({ sandiLama: z.string(), sandiBaru: z.string(), konfirmasi: z.string() })
 
@@ -19,19 +18,13 @@ export async function POST(req: Request) {
   }
   const body = skema.safeParse(await req.json().catch(() => null))
   if (!body.success) return gagal('Permintaan tidak sah')
-  const { sandiLama, sandiBaru, konfirmasi } = body.data
 
-  if (!(await periksaSandi(sandiLama, guru.hashSandi))) return gagal('Kata sandi lama salah')
-  if (sandiBaru.length < 8) return gagal('Kata sandi baru minimal 8 karakter')
-  if (sandiBaru !== konfirmasi) return gagal('Konfirmasi kata sandi tidak cocok')
-
-  const hash = await hashSandi(sandiBaru)
-  const token = (await cookies()).get('sesi')?.value
-  await prisma.$transaction([
-    prisma.guru.update({ where: { id: guru.id }, data: { hashSandi: hash } }),
-    prisma.sesi.deleteMany({
-      where: { pemilikId: guru.id, tipe: 'guru', ...(token ? { token: { not: token } } : {}) },
-    }),
-  ])
+  const hasil = await gantiSandi({
+    tipe: 'guru',
+    pemilik: guru,
+    ...body.data,
+    tokenSekarang: (await cookies()).get('sesi')?.value,
+  })
+  if (!hasil.ok) return gagal(hasil.pesan)
   return NextResponse.json({ ok: true })
 }

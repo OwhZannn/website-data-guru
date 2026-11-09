@@ -81,9 +81,9 @@ export default function TombolKeputusan({ dokumenGuruId, status, alasanPreset = 
         >
           {mode === 'tolak' && alasanPreset.length > 0 && (
             <div className="chip-alasan-wrap" aria-label="Preset alasan">
-              {alasanPreset.map((p) => (
+              {alasanPreset.map((p, i) => (
                 <button
-                  key={p}
+                  key={`${i}-${p}`}
                   type="button"
                   className="chip-alasan"
                   disabled={sibuk}

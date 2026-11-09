@@ -3,8 +3,8 @@ import InputSandi from '@/components/InputSandi'
 import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 
-/** Formulir ganti kata sandi guru; tampil di halaman Profil. */
-export default function FormGantiSandi() {
+/** Formulir ganti kata sandi; tampil di halaman Profil (guru) dan Akun saya (admin). `polos`: tanpa kartu sendiri (dipakai di dalam kartu lain). */
+export default function FormGantiSandi({ endpoint = '/api/ganti-sandi', polos = false }: { endpoint?: string; polos?: boolean }) {
   const [pesan, setPesan] = useState('')
   const [berhasil, setBerhasil] = useState(false)
   const [sibuk, setSibuk] = useState(false)
@@ -18,7 +18,7 @@ export default function FormGantiSandi() {
     setPesan('')
     setBerhasil(false)
     try {
-      const r = await fetch('/api/ganti-sandi', {
+      const r = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -43,7 +43,7 @@ export default function FormGantiSandi() {
   }
 
   return (
-    <form method="post" onSubmit={kirim} className="panel profil" id="sandi" aria-labelledby="judul-sandi">
+    <form method="post" onSubmit={kirim} className={polos ? 'profil profil--polos' : 'panel profil'} id="sandi" aria-labelledby="judul-sandi">
       <h2 id="judul-sandi" className="mb-s1 mt-0">Ganti kata sandi</h2>
       <p className="redup mb-s4 teks-sm">Setelah diganti, perangkat lain yang sedang masuk akan dikeluarkan.</p>
       <label>Kata sandi lama<InputSandi name="sandiLama" autoComplete="current-password" required /></label>

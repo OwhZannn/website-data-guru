@@ -222,3 +222,30 @@ Fixes F1, F2, F5, V4, T4.
 | 3 | Rejection reasons | Editable by admins: new `AlasanTolak` table + `/admin/alasan` page (Phase 3). This is the only database change in the plan. |
 | 4 | Dark mode | Yes, follows device setting (Phase 6) |
 | 5 | Spec language | Indonesian, one spec per phase in `docs/superpowers/specs/` |
+
+---
+
+## Fase 7 — Tema, menu profil, sidebar baru, gerak, perbaikan tata letak (cabang `feat/tema-dan-tata-letak`)
+Detail: [spesifikasi Fase 7](../specs/2026-11-08-fase7-tema-dan-tata-letak-design.md).
+- [x] Perbaikan tata letak: hamburger hanya <1024 px, tanpa jalur kosong di sidebar, tombol filter rata dengan isian, tautan tabel jadi tombol halus, konten admin dipusatkan.
+- [x] Tema Terang / Gelap / Sistem (`data-tema`, `localStorage['tema']`, skrip awal tanpa kilatan).
+- [x] Menu profil kanan atas (avatar, nama, peran, tema, Keluar) dengan papan ketik penuh.
+- [x] Sidebar berkelompok, bisa dilipat ke mode ikon, lencana antrean, laci ponsel senada.
+- [x] Gerak CSS (transisi halaman, hover kartu, dropdown) dengan dukungan `prefers-reduced-motion`.
+- [x] Kontras AA terang dan gelap diuji otomatis; snapshot visual dibuat ulang.
+
+## Fase 8 — Tata letak ringkas: informasi muat dalam satu layar (cabang `feat/tata-letak-ringkas`)
+Detail: [spesifikasi Fase 8](../specs/2026-11-09-fase8-tata-letak-ringkas-design.md). Epic #35, tiket #24–#34.
+- [x] #24 Audit kepadatan 13 halaman pada 1366×768, 1440×900, dan 375×812 (tabel sebelum/sesudah di spesifikasi).
+- [x] #25 Token kepadatan: judul, padding, tinggi kontrol 40px (44px di layar sentuh), jarak antar-seksi.
+- [x] #26 `DataTable`: font kecil, baris rapat, kartu mengisi tinggi layar dengan gulir internal, kaki "Menampilkan x–y dari z" dengan pilihan per halaman.
+- [x] #27 `PageHeader` satu baris: judul + pencarian + aksi.
+- [x] #28 Satu pemilih periode di header; tombol "Tampilkan" per halaman dihapus.
+- [x] #29 Filter langsung diterapkan (jeda 300 ms), tanpa tombol "Terapkan".
+- [x] #30 `DataTable` di semua tabel; halaman pendek memakai kartu sehingga ruang kosong berada di dalam kartu.
+- [x] #31 Beranda admin muat satu layar.
+- [x] #32 Detail guru muat satu layar: bilah ringkas, daftar dokumen + pratinjau dengan gulir internal, riwayat di kolom kanan.
+- [x] #33 Halaman guru lebih ringkas: tugas tambahan terlipat, profil dan kata sandi berdampingan di layar lebar.
+- [x] #34 Uji `tanpa-gulir.spec.ts`, snapshot visual diperbarui, tabel hasil ukur di spesifikasi.
+
+Hasil: di 1440×900 dan 1366×768 semua halaman admin tidak menggulir. Di ponsel, tabel menjadi kartu dua kolom; Guru dan Antrean tetap panjang karena 20 kartu per halaman.

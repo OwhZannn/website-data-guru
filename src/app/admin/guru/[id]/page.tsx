@@ -7,7 +7,6 @@ import { halamanAdmin } from '@/lib/halaman'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen, namaPelakuRiwayat } from '@/lib/riwayat'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
-import PilihPeriode from '@/components/PilihPeriode'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import KartuProgres from '@/components/KartuProgres'
 import FormProfil from '@/components/FormProfil'
@@ -122,7 +121,6 @@ export default async function DetailGuru({ params, searchParams }: {
           </ul>
         )}
       </section>
-      {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
       {periode && <p className="redup mb-s2">{periode.nama}{periode.dibuka ? '' : ' (ditutup)'}</p>}
       <KartuProgres sah={status.jumlahSah} wajib={status.jumlahWajib} />
       {periode && menungguDenganFile.length > 0 && (

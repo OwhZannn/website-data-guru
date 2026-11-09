@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db'
 import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen } from '@/lib/riwayat'
 import { periodeTerlihatGuru, pilihPeriode } from '@/lib/pilihPeriode'
-import PilihPeriode from '@/components/PilihPeriode'
 import { tanggalLokal } from '@/lib/waktu'
 import KartuDokumen from '@/components/KartuDokumen'
 import Kepala from '@/components/Kepala'
@@ -82,7 +81,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <Kepala nama={guru.nama} aksi={<a href="/profil">Profil &amp; kata sandi</a>} />
+      <Kepala nama={guru.nama} aksi={<a href="/profil">Profil &amp; kata sandi</a>} periode={periode ? { daftar: daftarPeriode, dipilih: periode.id } : undefined} />
       <main className="dua">
         <div className="dua-kiri">
           <h1>Dokumen Saya</h1>
@@ -93,7 +92,6 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
               teks="Belum ada periode unggah yang tersedia."
             />
           )}
-          {periode && <PilihPeriode daftar={daftarPeriode} dipilih={periode.id} />}
           {periode && !dibuka && adaDibuka && <p role="status" className="info">Periode ini sudah ditutup; hanya dapat dilihat.</p>}
           {!lengkapProfil && (
             <div className="info" role="status">

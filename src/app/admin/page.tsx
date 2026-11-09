@@ -8,9 +8,13 @@ import Section from '@/components/ui/Section'
 import EmptyState from '@/components/ui/EmptyState'
 import ProgressBar from '@/components/ui/ProgressBar'
 import DataTable, { type Kolom } from '@/components/ui/DataTable'
-import { FolderOpen, Clock, CheckCircle2, Activity, FileText } from 'lucide-react'
+import PageHeader from '@/components/ui/PageHeader'
+import { FolderOpen, CheckCircle2, Activity, FileText } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+/** Antrean dan aktivitas di beranda dibatasi supaya halaman muat satu layar; daftar lengkap ada di halaman Antrean. */
+const BATAS_BARIS = 5
 
 const LABEL_AKSI: Record<string, string> = {
   unggah: 'Diunggah',
@@ -86,19 +90,32 @@ export default async function BerandaAdmin({
         />
       ),
     },
-    { id: 'sah', label: 'Sah', kelas: 'nowrap', sel: (d) => d.sah },
-    { id: 'menunggu', label: 'Menunggu', kelas: 'nowrap', sel: (d) => d.menunggu },
-    { id: 'ditolak', label: 'Ditolak', kelas: 'nowrap', sel: (d) => d.ditolak },
-    { id: 'belum', label: 'Belum', kelas: 'nowrap', sel: (d) => Math.max(d.belum, 0) },
+    {
+      id: 'rincian', label: 'Rincian', kelas: 'nowrap redup',
+      sel: (d) => `${d.sah} sah · ${d.menunggu} menunggu · ${d.ditolak} ditolak · ${Math.max(d.belum, 0)} belum`,
+    },
   ]
 
-  return (
-    <>
-      <BannerDrive />
-      <h1 className="mt-s4">Beranda Admin</h1>
-      <p className="redup mb-s3">Periode: <strong className="redup-teks">{periode.nama}</strong></p>
+  const antreanTampil = data.antrean.slice(0, BATAS_BARIS)
+  const aktivitasTampil = data.aktivitasTerbaru.slice(0, BATAS_BARIS)
 
-      {/* Baris stat cards */}
+  return (
+    <div className="halaman-tabel beranda">
+      <BannerDrive />
+      <PageHeader
+        judul="Beranda Admin"
+        keterangan={<>Periode: <strong className="redup-teks">{periode.nama}</strong></>}
+        aksi={(
+          <details className="unduh-rekap">
+            <summary>Unduh rekap</summary>
+            <div className="unduh-rekap__menu">
+              <a href={`/api/admin/rekap?periodeId=${periode.id}&format=xlsx`}>Unduh rekap XLSX</a>
+              <a href={`/api/admin/rekap?periodeId=${periode.id}&format=csv`}>Unduh rekap CSV</a>
+            </div>
+          </details>
+        )}
+      />
+
       <div className="stat-baris">
         <StatCard nilai={totalGuru} label="Total guru aktif" href={`/admin/guru?${pq}`} />
         <StatCard nilai={data.statusGuru.lengkap} label="Lengkap" warna="sah" href={`/admin/guru?status=lengkap&${pq}`} />
@@ -107,62 +124,51 @@ export default async function BerandaAdmin({
         <StatCard nilai={data.statusGuru.belumMulai} label="Belum mulai" warna="belum" href={`/admin/guru?status=belum-mulai&${pq}`} />
       </div>
 
-      {/* Progres periode */}
-      <Section judul="Progres periode">
-        <ProgressBar
-          segmen={[
-            { warna: 'sah', nilai: data.statusGuru.lengkap, maks: totalGuru },
-            { warna: 'tunggu', nilai: data.statusGuru.perluDicek, maks: totalGuru },
-            { warna: 'tolak', nilai: data.statusGuru.adaDitolak, maks: totalGuru },
-            { warna: 'belum', nilai: data.statusGuru.belumMulai, maks: totalGuru },
-          ]}
-        />
-        <p className="progres-periode">{persen}% lengkap ({data.statusGuru.lengkap} dari {totalGuru} guru)</p>
-      </Section>
-
-      {/* Dua kolom tengah */}
-      <div className="dua-kolom">
-        {/* Antrean pemeriksaan */}
-        <Section
-          judul="Antrean pemeriksaan"
-          aksi={
-            data.totalAntrean > 0
-              ? <a href="/admin/antrean" className="tautan-kecil">Lihat semua ({data.totalAntrean})</a>
-              : undefined
-          }
-        >
-          {data.antrean.length === 0 ? (
-            <EmptyState ikon={<CheckCircle2 size={28} />} teks="Tidak ada dokumen menunggu pemeriksaan." />
-          ) : (
-            <DataTable
-              kelas="dt--ringkas" keterangan="Antrean pemeriksaan terlama"
-              kolom={kolomAntrean} baris={data.antrean} kunciBaris={(i) => i.dokumenGuruId}
-              jumlahTeks={`${data.antrean.length} dari ${data.totalAntrean} dokumen`}
-              kosong={null}
+      <div className="beranda__grid">
+        <div className="beranda__kolom">
+          <Section kartu judul="Progres periode" aksi={<span className="progres-periode">{persen}% lengkap ({data.statusGuru.lengkap} dari {totalGuru} guru)</span>}>
+            <ProgressBar
+              segmen={[
+                { warna: 'sah', nilai: data.statusGuru.lengkap, maks: totalGuru },
+                { warna: 'tunggu', nilai: data.statusGuru.perluDicek, maks: totalGuru },
+                { warna: 'tolak', nilai: data.statusGuru.adaDitolak, maks: totalGuru },
+                { warna: 'belum', nilai: data.statusGuru.belumMulai, maks: totalGuru },
+              ]}
             />
-          )}
-        </Section>
+          </Section>
+          <DataTable
+            keterangan="Status per dokumen" judul="Per dokumen"
+            kolom={kolomPerDokumen} baris={data.perDokumen} kunciBaris={(d) => d.id}
+            jumlahTeks={`${data.perDokumen.length} dokumen`}
+            kosong={<EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen pada periode ini." aksi={<a className="tombol-garis" href="/admin/periode">Atur dokumen periode</a>} />}
+          />
+        </div>
 
-        {/* Kolom kanan: persetujuan + aktivitas */}
-        <div>
-          {/* Perlu persetujuan */}
+        <div className="beranda__kolom">
           {data.perluPersetujuan > 0 && (
-            <div className="kartu-persetujuan mb-s4">
-              <h2>Perlu persetujuan</h2>
-              <p className="mb-s3">
-                <strong>{data.perluPersetujuan}</strong> guru belum disetujui dan belum bisa mengakses sistem.
-              </p>
+            <div className="kartu-persetujuan">
+              <div>
+                <h2>Perlu persetujuan</h2>
+                <p>
+                  <strong>{data.perluPersetujuan}</strong> guru belum disetujui dan belum bisa mengakses sistem.
+                </p>
+              </div>
               <a className="tombol" href={`/admin/guru?status=menunggu&${pq}`}>Tinjau pendaftaran</a>
             </div>
           )}
-
-          {/* Aktivitas terbaru */}
-          <Section judul="Aktivitas terbaru">
-            {data.aktivitasTerbaru.length === 0 ? (
-              <EmptyState ikon={<Activity size={28} />} teks="Belum ada aktivitas." />
+          <DataTable
+            keterangan="Antrean pemeriksaan terlama" judul="Antrean pemeriksaan"
+            aksiJudul={data.totalAntrean > 0 ? <a href="/admin/antrean" className="tautan-kecil">Lihat semua ({data.totalAntrean})</a> : undefined}
+            kolom={kolomAntrean} baris={antreanTampil} kunciBaris={(i) => i.dokumenGuruId}
+            jumlahTeks={`${antreanTampil.length} dari ${data.totalAntrean} dokumen, terlama di atas`}
+            kosong={<EmptyState ikon={<CheckCircle2 size={28} />} teks="Tidak ada dokumen menunggu pemeriksaan." />}
+          />
+          <Section kartu judul="Aktivitas terbaru">
+            {aktivitasTampil.length === 0 ? (
+              <p className="redup teks-sm mb-0"><Activity size={14} aria-hidden="true" /> Belum ada aktivitas.</p>
             ) : (
               <ul className="aktivitas">
-                {data.aktivitasTerbaru.map((a) => {
+                {aktivitasTampil.map((a) => {
                   const guruId = a.namaGuru ? guruIdDariAntrean.get(a.namaGuru) : undefined
                   return (
                     <li key={a.id}>
@@ -186,27 +192,6 @@ export default async function BerandaAdmin({
           </Section>
         </div>
       </div>
-
-      {/* Per dokumen */}
-      <Section
-        judul="Per dokumen"
-        aksi={
-          <details className="unduh-rekap">
-            <summary>Unduh rekap</summary>
-            <div className="unduh-rekap__menu">
-              <a href={`/api/admin/rekap?periodeId=${periode.id}&format=xlsx`}>Unduh rekap XLSX</a>
-              <a href={`/api/admin/rekap?periodeId=${periode.id}&format=csv`}>Unduh rekap CSV</a>
-            </div>
-          </details>
-        }
-      >
-        <DataTable
-          kelas="dt--ringkas" keterangan="Status per dokumen"
-          kolom={kolomPerDokumen} baris={data.perDokumen} kunciBaris={(d) => d.id}
-          jumlahTeks={`${data.perDokumen.length} dokumen`}
-          kosong={<EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen pada periode ini." aksi={<a className="tombol-garis" href="/admin/periode">Atur dokumen periode</a>} />}
-        />
-      </Section>
-    </>
+    </div>
   )
 }

@@ -1,8 +1,8 @@
 /** Kartu hijau dengan cincin progres. Kalimat "Progres: x dari y dokumen sah" tetap tampil utuh. */
-export default function KartuProgres(p: { sah: number; wajib: number; keterangan?: string }) {
+export default function KartuProgres(p: { sah: number; wajib: number; keterangan?: string; ringkas?: boolean }) {
   const persen = p.wajib > 0 ? Math.round((p.sah / p.wajib) * 100) : 0
   return (
-    <div className="progres">
+    <div className={p.ringkas ? 'progres progres--ringkas' : 'progres'}>
       <div
         className="cincin"
         role="img"

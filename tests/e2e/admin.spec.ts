@@ -8,7 +8,7 @@ test('admin menolak dengan alasan, lalu guru melihat alasannya', async ({ page, 
   await masuk(page, admin.email)
   await expect(page).toHaveURL('/admin')
   await page.getByRole('link', { name: guru.nama }).click()
-  await expect(page.getByRole('heading', { name: 'Detail Guru' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: guru.nama })).toBeVisible()
   await expect(page.getByRole('link', { name: /Buka di Drive/i }).first()).toBeVisible()
   await page.waitForLoadState('networkidle')
   await page.getByRole('button', { name: 'Tolak' }).click()

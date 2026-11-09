@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { HelpCircle, X } from 'lucide-react'
 import TombolKeputusan from './TombolKeputusan'
@@ -24,6 +24,8 @@ type Props = {
   /** link ke guru berikutnya dengan dokumen menunggu, bila ada */
   guruBerikutnyaId: string | null
   guruBerikutnyaNama: string | null
+  /** riwayat guru ini; tampil di kolom kanan dengan tinggi terbatas dan gulir sendiri */
+  riwayat?: ReactNode
 }
 
 const PINTASAN = [
@@ -42,6 +44,7 @@ export default function ReviewPanel({
   alasanPreset,
   guruBerikutnyaId,
   guruBerikutnyaNama,
+  riwayat,
 }: Props) {
   const router = useRouter()
   const { tampilkan } = useToast()
@@ -164,6 +167,7 @@ export default function ReviewPanel({
       <div className="review-kanan">
         {/* Pintasan keyboard */}
         <div className="review-bantuan">
+          <span className="review-judul">Dokumen ({dokumen.length})</span>
           <button
             type="button"
             className="biasa tombol-kecil"
@@ -199,8 +203,8 @@ export default function ReviewPanel({
 
         {/* Panel keputusan untuk dokumen terpilih */}
         {dok && (
-          <div className="review-keputusan mt-s4">
-            <h3 className="mt-0 mb-s3">{dok.nama}</h3>
+          <div className="review-keputusan">
+            <h3>{dok.nama}</h3>
             {dok.alasan && (
               <p className="review-alasan">
                 Alasan: {dok.alasan}
@@ -238,6 +242,15 @@ export default function ReviewPanel({
             )}
             <a href={`/admin/antrean?periode=${periodeId}`}>Kembali ke antrean</a>
           </div>
+        )}
+
+        {riwayat && (
+          <section className="review-riwayat" aria-label="Riwayat">
+            <h3 className="review-riwayat__judul">Riwayat</h3>
+            <div className="review-riwayat__gulir" role="region" aria-label="Daftar riwayat" tabIndex={0}>
+              {riwayat}
+            </div>
+          </section>
         )}
       </div>
 

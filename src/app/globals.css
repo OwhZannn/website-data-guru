@@ -1407,3 +1407,47 @@ input:focus, textarea:focus, select:focus { border-color: var(--fokus); outline:
 @media (max-width: 1023px) {
   .detail-bar__aksi { width: 100%; }
 }
+
+/* ---------- Halaman guru lebih ringkas (#33) ---------- */
+/* Kartu progres: cincin kecil, satu baris. */
+.progres { padding: var(--s-3) var(--s-4); margin: 0 0 var(--s-3); border-radius: var(--r); gap: var(--s-3); }
+.progres b { font-size: var(--t-base); }
+.progres p { margin-top: 2px; font-size: var(--t-sm); }
+.cincin { width: 52px; height: 52px; }
+.cincin span { width: 40px; height: 40px; font-size: var(--t-sm); }
+
+/* Langkah berikutnya: satu baris berisi judul, status, dan tombol. */
+.langkah-berikutnya {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4);
+  padding: var(--s-3) var(--s-4); margin: 0 0 var(--s-3);
+}
+.langkah-berikutnya__judul { margin: 0; font-size: var(--t-sm); }
+.langkah-berikutnya__baris { margin: 0; gap: var(--s-2); flex: 1 1 auto; }
+.langkah-status { padding: 2px var(--s-3); font-size: var(--t-xs); }
+.langkah-berikutnya__aksi { margin: 0; }
+
+/* Kartu dokumen: padat, satu baris judul. */
+.kelompok .kartu, .kartu { padding: var(--s-2) var(--s-3); margin-bottom: var(--s-2); }
+.kartu-atas { gap: var(--s-2); }
+.ikon-status { width: 28px; height: 28px; }
+.kartu h2 { font-size: var(--t-base); }
+.kartu .alasan { margin-top: var(--s-2); padding: var(--s-2) var(--s-3); font-size: var(--t-sm); }
+.kartu .aksi { margin-top: var(--s-2); }
+.kelompok h2 { margin: var(--s-3) 0 var(--s-2); font-size: var(--t-base); }
+.zona-unggah { padding: var(--s-2) var(--s-3); }
+
+/* Tugas tambahan: kisi dua kolom rapat. */
+.tugas { margin-top: var(--s-3); }
+.tugas h2 { font-size: var(--t-base); }
+.tugas > p { margin: 0 0 var(--s-2); font-size: var(--t-sm); }
+@media (min-width: 640px) { .tugas-daftar { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); } }
+
+/* Profil: lebih rapat. */
+main.profil-halaman { max-width: 760px; padding-top: var(--s-4); }
+.profil-halaman .panel { padding: var(--s-4); }
+.profil-halaman .profil .aksi { margin-top: var(--s-3); }
+.profil-halaman .mb-s4 { margin-bottom: var(--s-3); }
+.profil-halaman .spacer-s5 { height: var(--s-2); }
+@media (min-width: 1024px) {
+  main.dua { padding-top: var(--s-4); gap: var(--s-6); grid-template-columns: 340px minmax(0, 1fr); }
+}

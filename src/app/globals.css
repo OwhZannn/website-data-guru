@@ -39,6 +39,18 @@
   --t-xl: 1.45rem;
   --t-2xl: 1.7rem;
 
+  /* Kepadatan (Fase 8): satu tempat untuk menyetel jarak dan ukuran seluruh aplikasi */
+  --judul-halaman: 1.35rem;                 /* h1; ≤ 1.4rem */
+  --judul-margin: 0 0 var(--s-2);           /* margin h1; ≤ 8px */
+  --konten-pad-x: var(--s-4);
+  --konten-pad-atas: var(--s-3);
+  --konten-pad-bawah: var(--s-6);           /* ≤ 24px */
+  --jarak-seksi: var(--s-4);
+  --jarak-kartu: var(--s-3);
+  --kontrol-tinggi: 44px;                   /* bawaan (halaman guru, target sentuh); .admin-konten memakai 40px */
+  --target-min: 24px;                       /* WCAG 2.2 SC 2.5.8 */
+  --baris-tabel: 52px;                      /* baris tabel ±48–56px */
+
   /* Token semantik (ditimpa oleh mode gelap) */
   --permukaan: #ffffff;          /* kartu, panel, input */
   --permukaan-2: #fafbfa;        /* kepala tabel, latar halus */
@@ -151,11 +163,11 @@ body {
 }
 /* Logo resmi tetap berwarna asli; di mode gelap diberi lencana putih. */
 .kepala-logo, .admin-kepala__logo img { background: var(--logo-latar); border-radius: 8px; padding: 2px; }
-main { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+main { max-width: 640px; margin: 0 auto; padding: var(--konten-pad-atas) var(--konten-pad-x) var(--konten-pad-bawah); }
 main.lebar { max-width: 1440px; }
-h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -.01em; margin: 4px 0 12px; }
-h2 { font-size: 1.1rem; font-weight: 700; margin: 24px 0 10px; }
-h3 { font-size: 1rem; font-weight: 700; margin: 16px 0 8px; }
+h1 { font-size: var(--judul-halaman); font-weight: 800; letter-spacing: -.01em; margin: var(--judul-margin); }
+h2 { font-size: 1.1rem; font-weight: 700; margin: var(--jarak-seksi) 0 var(--s-2); }
+h3 { font-size: 1rem; font-weight: 700; margin: var(--s-3) 0 var(--s-2); }
 a { color: var(--tautan); }
 a:hover { color: var(--tautan-kuat); }
 :focus-visible { outline: 2px solid var(--hijau-2); outline-offset: 2px; }
@@ -164,7 +176,7 @@ a:hover { color: var(--tautan-kuat); }
 label { display: block; font-size: .9rem; font-weight: 600; color: var(--teks); }
 input, textarea, select {
   display: block; width: 100%; font: inherit; font-size: 16px; font-weight: 400; color: var(--teks);
-  padding: 10px 12px; margin: 6px 0 14px; background: var(--permukaan);
+  padding: 0 12px; margin: var(--s-1) 0 var(--s-3); background: var(--permukaan);
   border: 1px solid var(--garis-input); border-radius: 10px;
 }
 input:focus, textarea:focus, select:focus { border-color: var(--hijau-2); outline: 3px solid var(--hijau-muda); }
@@ -172,7 +184,8 @@ input[type=checkbox], input[type=radio], input[type=file] { display: inline-bloc
 
 /* ---------- Tombol ---------- */
 button, .tombol {
-  font: inherit; font-size: 15px; font-weight: 700; padding: 10px 18px; border: 0; border-radius: 999px;
+  font: inherit; font-size: 15px; font-weight: 700; border: 0; border-radius: 999px;
+  padding: calc((var(--kontrol-tinggi) - 1.5em) / 2) 18px; /* tinggi total = --kontrol-tinggi (baris 1.5em) */
   background: var(--hijau-2); color: var(--di-aksen); cursor: pointer; text-decoration: none; display: inline-block;
   transition: background .15s;
 }
@@ -202,7 +215,7 @@ button.bahaya:hover:not(:disabled) { background: var(--tolak-hover); }
 /* ---------- Kartu ---------- */
 .kartu {
   background: var(--kartu); border: 1px solid var(--garis); border-radius: var(--r);
-  padding: 14px 16px; margin-bottom: 12px; box-shadow: var(--bayang);
+  padding: var(--s-3) var(--s-4); margin-bottom: var(--jarak-kartu); box-shadow: var(--bayang);
 }
 .kartu h2 { font-size: 1.02rem; margin: 0; }
 .kartu.ditolak { border-color: var(--tolak-garis); }
@@ -260,7 +273,7 @@ th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--ga
 tr:last-child td { border-bottom: 0; }
 th { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--redup); background: var(--permukaan-2); }
 td { font-variant-numeric: tabular-nums; }
-td button { padding: 6px 12px; font-size: 13px; }
+td button { padding: var(--s-1) var(--s-3); min-height: 32px; font-size: 13px; }
 
 /* ---------- Pesan ---------- */
 .alasan { background: var(--alasan-bg); border: 1px solid var(--tolak-garis); color: var(--alasan-teks); border-radius: 10px; padding: 10px 12px; margin: 10px 0 0; font-size: .9rem; }
@@ -357,9 +370,10 @@ select {
   -webkit-appearance: none; appearance: none; padding-right: 40px; cursor: pointer;
   background: var(--permukaan) var(--chevron) no-repeat right 14px center;
 }
-input:not([type=checkbox]):not([type=radio]):not([type=file]), select { min-height: 48px; }
-main.profil-halaman { max-width: 860px; padding-top: 28px; }
-.profil-halaman h1 { font-size: 1.9rem; }
+input:not([type=checkbox]):not([type=radio]):not([type=file]), select { min-height: var(--kontrol-tinggi); }
+textarea { padding: 10px 12px; }
+main.profil-halaman { max-width: 860px; padding-top: var(--s-5); }
+.profil-halaman h1 { font-size: var(--judul-halaman); }
 .profil { padding: 24px; font-size: 1.05rem; }
 .profil label { font-size: 1rem; }
 .profil input, .profil select { font-size: 1.05rem; }
@@ -379,7 +393,7 @@ main.profil-halaman { max-width: 860px; padding-top: 28px; }
 .baris-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
 .baris-form label { flex: 1 1 240px; margin: 0; }
 .baris-form input { margin-bottom: 0; }
-.baris-form button { min-height: 48px; padding: 0 22px; }
+.baris-form button { min-height: var(--kontrol-tinggi); padding-left: 22px; padding-right: 22px; }
 .sandi-baru { margin-top: 14px; background: var(--sah-bg); border-radius: 12px; padding: 12px 14px; color: var(--hijau-tua); }
 .sandi-baru code { font-size: 1.1rem; background: var(--permukaan); padding: 4px 10px; border-radius: 8px; }
 
@@ -462,7 +476,8 @@ tr.baris-menunggu td { background: var(--tunggu-baris); }
 
 /* ---------- Layar lebar: tepi lebih lega, daftar dokumen dua kolom ---------- */
 @media (min-width: 1200px) {
-  main, .kepala-isi { padding-left: 32px; padding-right: 32px; }
+  :root { --konten-pad-x: var(--s-7); }
+  .kepala-isi { padding-left: var(--s-7); padding-right: var(--s-7); }
 }
 @media (min-width: 1400px) {
   main.dua { grid-template-columns: 380px minmax(0, 1fr); }
@@ -719,6 +734,10 @@ html[data-sidebar=lipat] .admin-sidebar__tombol-lipat .ikon-lipat { display: non
 
 .admin-konten { flex: 1; min-width: 0; overflow-x: clip; }
 main.admin-konten { margin: 0 auto; max-width: 1440px; }
+/* Area admin padat: kontrol 40px dengan penunjuk presisi. Layar sentuh dan ponsel memakai target sentuh ≥44px;
+   halaman guru tetap lebih besar karena dipakai terutama di ponsel. */
+.admin-konten { --kontrol-tinggi: 40px; }
+@media (max-width: 719px), (pointer: coarse) { .admin-konten { --kontrol-tinggi: 44px; } }
 
 /* ---- Laci ponsel ---- */
 .admin-laci-overlay {
@@ -1023,8 +1042,8 @@ button.segmen-tema__butir.aktif, button.segmen-tema__butir.aktif:hover:not(:disa
   background: var(--hijau-2); color: var(--di-aksen); border: none; border-radius: var(--r-sm); cursor: pointer;
 }
 .tombol-sm:hover { background: var(--hijau); }
-/* Sejajar dengan kolom isian (tinggi 48px) pada barisnya. */
-.filter-gabungan__baris .tombol-sm, .baris-input button { min-height: 48px; }
+/* Sejajar dengan kolom isian pada barisnya. */
+.filter-gabungan__baris .tombol-sm, .baris-input button { min-height: var(--kontrol-tinggi); }
 .hapus-filter {
   font-size: var(--t-sm); color: var(--redup); text-decoration: underline; white-space: nowrap;
 }

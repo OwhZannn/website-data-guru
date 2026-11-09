@@ -67,3 +67,42 @@ describe('kontras WCAG AA', () => {
     })
   }
 })
+
+describe('token kepadatan (Fase 8)', () => {
+  const akar = isiBlok(':root {')
+  const px = (nilai: string) => {
+    const m = nilai.match(/^(-?[\d.]+)(px|rem)$/)
+    expect(m, `nilai ${nilai} harus px atau rem`).not.toBeNull()
+    return m![2] === 'rem' ? parseFloat(m![1]) * 16 : parseFloat(m![1])
+  }
+  const token = (nama: string) => {
+    const m = akar.match(new RegExp(`${nama}:\\s*([^;]+);`))
+    expect(m, `token ${nama} harus ada`).not.toBeNull()
+    return m![1].trim()
+  }
+
+  it('judul halaman ≤ 1.4rem dan margin judul ≤ 8px', () => {
+    expect(px(token('--judul-halaman'))).toBeLessThanOrEqual(22.4)
+    expect(token('--judul-margin')).toBe('0 0 var(--s-2)')
+    expect(px(token('--s-2'))).toBeLessThanOrEqual(8)
+  })
+
+  it('padding bawah konten ≤ 24px', () => {
+    expect(token('--konten-pad-bawah')).toBe('var(--s-6)')
+    expect(px(token('--s-6'))).toBeLessThanOrEqual(24)
+  })
+
+  it('kontrol admin 40px dan tidak ada target di bawah 24px', () => {
+    expect(css).toMatch(/\n\.admin-konten \{ --kontrol-tinggi: 40px; \}/)
+    expect(px(token('--target-min'))).toBeGreaterThanOrEqual(24)
+    expect(px(token('--baris-tabel'))).toBeGreaterThanOrEqual(48)
+    expect(px(token('--baris-tabel'))).toBeLessThanOrEqual(56)
+  })
+
+  it('h1, main, .kartu dan input memakai token, bukan angka lepas', () => {
+    expect(isiBlok('\nmain {')).toContain('var(--konten-pad-bawah)')
+    expect(isiBlok('\nh1 {')).toContain('var(--judul-halaman)')
+    expect(isiBlok('\n.kartu {')).toContain('var(--jarak-kartu)')
+    expect(css).toMatch(/input:not\(\[type=checkbox\]\)[^{]*\{ min-height: var\(--kontrol-tinggi\); \}/)
+  })
+})

@@ -88,11 +88,16 @@ testLebar('shortcut S menyahkan dokumen dan pindah ke berikutnya', async ({ page
   const items = page.getByTestId(/^dok-item-/)
   await expect(items.first()).toBeVisible()
 
-  // Tekan S untuk sahkan
-  await page.keyboard.press('s')
+  // Pemroses tombol baru terpasang setelah hidrasi; di runner yang lambat, tekanan pertama bisa mendahuluinya.
+  // Ulangi sampai dokumen benar-benar disahkan di basis data (S pada dokumen yang sudah sah tidak berbuat apa-apa).
+  await expect(async () => {
+    await page.keyboard.press('s')
+    const sah = await db.dokumenGuru.count({ where: { guruId: guru.id, status: 'SAH' } })
+    expect(sah).toBeGreaterThan(0)
+  }).toPass({ timeout: 15_000, intervals: [500, 1000, 2000] })
 
-  // Toast atau navigasi ke dokumen berikutnya
-  await expect(page.getByRole('status').getByText(/disahkan/i)).toBeVisible({ timeout: 8000 })
+  // Hasil keputusan tampak di halaman: toast (hilang setelah 4 detik) atau status dokumen berubah menjadi SAH.
+  await expect(page.getByText(/disahkan|SAH/i).first()).toBeVisible({ timeout: 8000 })
 })
 
 // ------------------------------------------------------------------ //

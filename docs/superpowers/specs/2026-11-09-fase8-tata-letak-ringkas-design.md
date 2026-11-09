@@ -141,59 +141,70 @@ Pembungkus formulir GET: `select` menerapkan saat `change`; kolom cari menerapka
 memuat tombol kirim. Chip status ringkas berupa tautan `aria-current="true"` (satu baris, jumlah di dalam chip), jadi
 berfungsi tanpa JS. Pembaruan hasil diumumkan lewat `role="status"` pada “Menampilkan x–y dari z”.
 
-## 4. Hasil SESUDAH (setelah #24–#29)
+## 4. Hasil SESUDAH (akhir Fase 8, #24–#34)
 
-Skrip yang sama, data yang sama. “Sesudah” belum mencakup #30–#34; kolom terakhir menyebut tiket yang menanganinya.
+Skrip dan data contoh yang sama dengan bagian 2 (12–13 guru, 5 dokumen). Angka adalah tinggi dokumen dalam piksel.
+Di layar desktop (1366×768 dan 1440×900) semua halaman admin dan halaman guru **Dokumen** muat tanpa gulir halaman;
+gulir hanya terjadi di dalam kartu tabel atau panel.
 
-| Halaman | Layar | Sebelum: tinggi | Sebelum: selisih | Sesudah: tinggi | Sesudah: selisih | Tiket lanjutan |
-|---|---|---:|---:|---:|---:|---|
-| Beranda | 1366×768 | 1295 | +527 | 1261 | +493 | #30 |
-| Guru | 1366×768 | 1856 | +1088 | 768 | 0 (kosong 24) | selesai (#26–#29) |
-| Detail guru | 1366×768 | 1809 | +1041 | 1649 | +881 | #31 |
-| Antrean | 1366×768 | 1561 | +793 | 768 | 0 (kosong 24) | selesai di layar lebar (#26–#29); ponsel: kartu bertumpuk lebih tinggi, ditinjau di #30 |
-| Periode | 1366×768 | 768 | 0 (kosong 80) | 768 | 0 (kosong 126) | #32 |
-| Dokumen periode | 1366×768 | 1131 | +363 | 1014 | +246 | #32 |
-| Admin | 1366×768 | 768 | 0 (kosong 304) | 768 | 0 (kosong 350) | #32 |
-| Alasan tolak | 1366×768 | 768 | 0 (kosong 238) | 768 | 0 (kosong 275) | #32 |
-| Akun saya | 1366×768 | 768 | 0 (kosong 140) | 768 | 0 (kosong 184) | #32 |
-| Tambah guru | 1366×768 | 852 | +84 | 775 | +7 | #33 |
-| Impor guru | 1366×768 | 867 | +99 | 820 | +52 | #33 |
-| Beranda | 1440×900 | 1295 | +395 | 1261 | +361 | #30 |
-| Guru | 1440×900 | 1856 | +956 | 900 | 0 (kosong 24) | selesai (#26–#29) |
-| Detail guru | 1440×900 | 1326 | +426 | 1167 | +267 | #31 |
-| Antrean | 1440×900 | 1561 | +661 | 900 | 0 (kosong 24) | selesai di layar lebar (#26–#29); ponsel: kartu bertumpuk lebih tinggi, ditinjau di #30 |
-| Periode | 1440×900 | 900 | 0 (kosong 212) | 900 | 0 (kosong 258) | #32 |
-| Dokumen periode | 1440×900 | 1131 | +231 | 1014 | +114 | #32 |
-| Admin | 1440×900 | 900 | 0 (kosong 436) | 900 | 0 (kosong 482) | #32 |
-| Alasan tolak | 1440×900 | 900 | 0 (kosong 370) | 900 | 0 (kosong 407) | #32 |
-| Akun saya | 1440×900 | 900 | 0 (kosong 272) | 900 | 0 (kosong 316) | #32 |
-| Tambah guru | 1440×900 | 900 | 0 (kosong 96) | 900 | 0 (kosong 149) | #33 |
-| Impor guru | 1440×900 | 900 | 0 (kosong 98) | 900 | 0 (kosong 120) | #33 |
-| Beranda | 375×812 | 1763 | +951 | 1735 | +923 | #30 |
-| Guru | 375×812 | 9125 | +8313 | 6173 | +5361 | selesai (#26–#29) |
-| Detail guru | 375×812 | 1266 | +454 | 1119 | +307 | #31 |
-| Antrean | 375×812 | 2883 | +2071 | 4805 | +3993 | selesai di layar lebar (#26–#29); ponsel: kartu bertumpuk lebih tinggi, ditinjau di #30 |
-| Periode | 375×812 | 1153 | +341 | 1109 | +297 | #32 |
-| Dokumen periode | 375×812 | 1717 | +905 | 1638 | +826 | #32 |
-| Admin | 375×812 | 812 | 0 (kosong 146) | 812 | 0 (kosong 194) | #32 |
-| Alasan tolak | 375×812 | 812 | 0 (kosong 144) | 812 | 0 (kosong 171) | #32 |
-| Akun saya | 375×812 | 812 | 0 (kosong 78) | 812 | 0 (kosong 116) | #32 |
-| Tambah guru | 375×812 | 1135 | +323 | 1060 | +248 | #33 |
-| Impor guru | 375×812 | 1081 | +269 | 1044 | +232 | #33 |
-| Guru: Dokumen | 1366×768 | 1073 | +305 | 1041 | +273 | #34 |
-| Guru: Profil | 1366×768 | 1211 | +443 | 1130 | +362 | #34 |
-| Guru: Dokumen | 1440×900 | 1073 | +173 | 1041 | +141 | #34 |
-| Guru: Profil | 1440×900 | 1211 | +311 | 1130 | +230 | #34 |
-| Guru: Dokumen | 375×812 | 2119 | +1307 | 2082 | +1270 | #34 |
-| Guru: Profil | 375×812 | 1574 | +762 | 1477 | +665 | #34 |
+| Halaman | Layar | Sebelum (Fase 7) | Sesudah (akhir Fase 8) | Hasil |
+|---|---|---:|---:|---|
+| Beranda | 1440×900 | 1295 | 900 | muat (kosong 24) |
+| Guru | 1440×900 | 1856 | 900 | muat (kosong 24) |
+| Detail guru | 1440×900 | 1326 | 900 | muat (kosong 24) |
+| Antrean | 1440×900 | 1561 | 900 | muat (kosong 24) |
+| Periode | 1440×900 | 900 | 900 | muat (kosong 24) |
+| Dokumen periode | 1440×900 | 1131 | 900 | muat (kosong 24) |
+| Admin | 1440×900 | 900 | 900 | muat (kosong 24) |
+| Alasan tolak | 1440×900 | 900 | 900 | muat (kosong 24) |
+| Akun saya | 1440×900 | 900 | 900 | muat (kosong 24) |
+| Tambah guru | 1440×900 | 900 | 900 | muat (kosong 149) |
+| Impor guru | 1440×900 | 900 | 900 | muat (kosong 120) |
+| Guru: Dokumen | 1440×900 | 1073 | 900 | muat (kosong 73) |
+| Guru: Profil | 1440×900 | 1211 | 900 | muat (kosong 203) |
+| Beranda | 1366×768 | 1295 | 768 | muat (kosong 24) |
+| Guru | 1366×768 | 1856 | 768 | muat (kosong 24) |
+| Detail guru | 1366×768 | 1809 | 768 | muat (kosong 24) |
+| Antrean | 1366×768 | 1561 | 768 | muat (kosong 24) |
+| Periode | 1366×768 | 768 | 768 | muat (kosong 24) |
+| Dokumen periode | 1366×768 | 1131 | 768 | muat (kosong 24) |
+| Admin | 1366×768 | 768 | 768 | muat (kosong 24) |
+| Alasan tolak | 1366×768 | 768 | 768 | muat (kosong 24) |
+| Akun saya | 1366×768 | 768 | 768 | muat (kosong 24) |
+| Tambah guru | 1366×768 | 852 | 775 | +7 |
+| Impor guru | 1366×768 | 867 | 820 | +52 |
+| Guru: Dokumen | 1366×768 | 1073 | 888 | +120 |
+| Guru: Profil | 1366×768 | 1211 | 768 | muat (kosong 71) |
+| Beranda | 375×812 | 1763 | 1818 | +1006 |
+| Guru | 375×812 | 9125 | 5971 | +5159 |
+| Detail guru | 375×812 | 1266 | 902 | +90 |
+| Antrean | 375×812 | 2883 | 4394 | +3582 |
+| Periode | 375×812 | 1153 | 1150 | +338 |
+| Dokumen periode | 375×812 | 1717 | 1410 | +598 |
+| Admin | 375×812 | 812 | 812 | muat (kosong 363) |
+| Alasan tolak | 375×812 | 812 | 812 | muat (kosong 117) |
+| Akun saya | 375×812 | 812 | 812 | muat (kosong 140) |
+| Tambah guru | 375×812 | 1135 | 1060 | +248 |
+| Impor guru | 375×812 | 1081 | 1044 | +232 |
+| Guru: Dokumen | 375×812 | 2119 | 1361 | +549 |
+| Guru: Profil | 375×812 | 1574 | 1393 | +581 |
 
-Ringkasan: tinggi dokumen **Guru** turun dari 1856 → 768 (1366×768) dan 1856 → 900 (1440×900): sekarang tepat satu layar,
-gulir hanya di dalam kartu. **Antrean** 1561 → 768 / 900 dengan cara yang sama. Halaman lain turun 20–180px berkat token
-(padding bawah 48→24px, judul lebih kecil, kontrol 40px). Di ponsel **Guru** turun 9125 → 6173 (kartu bertumpuk lebih rapat),
-tetapi **Antrean ponsel naik** 2883 → 4805 karena sebelumnya tabelnya digeser horizontal dan kini menjadi kartu bertumpuk
-(enam bidang per kartu) — ini kompromi yang disengaja dari kriteria “tanpa gulir horizontal”; pemadatan kartu ponsel
-ditinjau di #30. Halaman “kosong di bawah” (Periode, Admin, Alasan tolak, Akun saya) justru bertambah ruang kosongnya
-karena isinya makin padat; itu ditangani #32.
+### Yang masih menggulir, dan alasannya
+
+- **Ponsel (375×812) — Guru, Antrean, Beranda:** tabel berubah menjadi kartu bertumpuk (enam bidang per kartu) supaya tidak
+  perlu geser horizontal. Dengan 20 baris per halaman, hasilnya panjang (Guru ±5970px, Antrean ±4390px setelah kartu dibuat dua kolom). Ini kompromi yang disengaja; pengurangan
+  lebih lanjut perlu pagination default lebih kecil di ponsel atau baris kartu lebih ringkas (di luar lingkup Fase 8).
+- **Ponsel — Dokumen periode, Periode, Tambah/Impor guru:** formulir dan daftar bertumpuk satu kolom; menggulir wajar.
+- **Tambah guru / Impor guru di 1366×768:** lebih tinggi 7 dan 52px dari layar; formulir panjang dan sengaja tidak dipaksa
+  masuk satu layar.
+- **Guru: Dokumen / Profil di ponsel dan 1366×768:** daftar dokumen dan formulir panjang; di ponsel kartu dokumen pertama sudah
+  tampak tanpa gulir (#33). `/profil` di 1440×900 muat satu layar (profil dan kata sandi berdampingan ≥1024px).
+- Tinggi di bawah ±380px tidak memakai tata letak "satu layar" (lihat bagian 5).
+
+### Uji otomatis
+
+`tests/e2e/tanpa-gulir.spec.ts` memeriksa `document.documentElement.scrollHeight <= innerHeight + 1` di 1440×900 untuk
+Beranda, Guru, Antrean, dan Detail guru. Uji ini sudah dicoba pada viewport 500px untuk memastikan ia memang gagal bila halaman menggulir.
 
 ## 5. Keputusan dan batasan
 

@@ -74,9 +74,10 @@ test('admin menyaring daftar guru berdasarkan status lengkap', async ({ page }) 
   await expect(page).toHaveURL('/admin')
   await page.goto('/admin/guru?per=100') // data tes bisa lebih dari 20 guru
   await expect(page.getByRole('link', { name: lain.nama })).toBeVisible()
-  // Filter status kini menggunakan chip radio; klik label "Lengkap" lalu terapkan.
-  await page.getByRole('group', { name: 'Filter status' }).getByText('Lengkap').click()
-  await page.getByRole('button', { name: 'Terapkan filter' }).click()
+  // Chip status langsung menerapkan filter, tanpa tombol terapkan.
+  await expect(page.getByRole('button', { name: /Terapkan/ })).toHaveCount(0)
+  await page.getByRole('group', { name: 'Filter status' }).getByRole('link', { name: 'Lengkap' }).click()
+  await expect(page).toHaveURL(/status=lengkap/)
   await expect(page.getByRole('link', { name: lengkap.guru.nama })).toBeVisible()
   await expect(page.getByRole('link', { name: lain.nama })).toHaveCount(0)
 })

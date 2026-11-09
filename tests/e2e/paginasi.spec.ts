@@ -24,7 +24,8 @@ test('daftar guru dibagi per halaman: 20 bawaan, bisa 50/100, dan berpindah hala
   await expect(page.getByRole('link', { name: `${awal} 45` })).toBeVisible()
 
   // Ganti ke 50 per halaman: kembali ke halaman 1, pencarian tetap.
-  await page.getByRole('navigation', { name: 'Jumlah per halaman' }).getByRole('link', { name: '50' }).click()
+  await expect(page.locator('form[data-siap] select[name=per]')).toBeVisible() // menunggu hidrasi
+  await page.getByLabel('Tampilkan').selectOption('50')
   await expect(page.getByText('Menampilkan 1–45 dari 45 guru')).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Halaman daftar guru' }).getByRole('link', { name: '2' })).toHaveCount(0)
 })

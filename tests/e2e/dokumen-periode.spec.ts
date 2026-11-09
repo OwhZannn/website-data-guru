@@ -15,7 +15,7 @@ test('menambah dokumen saat guru lengkap menampilkan peringatan, lalu guru jadi 
   expect(await db.daftarDokumen.count({ where: { periodeId: periode.id } })).toBe(2)
 
   await page.getByRole('button', { name: 'Lanjutkan' }).click()
-  await expect(page.getByRole('listitem', { name: 'Kartu Pegawai' })).toBeVisible()
+  await expect(page.getByRole('row', { name: 'Kartu Pegawai' })).toBeVisible()
   expect(await db.daftarDokumen.count({ where: { periodeId: periode.id } })).toBe(3)
 
   await context.clearCookies()
@@ -46,7 +46,7 @@ test('menonaktifkan dokumen menghilangkannya dari /dokumen guru, dan bisa diakti
   await page.goto(`/admin/periode/${periode.id}/dokumen`)
   await page.waitForLoadState('networkidle')
   await expect(page.getByText(/disembunyikan dari guru, bukan dihapus/).first()).toBeVisible()
-  await page.getByRole('listitem', { name: daftar[0].nama }).getByRole('button', { name: 'Nonaktifkan' }).click()
+  await page.getByRole('row', { name: daftar[0].nama }).getByRole('button', { name: 'Nonaktifkan' }).click()
   await expect(page.getByRole('heading', { name: 'Dokumen nonaktif' })).toBeVisible()
 
   await context.clearCookies()

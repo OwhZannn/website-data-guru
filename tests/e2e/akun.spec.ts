@@ -116,7 +116,7 @@ test('menutup periode meminta konfirmasi dulu', async ({ page }) => {
   await masuk(page, admin.email)
   await expect(page).toHaveURL('/admin')
   await page.goto('/admin/periode')
-  const kartu = page.locator(`li[data-periode="${periode.nama}"]`)
+  const kartu = page.locator(`tr[data-periode="${periode.nama}"]`)
   await kartu.getByRole('button', { name: 'Tutup periode' }).click()
   const dialog = page.getByRole('dialog', { name: `Tutup ${periode.nama}?` })
   await expect(dialog.getByText(/guru tidak bisa lagi mengunggah/)).toBeVisible()

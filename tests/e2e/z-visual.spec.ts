@@ -68,7 +68,6 @@ const samarkan = (page: Page) => [
   page.locator('iframe'),
   page.locator('td[data-label="Aktivitas"]'),
   page.locator('td[data-label="Menunggu"]'),
-  page.locator('.tabel-antrean td:last-child'),
 ]
 
 async function foto(page: Page, berkas: string) {

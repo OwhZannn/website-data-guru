@@ -24,10 +24,21 @@ type Props<B> = {
   baris: B[]
   kunciBaris: (baris: B) => string
   kelasBaris?: (baris: B) => string | undefined
-  /** Hasil `potongHalaman` (tanpa isi). */
-  ringkasan: RingkasanHalaman
+  /** Hasil `potongHalaman` (tanpa isi). Tanpa ini tabel tidak berpaginasi dan kaki hanya memuat `jumlahTeks`/`catatan`. */
+  ringkasan?: RingkasanHalaman
   /** Parameter URL yang dipertahankan saat pindah halaman atau mengganti jumlah per halaman. */
-  dasar: Record<string, string | number | null | undefined>
+  dasar?: Record<string, string | number | null | undefined>
+  /** Teks jumlah di kaki untuk tabel tanpa paginasi, mis. "3 periode". */
+  jumlahTeks?: string
+  /** Catatan singkat di kaki kartu (hanya tabel tanpa paginasi). */
+  catatan?: ReactNode
+  /** Judul kartu (h2) dan aksi di sisi kanannya; dipakai bila kartu bukan satu-satunya isi halaman. */
+  judul?: string
+  aksiJudul?: ReactNode
+  /** Kelas tambahan pada kartu, mis. `dt--ringkas` (tinggi mengikuti isi) atau `dt--maks` (dibatasi, gulir di dalam). */
+  kelas?: string
+  /** Atribut tambahan tiap baris, mis. `data-periode` atau `aria-label`. */
+  atributBaris?: (baris: B) => Record<string, string>
   /** Satuan pada "Menampilkan x–y dari z …", mis. "guru". */
   satuan?: string
   /** Isi keadaan kosong (biasanya `<EmptyState />`), tampil di dalam kartu. */
@@ -43,12 +54,18 @@ type Props<B> = {
  */
 export default function DataTable<B>(p: Props<B>) {
   const { ringkasan: r } = p
-  const tautan = (ubah: Record<string, string | number>) => bangunTautan({ ...p.dasar, per: r.per }, ubah)
+  const tautan = (ubah: Record<string, string | number>) => bangunTautan({ ...p.dasar, per: r?.per }, ubah)
   const kosong = p.baris.length === 0
   const nama = p.satuan ? `Halaman daftar ${p.satuan}` : 'Halaman'
 
   return (
-    <div className="dt">
+    <div className={p.kelas ? `dt ${p.kelas}` : 'dt'}>
+      {p.judul && (
+        <div className="dt__judul">
+          <h2>{p.judul}</h2>
+          {p.aksiJudul && <div className="dt__judul-aksi">{p.aksiJudul}</div>}
+        </div>
+      )}
       <div className="dt__gulir" tabIndex={0} role="region" aria-label={`Isi tabel ${p.keterangan.toLowerCase()}`}>
         {kosong ? (
           <div className="dt__kosong">{p.kosong}</div>
@@ -58,7 +75,7 @@ export default function DataTable<B>(p: Props<B>) {
             <thead>
               <tr>
                 {p.kolom.map((k) => (
-                  <th key={k.id} scope="col" aria-sort={k.urut ? ariaSort(k.urut.arah) : undefined}>
+                  <th key={k.id} scope="col" className={k.kelas} aria-sort={k.urut ? ariaSort(k.urut.arah) : undefined}>
                     {k.urut ? (
                       <a href={k.urut.href} className="tajuk-urut">
                         {k.label}
@@ -73,7 +90,7 @@ export default function DataTable<B>(p: Props<B>) {
             </thead>
             <tbody>
               {p.baris.map((b) => (
-                <tr key={p.kunciBaris(b)} className={p.kelasBaris?.(b)}>
+                <tr key={p.kunciBaris(b)} className={p.kelasBaris?.(b)} {...p.atributBaris?.(b)}>
                   {p.kolom.map((k) => (
                     <td key={k.id} data-label={k.label} className={[k.kelas, k.tanpaLabelPonsel ? 'dt__tanpa-label' : ''].filter(Boolean).join(' ') || undefined}>
                       {k.sel(b)}
@@ -87,18 +104,27 @@ export default function DataTable<B>(p: Props<B>) {
       </div>
 
       <div className="dt__kaki">
-        <PilihPerHalaman dasar={p.dasar} per={r.per} pilihan={p.pilihanPer ?? PILIHAN_PER} />
-        <span className="dt__rentang" role="status">{teksRentang(r.dari, r.sampai, r.total, p.satuan)}</span>
-        {r.jumlahHal > 1 && (
-          <nav className="paginasi-nomor" aria-label={nama}>
-            {r.hal > 1 ? <a href={tautan({ hal: r.hal - 1 })} rel="prev">‹ Sebelumnya</a> : <span className="mati">‹ Sebelumnya</span>}
-            {nomorHalaman(r.hal, r.jumlahHal).map((n, i) =>
-              n === null
-                ? <span key={`celah-${i}`} className="celah">…</span>
-                : <a key={n} href={tautan({ hal: n })} aria-current={n === r.hal ? 'page' : undefined}>{n}</a>,
+        {r ? (
+          <>
+            <PilihPerHalaman dasar={p.dasar ?? {}} per={r.per} pilihan={p.pilihanPer ?? PILIHAN_PER} />
+            <span className="dt__rentang" role="status">{teksRentang(r.dari, r.sampai, r.total, p.satuan)}</span>
+            {r.jumlahHal > 1 && (
+              <nav className="paginasi-nomor" aria-label={nama}>
+                {r.hal > 1 ? <a href={tautan({ hal: r.hal - 1 })} rel="prev">‹ Sebelumnya</a> : <span className="mati">‹ Sebelumnya</span>}
+                {nomorHalaman(r.hal, r.jumlahHal).map((n, i) =>
+                  n === null
+                    ? <span key={`celah-${i}`} className="celah">…</span>
+                    : <a key={n} href={tautan({ hal: n })} aria-current={n === r.hal ? 'page' : undefined}>{n}</a>,
+                )}
+                {r.hal < r.jumlahHal ? <a href={tautan({ hal: r.hal + 1 })} rel="next">Berikutnya ›</a> : <span className="mati">Berikutnya ›</span>}
+              </nav>
             )}
-            {r.hal < r.jumlahHal ? <a href={tautan({ hal: r.hal + 1 })} rel="next">Berikutnya ›</a> : <span className="mati">Berikutnya ›</span>}
-          </nav>
+          </>
+        ) : (
+          <>
+            <span className="dt__jumlah">{p.jumlahTeks ?? `${p.baris.length} baris`}</span>
+            {p.catatan && <span className="dt__catatan">{p.catatan}</span>}
+          </>
         )}
       </div>
     </div>

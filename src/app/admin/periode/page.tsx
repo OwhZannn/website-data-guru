@@ -8,9 +8,8 @@ export default async function HalamanPeriode() {
   await halamanAdmin()
   const periode = await prisma.periode.findMany({ orderBy: [{ dibuatPada: 'desc' }, { id: 'desc' }] })
   return (
-    <>
-      <h1>Periode</h1>
+    <div className="halaman-tabel">
       <KelolaPeriode periode={periode.map((p) => ({ id: p.id, nama: p.nama, dibuka: p.dibuka }))} />
-    </>
+    </div>
   )
 }

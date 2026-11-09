@@ -3,6 +3,10 @@ import { useTerpasang } from '@/lib/terpasang'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Konfirmasi from './Konfirmasi'
+import DataTable, { type Kolom } from './ui/DataTable'
+import PageHeader from './ui/PageHeader'
+import EmptyState from './ui/EmptyState'
+import { UserX } from 'lucide-react'
 
 type A = { id: string; nama: string; email: string; aktif: boolean }
 
@@ -38,51 +42,52 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
     if (h.ok && h.sandi) { setBaru({ email: email.trim().toLowerCase(), sandi: h.sandi }); setNama(''); setEmail('') }
   }
 
+  const kolom: Kolom<A>[] = [
+    {
+      id: 'nama', label: 'Nama', tanpaLabelPonsel: true,
+      sel: (a) => <><b>{a.nama}</b>{a.id === sayaId && <span className="kartu-sub"> (Anda)</span>}</>,
+    },
+    { id: 'email', label: 'Email', sel: (a) => a.email },
+    { id: 'status', label: 'Status', sel: (a) => <span className={a.aktif ? 'lencana buka' : 'lencana'}>{a.aktif ? 'Aktif' : 'Nonaktif'}</span> },
+    {
+      id: 'aksi', label: 'Aksi', tanpaLabelPonsel: true, kelas: 'nowrap',
+      sel: (a) => a.aktif
+        ? (a.id !== sayaId && <button className="garis-bahaya" disabled={sibuk} onClick={() => setTanya(a)}>Nonaktifkan</button>)
+        : <button className="garis-hijau" disabled={sibuk} onClick={() => kirim({ aksi: 'aktif', adminId: a.id })}>Aktifkan</button>,
+    },
+  ]
+
   return (
-    <div>
-      <form method="post" className="panel" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
-        <h2 className="mb-s1 mt-0">Tambah admin</h2>
-        <p className="redup mb-s4 teks-sm">Sandi awal dibuat otomatis dan ditampilkan sekali setelah admin ditambahkan.</p>
-        <div className="baris-form">
-          <label>Nama lengkap
-            <input name="nama" aria-label="Nama admin" placeholder="Contoh: Budi Santoso" value={nama} onChange={(e) => setNama(e.target.value)} required />
-          </label>
-          <label>Email
+    <>
+      <PageHeader
+        judul="Admin"
+        keterangan="Sandi awal dibuat otomatis, tampil sekali"
+        aksi={(
+          <form method="post" className="form-inline" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
+            <input name="nama" aria-label="Nama admin" placeholder="Nama lengkap" value={nama} onChange={(e) => setNama(e.target.value)} required />
             <input name="email" type="email" aria-label="Email admin" placeholder="nama@kemenag.go.id" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-          <button type="submit" disabled={sibuk || !terpasang}>Tambah admin</button>
-        </div>
-        {pesan && <p className="galat" role="alert">{pesan}</p>}
-        {baru && (
-          <div role="status" className="sandi-baru">
-            <p className="mb-0">Sandi awal untuk <b>{baru.email}</b>:</p>
-            <p className="sandi-baru-baris">
-              <code data-testid="sandi-baru">{baru.sandi}</code>{' '}
-              <button type="button" className="biasa" onClick={() => navigator.clipboard?.writeText(baru.sandi).catch(() => {})}>Salin</button>
-            </p>
-            <p className="mb-0"><strong>Catat sekarang: sandi ini hanya tampil sekali dan tidak dapat dilihat lagi.</strong></p>
-          </div>
+            <button type="submit" disabled={sibuk || !terpasang}>Tambah admin</button>
+          </form>
         )}
-      </form>
-      <h2>Daftar admin ({admin.length})</h2>
-      <div className="geser">
-      <table>
-        <thead><tr><th>Nama</th><th>Email</th><th>Status</th><th>Aksi</th></tr></thead>
-        <tbody>
-          {admin.map((a) => (
-            <tr key={a.id} data-admin={a.email}>
-              <td><b>{a.nama}</b>{a.id === sayaId && <span className="kartu-sub"> (Anda)</span>}</td><td>{a.email}</td>
-              <td><span className={a.aktif ? 'lencana buka' : 'lencana'}>{a.aktif ? 'Aktif' : 'Nonaktif'}</span></td>
-              <td>
-                {a.aktif
-                  ? (a.id !== sayaId && <button className="garis-bahaya" disabled={sibuk} onClick={() => setTanya(a)}>Nonaktifkan</button>)
-                  : <button className="garis-hijau" disabled={sibuk} onClick={() => kirim({ aksi: 'aktif', adminId: a.id })}>Aktifkan</button>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
+      />
+      {pesan && <p className="galat" role="alert">{pesan}</p>}
+      {baru && (
+        <div role="status" className="sandi-baru">
+          <p className="mb-0">Sandi awal untuk <b>{baru.email}</b>:</p>
+          <p className="sandi-baru-baris">
+            <code data-testid="sandi-baru">{baru.sandi}</code>{' '}
+            <button type="button" className="biasa" onClick={() => navigator.clipboard?.writeText(baru.sandi).catch(() => {})}>Salin</button>
+          </p>
+          <p className="mb-0"><strong>Catat sekarang: sandi ini hanya tampil sekali dan tidak dapat dilihat lagi.</strong></p>
+        </div>
+      )}
+      <DataTable
+        keterangan="Daftar admin" judul={`Daftar admin (${admin.length})`}
+        kolom={kolom} baris={admin} kunciBaris={(a) => a.id}
+        atributBaris={(a) => ({ 'data-admin': a.email })}
+        jumlahTeks={`${admin.length} admin`}
+        kosong={<EmptyState ikon={<UserX size={28} />} teks="Belum ada admin." />}
+      />
       <Konfirmasi
         buka={tanya !== null} judul={`Nonaktifkan ${tanya?.nama ?? ''}?`} teksYa="Ya, nonaktifkan" bahaya sibuk={sibuk}
         onBatal={() => setTanya(null)}
@@ -90,6 +95,6 @@ export default function KelolaAdmin({ admin, sayaId }: { admin: A[]; sayaId: str
       >
         <p>Admin ini akan langsung keluar dan <b>tidak bisa masuk</b> sampai diaktifkan kembali. Keputusan verval yang pernah dibuatnya tetap tersimpan.</p>
       </Konfirmasi>
-    </div>
+    </>
   )
 }

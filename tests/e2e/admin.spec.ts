@@ -57,7 +57,7 @@ test('admin mengunduh rekap CSV berisi header dan guru', async ({ page }) => {
   await masuk(page, admin.email)
   await expect(page).toHaveURL('/admin')
   await page.goto('/admin/periode')
-  const item = page.locator(`li[data-periode="${periode.nama}"]`)
+  const item = page.locator(`tr[data-periode="${periode.nama}"]`)
   const [unduhan] = await Promise.all([page.waitForEvent('download'), item.getByRole('link', { name: 'Rekap CSV' }).click()])
   expect(unduhan.suggestedFilename()).toMatch(/^rekap-.*\.csv$/)
   const { readFile } = await import('node:fs/promises')

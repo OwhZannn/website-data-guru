@@ -33,9 +33,10 @@ export default async function Profil() {
             )}
           </div>
         )}
-        <FormProfil awal={guru} setelahSimpan={lengkap ? undefined : '/dokumen'} />
-        <div className="spacer-s5" />
-        <FormGantiSandi />
+        <div className="profil-kolom">
+          <FormProfil awal={guru} setelahSimpan={lengkap ? undefined : '/dokumen'} />
+          <FormGantiSandi />
+        </div>
       </main>
     </>
   )

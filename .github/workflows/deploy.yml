@@ -1,0 +1,97 @@
+name: Deploy
+
+# Memicu webhook Komodo (Stack → deploy) setelah CI lulus di main, lalu memastikan aplikasi hidup.
+# Rahasia ada di GitHub (Settings → Secrets and variables → Actions), tidak di repo:
+#   KOMODO_WEBHOOK_URL     URL penuh dari Stack → Config → Webhooks (…/listener/github/stack/<id>/deploy)
+#   KOMODO_WEBHOOK_SECRET  sama dengan KOMODO_WEBHOOK_SECRET di konfigurasi Komodo Core
+# Variabel (bukan rahasia):
+#   APP_URL                alamat publik aplikasi, mis. https://guru.rahmatur.dev (untuk pemeriksaan sehat)
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# Satu deploy dalam satu waktu; deploy yang menunggu diganti yang terbaru, yang sedang jalan tidak dibatalkan.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy via Komodo
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Otomatis hanya bila CI di main berhasil; jalankan manual hanya dari main.
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    env:
+      KOMODO_WEBHOOK_URL: ${{ secrets.KOMODO_WEBHOOK_URL }}
+      KOMODO_WEBHOOK_SECRET: ${{ secrets.KOMODO_WEBHOOK_SECRET }}
+      APP_URL: ${{ vars.APP_URL }}
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Periksa rahasia tersedia
+        run: |
+          if [ -z "$KOMODO_WEBHOOK_URL" ] || [ -z "$KOMODO_WEBHOOK_SECRET" ]; then
+            echo "::error::Rahasia KOMODO_WEBHOOK_URL dan KOMODO_WEBHOOK_SECRET belum diisi di GitHub."
+            exit 1
+          fi
+
+      - name: Pastikan commit ini masih yang terbaru di main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          terbaru=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$terbaru" != "$SHA" ]; then
+            echo "Commit $SHA bukan yang terbaru ($terbaru); deploy untuk commit yang lebih baru akan menyusul."
+            echo "lewati=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Panggil webhook Komodo
+        if: env.lewati != '1'
+        run: |
+          # Komodo memvalidasi HMAC-SHA256 isi permintaan (X-Hub-Signature-256) dan mengambil cabang dari "ref".
+          isi=$(printf '{"ref":"refs/heads/main","after":"%s"}' "$SHA")
+          tanda=$(printf '%s' "$isi" | openssl dgst -sha256 -hmac "$KOMODO_WEBHOOK_SECRET" | sed 's/^.* //')
+          kode=$(curl -sS -o /tmp/respons.txt -w '%{http_code}' --max-time 60 \
+            -X POST "$KOMODO_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -H 'X-GitHub-Event: push' \
+            -H "X-Hub-Signature-256: sha256=$tanda" \
+            --data "$isi")
+          echo "Komodo membalas HTTP $kode"
+          cat /tmp/respons.txt; echo
+          if [ "$kode" -lt 200 ] || [ "$kode" -ge 300 ]; then
+            echo "::error::Webhook Komodo gagal (HTTP $kode)."
+            exit 1
+          fi
+
+      - name: Tunggu aplikasi sehat
+        if: env.lewati != '1' && env.APP_URL != ''
+        run: |
+          # Komodo membangun image lalu memulai ulang kontainer; /api/hidup tidak menyentuh Drive maupun basis data.
+          sleep 30
+          for i in $(seq 1 30); do
+            kode=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$APP_URL/api/hidup" || true)
+            echo "Percobaan $i: HTTP $kode"
+            if [ "$kode" = "200" ]; then echo "Aplikasi hidup."; exit 0; fi
+            sleep 10
+          done
+          echo "::error::Aplikasi belum sehat setelah ±6 menit. Periksa Komodo → Stack → Log."
+          exit 1
+
+      - name: Ringkasan
+        if: always()
+        run: |
+          {
+            echo "### Deploy"
+            echo "- Commit: \`$SHA\`"
+            echo "- Status: ${{ job.status }}"
+            [ "${lewati:-}" = "1" ] && echo "- Dilewati: ada commit yang lebih baru di main."
+          } >> "$GITHUB_STEP_SUMMARY"

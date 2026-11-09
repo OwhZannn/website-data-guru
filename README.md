@@ -150,6 +150,22 @@ Rilis dibuat dari GitHub, bukan dari laptop: **Actions → Rilis → Run workflo
 
 Alur ini memastikan CI commit terakhir hijau, menaikkan versi di `package.json` dan `package-lock.json`, membuat commit `Rilis vX.Y.Z`, tag, dan GitHub release dengan catatan otomatis (daftar PR sejak rilis sebelumnya). Centang **Uji coba** untuk melihat versi berikutnya tanpa membuat apa pun.
 
+## 9b. Deploy otomatis lewat Komodo
+
+Setelah CI lulus di `main`, workflow **Deploy** (`.github/workflows/deploy.yml`) memanggil webhook Stack Komodo, lalu menunggu `GET /api/hidup` menjawab 200. Build yang gagal tidak pernah sampai ke server. Deploy bisa juga dijalankan manual: **Actions → Deploy → Run workflow** (dari `main`).
+
+Yang perlu diisi di GitHub (**Settings → Secrets and variables → Actions**), bukan di repo:
+
+| Nama | Jenis | Isi |
+|---|---|---|
+| `KOMODO_WEBHOOK_URL` | Secret | URL penuh dari Komodo → Stack → Config → Webhooks, bentuk `https://<komodo>/listener/github/stack/<id>/deploy` |
+| `KOMODO_WEBHOOK_SECRET` | Secret | Sama dengan `KOMODO_WEBHOOK_SECRET` pada konfigurasi Komodo Core (atau secret webhook milik Stack bila diatur) |
+| `APP_URL` | Variable | Alamat publik aplikasi, mis. `https://guru.rahmatur.dev`; dipakai untuk pemeriksaan sehat. Kosong = pemeriksaan dilewati |
+
+Di Komodo, Stack harus mengambil compose dari repo ini pada cabang `main`. Komodo hanya bertindak bila `ref` webhook cocok dengan cabang Stack.
+
+Cara kerjanya: workflow menandatangani isi `{"ref":"refs/heads/main",…}` dengan HMAC-SHA256 dan mengirimnya sebagai `X-Hub-Signature-256`, persis seperti yang dikirim GitHub, sehingga tidak perlu webhook git terpisah di repo (dua jalur akan men-deploy dua kali dan melewati CI). Komodo Core harus bisa dijangkau dari internet pada jalur `/listener`.
+
 ## 10. Daftar periksa sebelum dibuka
 
 - [ ] Server berarsitektur x86_64/amd64. Image menargetkan `linux-musl-openssl-3.0.x`; build sengaja gagal di arm64.

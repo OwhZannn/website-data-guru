@@ -93,5 +93,5 @@ jobs:
             echo "### Deploy"
             echo "- Commit: \`$SHA\`"
             echo "- Status: ${{ job.status }}"
-            [ "${lewati:-}" = "1" ] && echo "- Dilewati: ada commit yang lebih baru di main."
+            if [ "${lewati:-}" = "1" ]; then echo "- Dilewati: ada commit yang lebih baru di main."; fi
           } >> "$GITHUB_STEP_SUMMARY"

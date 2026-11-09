@@ -52,7 +52,12 @@ export default function AdminShell({
         )}
 
         <div className="admin-kepala__aksi">
-          <MenuProfil nama={admin.nama} peran="Admin" keterangan={admin.email} />
+          <MenuProfil
+            nama={admin.nama}
+            peran="Admin"
+            keterangan={admin.email}
+            tautan={[{ href: '/admin/akun', teks: 'Akun saya', ikon: 'akun' }]}
+          />
         </div>
       </header>
 

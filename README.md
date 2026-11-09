@@ -69,7 +69,7 @@ Sandi acak dicetak **sekali saja**; catat dan minta admin menggantinya setelah m
   - admin mengimpor banyak guru sekaligus di menu Guru, tombol **Impor guru**, dengan format `Nama;NIP;NIK;Status Kepegawaian;Tahun Sertifikasi`;
   - guru mendaftar sendiri di `/daftar` (tautan "Buat akun guru" di halaman masuk). Akun ini baru bisa dipakai setelah admin menekan **Setujui** di menu Guru.
 - Pendaftaran dibatasi 30 kali per 15 menit per alamat IP. Batasnya longgar karena guru satu sekolah sering mendaftar dari WiFi yang sama.
-- Guru mengganti kata sandinya sendiri di menu **Profil**. Admin bisa membuat kata sandi baru lewat **Atur ulang sandi**.
+- Guru mengganti kata sandinya sendiri di menu **Profil**. Admin mengganti kata sandinya sendiri lewat menu profil di kanan atas, **Akun saya** (`/admin/akun`). Admin juga bisa membuat kata sandi baru untuk admin lain lewat **Atur ulang sandi**.
 - Guru yang terdaftar sebelum pembaruan ini memakai NIP-nya sebagai username. Isian NIP lama dipakai apa adanya.
 
 ## 6. Nginx dan HTTPS

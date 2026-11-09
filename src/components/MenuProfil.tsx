@@ -1,12 +1,12 @@
 'use client'
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import { ChevronDown, LogOut, User, FileText } from 'lucide-react'
+import { ChevronDown, LogOut, User, FileText, UserCog } from 'lucide-react'
 import PilihTema from './PilihTema'
 import { useKeluar } from './TombolKeluar'
 
-type Tautan = { href: string; teks: string; ikon: 'profil' | 'dokumen' }
+type Tautan = { href: string; teks: string; ikon: 'profil' | 'dokumen' | 'akun' }
 
-const IKON = { profil: User, dokumen: FileText } as const
+const IKON = { profil: User, dokumen: FileText, akun: UserCog } as const
 
 function inisial(nama: string) {
   const kata = nama.trim().split(/\s+/).filter(Boolean)

@@ -3,8 +3,8 @@ import InputSandi from '@/components/InputSandi'
 import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 
-/** Formulir ganti kata sandi guru; tampil di halaman Profil. */
-export default function FormGantiSandi() {
+/** Formulir ganti kata sandi; tampil di halaman Profil (guru) dan Akun saya (admin). */
+export default function FormGantiSandi({ endpoint = '/api/ganti-sandi' }: { endpoint?: string }) {
   const [pesan, setPesan] = useState('')
   const [berhasil, setBerhasil] = useState(false)
   const [sibuk, setSibuk] = useState(false)
@@ -18,7 +18,7 @@ export default function FormGantiSandi() {
     setPesan('')
     setBerhasil(false)
     try {
-      const r = await fetch('/api/ganti-sandi', {
+      const r = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

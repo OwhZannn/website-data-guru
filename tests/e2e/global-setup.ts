@@ -38,7 +38,7 @@ export default async function setup() {
   // Tanpa sesi semuanya dijawab 401, tapi rutenya sudah tersusun.
   for (const jalur of [
     '/api/admin/keputusan', '/api/admin/guru', '/api/admin/guru/impor', '/api/admin/periode',
-    '/api/admin/dokumen', '/api/admin/admin', '/api/dokumen/unggah', '/api/ganti-sandi', '/api/auth/keluar', '/api/profil', '/api/tugas', '/api/daftar',
+    '/api/admin/dokumen', '/api/admin/admin', '/api/dokumen/unggah', '/api/ganti-sandi', '/api/admin/ganti-sandi', '/api/auth/keluar', '/api/profil', '/api/tugas', '/api/daftar',
   ]) await panaskan(jalur, { method: 'POST' })
   await panaskan('/api/admin/rekap')
 

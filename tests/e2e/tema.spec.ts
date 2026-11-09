@@ -88,15 +88,17 @@ test.describe('Menu profil', () => {
     const menu = page.getByRole('menu', { name: 'Menu akun' })
     await expect(menu).toBeVisible()
     await expect(pemicu).toHaveAttribute('aria-expanded', 'true')
-    await expect(page.getByRole('menuitemradio', { name: 'Terang' })).toBeFocused()
+    await expect(page.getByRole('menuitem', { name: 'Akun saya' })).toBeFocused()
 
     // Panah menggeser fokus, Home/End melompat, berputar di ujung
+    await page.keyboard.press('ArrowRight')
+    await expect(page.getByRole('menuitemradio', { name: 'Terang' })).toBeFocused()
     await page.keyboard.press('ArrowRight')
     await expect(page.getByRole('menuitemradio', { name: 'Gelap' })).toBeFocused()
     await page.keyboard.press('End')
     await expect(page.getByRole('menuitem', { name: 'Keluar' })).toBeFocused()
     await page.keyboard.press('ArrowDown')
-    await expect(page.getByRole('menuitemradio', { name: 'Terang' })).toBeFocused()
+    await expect(page.getByRole('menuitem', { name: 'Akun saya' })).toBeFocused()
 
     // Escape menutup dan mengembalikan fokus ke pemicu
     await page.keyboard.press('Escape')

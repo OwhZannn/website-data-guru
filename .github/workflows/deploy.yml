@@ -9,9 +9,7 @@ name: Deploy
 # Variabel (bukan rahasia):
 #   APP_URL                alamat publik aplikasi, mis. https://guru.rahmatur.dev (untuk pemeriksaan sehat)
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -28,15 +26,15 @@ jobs:
     name: Deploy via Komodo
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Otomatis hanya bila CI di main berhasil; jalankan manual hanya dari main.
+    # Otomatis saat push ke main (setelah PR lolos CI); jalankan manual hanya dari main.
     if: >-
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
       || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     env:
       KOMODO_WEBHOOK_URL: ${{ secrets.KOMODO_WEBHOOK_URL }}
       KOMODO_WEBHOOK_SECRET: ${{ secrets.KOMODO_WEBHOOK_SECRET }}
       APP_URL: ${{ vars.APP_URL }}
-      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SHA: ${{ github.sha }}
     steps:
       - name: Periksa rahasia tersedia
         run: |
@@ -106,14 +104,14 @@ jobs:
     # Hanya untuk deploy otomatis dari push ke main yang berhasil; run manual hanya mendeploy ulang.
     if: >-
       needs.deploy.result == 'success'
-      && github.event_name == 'workflow_run'
-      && github.event.workflow_run.event == 'push'
+      && github.event_name == 'push'
+      && github.ref == 'refs/heads/main'
     permissions:
       contents: write
       pull-requests: read
     env:
       GH_TOKEN: ${{ github.token }}
-      SHA: ${{ github.event.workflow_run.head_sha }}
+      SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:

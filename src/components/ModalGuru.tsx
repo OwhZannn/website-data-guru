@@ -22,11 +22,18 @@ export type ModalGuruProps =
 
 export default function ModalGuru(p: ModalGuruProps) {
   const [buka, setBuka] = useState(false)
+  const [terpasang, setTerpasang] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
+    setTerpasang(true)
+  }, [])
+
+  useEffect(() => {
     const d = ref.current
-    if (buka && d && !d.open) d.showModal()
+    if (!d) return
+    if (buka && !d.open) d.showModal()
+    if (!buka && d.open) d.close()
   }, [buka])
 
   function tutup() {
@@ -106,7 +113,7 @@ export default function ModalGuru(p: ModalGuruProps) {
         </button>
       )}
 
-      {buka && typeof document !== 'undefined'
+      {terpasang && typeof document !== 'undefined'
         ? createPortal(dialogElement, document.body)
         : null}
     </>

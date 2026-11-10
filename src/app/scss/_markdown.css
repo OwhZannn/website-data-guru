@@ -72,7 +72,7 @@ nextjs-portal, [data-nextjs-dev-tools-indicator], [data-nextjs-toast], #__next-b
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--s-2);
+  gap: var(--s-3);
   font-size: 1.7rem;
   margin: 0 0 var(--s-2);
   line-height: 1.25;
@@ -81,15 +81,16 @@ nextjs-portal, [data-nextjs-dev-tools-indicator], [data-nextjs-toast], #__next-b
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 3px 8px;
+  padding: 4px 10px;
   background: var(--hijau-muda);
   color: var(--tautan-kuat);
   border: 1px solid var(--sah-garis);
   border-radius: var(--r-sm);
-  font-size: .85rem;
+  font-size: .95rem;
   font-weight: 800;
   line-height: 1;
   flex-shrink: 0;
+  transform: translateY(1px);
 }
 .panduan-ringkas-lede {
   font-size: 1.05rem; color: var(--redup); line-height: 1.5; margin: 0 0 var(--s-5);

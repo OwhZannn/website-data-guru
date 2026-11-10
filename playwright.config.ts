@@ -17,6 +17,11 @@ export default defineConfig({
     url: `http://localhost:${PORT}/masuk`,
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { DATABASE_URL: 'file:./e2e.db', DRIVE_PALSU: '1', NODE_ENV: 'development' },
+    env: {
+      DATABASE_URL: 'file:./e2e.db',
+      DRIVE_PALSU: '1',
+      NODE_ENV: 'development',
+      NODE_OPTIONS: '--max-old-space-size=4096',
+    },
   },
 })

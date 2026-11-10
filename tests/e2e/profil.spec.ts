@@ -118,3 +118,39 @@ test('admin mengisi periode kosong dengan daftar dokumen baku', async ({ page })
   await expect(page.getByRole('button', { name: 'Isi dengan daftar baku' })).toHaveCount(0)
   expect(await db.daftarDokumen.count({ where: { periodeId: p.id } })).toBe(24)
 })
+
+test('guru dapat mengubah nama lengkap di halaman Profil', async ({ page }) => {
+  const { guru } = await siapkan({ dokumen: [] })
+  await masuk(page, guru.username)
+  await page.goto('/profil')
+
+  const namaBaru = `${guru.nama} Al-Bantani, S.Pd.I.`
+  await page.locator('input[name="nama"]').fill(namaBaru)
+  await page.getByRole('button', { name: 'Simpan profil' }).click()
+  await expect(page.locator('.ok')).toContainText('Profil tersimpan.')
+
+  const g = await db.guru.findUniqueOrThrow({ where: { id: guru.id } })
+  expect(g.nama).toBe(namaBaru)
+})
+
+test('admin dapat mengoreksi nama dan NIP guru, memperbarui username masuk', async ({ page }) => {
+  const { guru } = await siapkan({ dokumen: [] })
+  const admin = await buatAdmin()
+  const nipBaru = '199501012024011009'
+
+  await masuk(page, admin.email)
+  await page.goto(`/admin/guru/${guru.id}`)
+
+  await page.getByText('Koreksi profil').click()
+  await page.locator('input[name="nama"]').fill('Drs. Guru Terkoreksi')
+  await page.locator('input[name="nip"]').fill(nipBaru)
+  await page.getByRole('button', { name: 'Simpan profil' }).click()
+  await expect(page.locator('.ok')).toContainText('Profil tersimpan.')
+
+  const g = await db.guru.findUniqueOrThrow({ where: { id: guru.id } })
+  expect(g.nama).toBe('Drs. Guru Terkoreksi')
+  expect(g.nip).toBe(nipBaru)
+  expect(g.username).toBe(nipBaru)
+
+  await expect(page.getByLabel('Riwayat profil')).toContainText(`NIP: ${guru.nip} → ${nipBaru}`)
+})

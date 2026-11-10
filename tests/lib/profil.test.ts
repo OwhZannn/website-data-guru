@@ -61,6 +61,72 @@ describe('simpanProfil', () => {
     await simpanProfil({ guruId, data: sah, oleh: guruId, olehTipe: 'guru' })
     expect((await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })).asalSekolah).toBe('SMA Negeri 1')
   })
+
+  it('guru dan admin dapat mengubah nama lengkap, tercatat di riwayat', async () => {
+    await simpanProfil({ guruId, data: { ...sah, nama: 'Siti Rahmawati, M.Pd.' }, oleh: guruId, olehTipe: 'guru' })
+    let g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g.nama).toBe('Siti Rahmawati, M.Pd.')
+    let r = await prisma.riwayat.findFirstOrThrow({ where: { guruId, aksi: 'ubah_profil' }, orderBy: { waktu: 'desc' } })
+    expect(r.alasan).toContain('nama: G → Siti Rahmawati, M.Pd.')
+
+    await simpanProfil({ guruId, data: { ...sah, nama: 'Dr. Siti Rahmawati, M.Pd.' }, oleh: adminId, olehTipe: 'admin' })
+    g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g.nama).toBe('Dr. Siti Rahmawati, M.Pd.')
+    r = await prisma.riwayat.findFirstOrThrow({ where: { guruId, aksi: 'ubah_profil' }, orderBy: { waktu: 'desc' } })
+    expect(r.alasan).toContain('nama: Siti Rahmawati, M.Pd. → Dr. Siti Rahmawati, M.Pd.')
+  })
+
+  it('guru tidak bisa mengubah NIP atau NIK sendiri', async () => {
+    await simpanProfil({ guruId, data: { ...sah, statusPegawai: 'PNS', nip: '198701012010012001' }, oleh: guruId, olehTipe: 'guru' })
+    const g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g.nip).toBe('1')
+    expect(g.username).toBe('1')
+  })
+
+  it('admin dapat mengubah NIP untuk ASN, memperbarui username dan mencabut sesi guru', async () => {
+    // Buat sesi untuk guru
+    await prisma.sesi.create({
+      data: { token: 'sesi-guru-1', pemilikId: guruId, tipe: 'guru', kedaluwarsa: new Date(Date.now() + 100000) },
+    })
+
+    const nipBaru = '198701012010012001'
+    await simpanProfil({ guruId, data: { ...sah, statusPegawai: 'PNS', nip: nipBaru }, oleh: adminId, olehTipe: 'admin' })
+    const g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g.nip).toBe(nipBaru)
+    expect(g.username).toBe(nipBaru)
+
+    // Sesi lama guru harus sudah dihapus
+    const sesi = await prisma.sesi.findUnique({ where: { token: 'sesi-guru-1' } })
+    expect(sesi).toBeNull()
+
+    const r = await prisma.riwayat.findFirstOrThrow({ where: { guruId, aksi: 'ubah_profil' }, orderBy: { waktu: 'desc' } })
+    expect(r.alasan).toContain(`NIP: 1 → ${nipBaru}`)
+  })
+
+  it('admin dapat mengubah NIK untuk Non ASN', async () => {
+    const nikBaru = '5201014507900001'
+    await simpanProfil({ guruId, data: { ...sah, statusPegawai: 'NON_ASN', nik: nikBaru }, oleh: adminId, olehTipe: 'admin' })
+    const g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g.nik).toBe(nikBaru)
+    expect(g.username).toBe(nikBaru)
+    expect(g.nip).toBeNull()
+  })
+
+  it('menolak NIP/NIK tidak sah dan bentrok dengan guru lain', async () => {
+    await expect(
+      simpanProfil({ guruId, data: { ...sah, statusPegawai: 'PNS', nip: '123' }, oleh: adminId, olehTipe: 'admin' }),
+    ).rejects.toThrow('NIP harus 18 angka')
+
+    await expect(
+      simpanProfil({ guruId, data: { ...sah, statusPegawai: 'NON_ASN', nik: '123' }, oleh: adminId, olehTipe: 'admin' }),
+    ).rejects.toThrow('NIK harus 16 angka')
+
+    const nipLain = '199001012010012002'
+    await prisma.guru.create({ data: { nama: 'Lain', username: nipLain, nip: nipLain, hashSandi: 'x' } })
+    await expect(
+      simpanProfil({ guruId, data: { ...sah, statusPegawai: 'PNS', nip: nipLain }, oleh: adminId, olehTipe: 'admin' }),
+    ).rejects.toThrow('NIP ini sudah terdaftar untuk guru lain')
+  })
 })
 
 describe('simpanTugas', () => {

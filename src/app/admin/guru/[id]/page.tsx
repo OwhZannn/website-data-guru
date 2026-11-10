@@ -9,7 +9,7 @@ import { daftarRiwayatDokumen, namaPelakuRiwayat } from '@/lib/riwayat'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import KartuProgres from '@/components/KartuProgres'
-import FormProfil from '@/components/FormProfil'
+import ModalKoreksiProfil from '@/components/ModalKoreksiProfil'
 import { teksIdentitas } from '@/lib/identitas'
 import { dokumenWajib, profilLengkap, LABEL_JABATAN, LABEL_PEGAWAI, TUGAS } from '@/lib/syarat'
 import PilihTugas from '@/components/PilihTugas'
@@ -152,13 +152,12 @@ export default async function DetailGuru({ params, searchParams }: {
             <div key={k} className="detail-profil__butir"><dt>{k}</dt><dd>{v}</dd></div>
           ))}
         </dl>
-        <details className="koreksi">
-          <summary className="ringkas-detail-summary">Koreksi profil dan tugas</summary>
-          <div className="koreksi__isi">
-            <FormProfil awal={guru} guruId={guru.id} />
-            <PilihTugas awal={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>} guruId={guru.id} />
-          </div>
-        </details>
+        <div className="detail-profil__aksi">
+          <ModalKoreksiProfil
+            guru={guru}
+            tugas={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>}
+          />
+        </div>
       </section>
       {adaDokumen ? (
         <ReviewPanel

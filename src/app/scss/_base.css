@@ -1280,3 +1280,97 @@ main.profil-halaman { max-width: 760px; padding-top: var(--s-4); }
   .dt td.dt__tanpa-label:first-child { padding-bottom: var(--s-1); margin-bottom: 0; }
   .dt td.dt__tanpa-label:last-child { padding-top: var(--s-1); }
 }
+
+/* Profil ringkas (Fase 8 / #61) */
+.profil-tiga {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--s-3);
+}
+@media (min-width: 640px) {
+  .profil-tiga {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+.pilihan-dua--ringkas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.centang--ringkas {
+  padding: 8px 12px;
+  margin: 0;
+  min-height: 40px;
+}
+.profil-ringkas-fieldset {
+  margin: var(--s-2) 0 var(--s-1);
+}
+.sertifikasi-ringkas {
+  margin: var(--s-2) 0 var(--s-3);
+}
+
+/* Dialog / Modal Koreksi Profil */
+dialog.modal-profil {
+  border: 0;
+  border-radius: var(--r);
+  padding: var(--s-5);
+  width: min(740px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  box-shadow: var(--bayang-dialog);
+  color: var(--teks);
+  background: var(--permukaan);
+}
+dialog.modal-profil::backdrop {
+  background: var(--tirai);
+  backdrop-filter: blur(2px);
+}
+.modal-profil__kepala {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--s-4);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--garis);
+}
+.modal-profil__kepala h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.modal-profil__tutup {
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--redup);
+}
+.modal-profil__tutup:hover {
+  background: var(--hover-halus);
+  color: var(--teks);
+}
+.modal-profil .panel.profil {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.modal-profil .panel.tugas {
+  border: 1px solid var(--garis);
+  border-radius: var(--r);
+  margin-top: var(--s-3);
+}
+.detail-profil__aksi {
+  margin-top: var(--s-2);
+}
+
+@media (max-width: 639px) {
+  dialog.modal-profil {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding: var(--s-4);
+  }
+}

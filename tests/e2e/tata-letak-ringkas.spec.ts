@@ -142,8 +142,7 @@ test('tanpa JavaScript: HTML memuat formulir GET dengan tombol <noscript>, dan a
       { nama: `Lain ${awal}`, username: `j${admin.id.slice(0, 5)}d`, nip: `j${admin.id.slice(0, 5)}d`, email: `jd${admin.id.slice(0, 5)}@contoh.id`, hashSandi: 'x' },
     ],
   })
-  // Halaman admin dialirkan di balik kerangka memuat yang butuh JS untuk ditampilkan (sudah begitu sebelumnya),
-  // jadi fallback diperiksa pada HTML yang dikirim server, bukan pada peramban tanpa JS.
+  // Fallback tanpa JavaScript diperiksa pada HTML yang dikirim server (permintaan langsung), bukan lewat peramban.
   const masukApi = await request.post('/api/auth/masuk', { data: { email: admin.email, sandi: SANDI } })
   expect(masukApi.ok()).toBe(true)
   const html = await (await request.get(`/admin/guru?q=${awal}%20C&per=100`)).text()

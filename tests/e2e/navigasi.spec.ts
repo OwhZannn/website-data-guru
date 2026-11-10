@@ -110,7 +110,12 @@ test('bilah kemajuan tampil saat berpindah ke rute yang lambat, lalu selesai', a
   await page.goto('/admin')
   await expect(sidebar(page, '/admin/antrean')).toBeVisible()
   // Perlambat hanya permintaan RSC ke Antrean supaya keadaan "sedang pindah" bisa diamati.
-  await page.route(/\/admin\/antrean\?_rsc=/, async (route) => { await new Promise((r) => setTimeout(r, 900)); await route.continue() })
+  await page.route(/\/admin\/antrean/, async (route) => {
+    if (route.request().headers()['rsc'] || route.request().url().includes('_rsc')) {
+      await new Promise((r) => setTimeout(r, 1200))
+    }
+    await route.continue()
+  })
   const bilah = page.locator('.bilah-navigasi')
   await sidebar(page, '/admin/antrean').click()
   await expect(bilah).toHaveAttribute('data-fase', 'jalan', { timeout: 2000 })

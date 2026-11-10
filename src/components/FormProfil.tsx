@@ -48,12 +48,14 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   return (
     <form method="post" onSubmit={kirim} className="panel profil">
       {(a.nip || a.nik || a.username) && (
-        <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
-          <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+        <>
+          <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
+            <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+          </label>
           <small className="redup bantuan">
             {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
           </small>
-        </label>
+        </>
       )}
       <label htmlFor="asal-sekolah">Asal sekolah
         <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />

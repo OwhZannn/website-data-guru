@@ -89,8 +89,8 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
       <form method="post" onSubmit={kirim} className="panel profil">
         <label>Nama lengkap (dengan gelar)
           <input name="nama" required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
-          <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
         </label>
+        <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
         <div className="profil-dua">
           <label>Status kepegawaian
             <select ref={pilihStatus} name="statusPegawai" value={status} onChange={(e) => setStatus(e.target.value)} required>
@@ -102,13 +102,11 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
           {nonAsn ? (
             <label key="nik">NIK
               <input name="nik" inputMode="numeric" pattern="[0-9 ]{16,20}" required placeholder={PETUNJUK.nik.contoh} />
-              <small className="redup bantuan">{PETUNJUK.nik.bantuan}</small>
             </label>
           ) : (
             <label key="nip">NIP
               <input name="nip" inputMode="numeric" pattern="[0-9 ]{18,24}" required={status !== ''} disabled={status === ''}
                 placeholder={PETUNJUK.nip.contoh} />
-              <small className="redup bantuan">{PETUNJUK.nip.bantuan}</small>
             </label>
           )}
         </div>

@@ -100,7 +100,7 @@ test('klik tengah membuka tab baru, bukan mengganti halaman ini', async ({ page,
   const tabBaru = context.waitForEvent('page')
   await sidebar(page, '/admin/guru').click({ button: 'middle' })
   const t = await tabBaru
-  await t.waitForURL(/\/admin\/guru/)
+  await t.waitForURL(/\/admin\/guru/, { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/admin$/)
 })
 

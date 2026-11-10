@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Plus, UserCog, X } from 'lucide-react'
 import type { Guru } from '@prisma/client'
 import { type KunciTugas } from '@/lib/syarat'
@@ -21,7 +22,12 @@ export type ModalGuruProps =
 
 export default function ModalGuru(p: ModalGuruProps) {
   const [buka, setBuka] = useState(false)
+  const [terpasang, setTerpasang] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    setTerpasang(true)
+  }, [])
 
   useEffect(() => {
     const d = ref.current
@@ -35,6 +41,46 @@ export default function ModalGuru(p: ModalGuruProps) {
   }
 
   const judul = p.mode === 'tambah' ? 'Tambah Guru Baru' : 'Koreksi Profil dan Tugas Guru'
+
+  const dialogElement = (
+    <dialog
+      ref={ref}
+      className="modal-profil"
+      aria-labelledby="judul-modal-guru"
+      onCancel={(e) => {
+        e.preventDefault()
+        tutup()
+      }}
+    >
+      {buka && (
+        <div className="modal-profil__konten">
+          <div className="modal-profil__kepala">
+            <h2 id="judul-modal-guru">{judul}</h2>
+            <button
+              type="button"
+              className="biasa modal-profil__tutup"
+              onClick={tutup}
+              aria-label="Tutup modal"
+            >
+              <X size={18} strokeWidth={2} />
+            </button>
+          </div>
+          <div className="modal-profil__isi">
+            {p.mode === 'tambah' ? (
+              <FormGuruBaru mode="admin" onSelesai={tutup} />
+            ) : (
+              <FormProfil
+                awal={p.guru}
+                guruId={p.guru.id}
+                onSelesai={tutup}
+                anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} />}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </dialog>
+  )
 
   return (
     <>
@@ -69,43 +115,9 @@ export default function ModalGuru(p: ModalGuruProps) {
         </button>
       )}
 
-      <dialog
-        ref={ref}
-        className="modal-profil"
-        aria-labelledby="judul-modal-guru"
-        onCancel={(e) => {
-          e.preventDefault()
-          tutup()
-        }}
-      >
-        {buka && (
-          <div className="modal-profil__konten">
-            <div className="modal-profil__kepala">
-              <h2 id="judul-modal-guru">{judul}</h2>
-              <button
-                type="button"
-                className="biasa modal-profil__tutup"
-                onClick={tutup}
-                aria-label="Tutup modal"
-              >
-                <X size={18} strokeWidth={2} />
-              </button>
-            </div>
-            <div className="modal-profil__isi">
-              {p.mode === 'tambah' ? (
-                <FormGuruBaru mode="admin" onSelesai={tutup} />
-              ) : (
-                <FormProfil
-                  awal={p.guru}
-                  guruId={p.guru.id}
-                  onSelesai={tutup}
-                  anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} />}
-                />
-              )}
-            </div>
-          </div>
-        )}
-      </dialog>
+      {terpasang && typeof document !== 'undefined'
+        ? createPortal(dialogElement, document.body)
+        : dialogElement}
     </>
   )
 }

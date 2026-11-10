@@ -138,17 +138,26 @@ npm ci && npx prisma generate
 docker compose up -d --build     # migrasi berjalan otomatis
 ```
 
-## 9a. Membuat rilis
+## 9a. Rilis otomatis
 
-Rilis dibuat dari GitHub, bukan dari laptop: **Actions → Rilis → Run workflow** (cabang `main`), lalu pilih jenis kenaikan versi:
+Rilis tidak dibuat dengan tangan. Setelah PR digabung ke `main`, CI lulus, dan **Deploy** ke Komodo berhasil, job `rilis` di `.github/workflows/deploy.yml` menaikkan versi di `package.json` dan `package-lock.json`, membuat commit `Rilis vX.Y.Z`, tag `vX.Y.Z`, dan GitHub release dengan catatan otomatis (daftar PR sejak rilis sebelumnya).
 
-| Jenis | Kapan dipakai | Contoh |
+Jenis kenaikan dibaca dari **label PR yang digabung**, bukan dari isi commit:
+
+| Label PR | Hasil | Contoh dari 1.1.0 |
 |---|---|---|
-| `patch` | perbaikan kecil | 1.1.0 → 1.1.1 |
-| `minor` | fitur baru yang kompatibel | 1.1.0 → 1.2.0 |
-| `major` | perubahan yang merusak | 1.1.0 → 2.0.0 |
+| *(tanpa label)* | `patch` | 1.1.1 |
+| `rilis:minor` | `minor` (fitur baru kompatibel) | 1.2.0 |
+| `rilis:major` | `major` (perubahan yang merusak) | 2.0.0 |
+| `tanpa-rilis` | tidak ada rilis (mis. perubahan dokumentasi) | – |
 
-Alur ini memastikan CI commit terakhir hijau, menaikkan versi di `package.json` dan `package-lock.json`, membuat commit `Rilis vX.Y.Z`, tag, dan GitHub release dengan catatan otomatis (daftar PR sejak rilis sebelumnya). Centang **Uji coba** untuk melihat versi berikutnya tanpa membuat apa pun.
+Bila ada beberapa label, yang tertinggi menang; `tanpa-rilis` mengalahkan semuanya. Pasang label **sebelum** menggabungkan PR.
+
+Hal yang perlu diketahui:
+- Rilis hanya dibuat bila deploy berhasil. Deploy manual (Actions → Deploy → Run workflow) tidak membuat rilis.
+- Commit `Rilis vX.Y.Z` dibuat dengan token workflow, sehingga tidak memicu CI atau Deploy lagi, dan skrip `scripts/rilis.mjs` juga mengabaikannya.
+- Bila `main` sudah maju saat rilis dihitung, rilis commit itu dilewati; commit terbaru dirilis oleh run-nya sendiri.
+- Versi yang ditentukan tampil di ringkasan run (Actions → Deploy → Rilis otomatis).
 
 ## 9b. Deploy otomatis lewat Komodo
 

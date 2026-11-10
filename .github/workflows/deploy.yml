@@ -1,6 +1,8 @@
 name: Deploy
 
-# Memicu webhook Komodo (Stack → deploy) setelah CI lulus di main, lalu memastikan aplikasi hidup.
+# Setelah CI lulus di main: (1) memicu webhook Komodo (Stack → deploy) dan memastikan aplikasi hidup,
+# (2) bila deploy berhasil, membuat rilis otomatis: naik versi, commit "Rilis vX.Y.Z", tag, dan GitHub release.
+# Jenis kenaikan dari label PR yang digabung: bawaan patch; `rilis:minor` / `rilis:major` menaikkan; `tanpa-rilis` melewati.
 # Rahasia ada di GitHub (Settings → Secrets and variables → Actions), tidak di repo:
 #   KOMODO_WEBHOOK_URL     URL penuh dari Stack → Config → Webhooks (…/listener/github/stack/<id>/deploy)
 #   KOMODO_WEBHOOK_SECRET  sama dengan KOMODO_WEBHOOK_SECRET di konfigurasi Komodo Core
@@ -94,4 +96,94 @@ jobs:
             echo "- Commit: \`$SHA\`"
             echo "- Status: ${{ job.status }}"
             if [ "${lewati:-}" = "1" ]; then echo "- Dilewati: ada commit yang lebih baru di main."; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  rilis:
+    name: Rilis otomatis
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Hanya untuk deploy otomatis dari push ke main yang berhasil; run manual hanya mendeploy ulang.
+    if: >-
+      needs.deploy.result == 'success'
+      && github.event_name == 'workflow_run'
+      && github.event.workflow_run.event == 'push'
+    permissions:
+      contents: write
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Lewati bila commit ini bukan yang terbaru di main
+        run: |
+          terbaru=$(git rev-parse HEAD)
+          if [ "$terbaru" != "$SHA" ]; then
+            echo "main sudah maju ($terbaru), rilis untuk $SHA dilewati; commit terbaru akan dirilis oleh run-nya sendiri."
+            echo "lewati=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Tentukan versi dari label PR
+        if: env.lewati != '1'
+        id: versi
+        run: |
+          pesan=$(git log -1 --format=%s "$SHA")
+          lama=$(node -p "require('./package.json').version")
+          # PR yang memuat commit ini (merge commit atau squash)
+          labels=$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA/pulls" --jq '.[].labels[].name' 2>/dev/null || true)
+          args=(--versi "$lama" --pesan "$pesan")
+          while IFS= read -r l; do [ -n "$l" ] && args+=(--label "$l"); done <<< "$labels"
+          node scripts/rilis.mjs "${args[@]}" | tee /tmp/keputusan.txt
+          cat /tmp/keputusan.txt >> "$GITHUB_OUTPUT"
+          echo "lama=$lama" >> "$GITHUB_OUTPUT"
+
+      - name: Pastikan tag belum ada
+        if: env.lewati != '1' && steps.versi.outputs.jenis != 'lewati'
+        run: |
+          if git rev-parse "v${{ steps.versi.outputs.baru }}" >/dev/null 2>&1; then
+            echo "::error::Tag v${{ steps.versi.outputs.baru }} sudah ada."
+            exit 1
+          fi
+
+      - name: Commit, tag, dan dorong
+        if: env.lewati != '1' && steps.versi.outputs.jenis != 'lewati'
+        run: |
+          baru="${{ steps.versi.outputs.baru }}"
+          npm version "${{ steps.versi.outputs.jenis }}" --no-git-tag-version >/dev/null
+          [ "$(node -p "require('./package.json').version")" = "$baru" ]
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Rilis v$baru"
+          git tag -a "v$baru" -m "v$baru"
+          git push origin HEAD:main
+          git push origin "v$baru"
+
+      - name: Buat GitHub release
+        if: env.lewati != '1' && steps.versi.outputs.jenis != 'lewati'
+        run: |
+          gh release create "v${{ steps.versi.outputs.baru }}" \
+            --verify-tag \
+            --title "v${{ steps.versi.outputs.baru }}" \
+            --generate-notes \
+            --notes-start-tag "v${{ steps.versi.outputs.lama }}"
+
+      - name: Ringkasan
+        if: always()
+        run: |
+          {
+            echo "### Rilis otomatis"
+            if [ "${lewati:-}" = "1" ]; then echo "- Dilewati: ada commit yang lebih baru di main."
+            elif [ "${{ steps.versi.outputs.jenis }}" = "lewati" ]; then echo "- Dilewati: ${{ steps.versi.outputs.alasan }}."
+            else echo "- v${{ steps.versi.outputs.lama }} → **v${{ steps.versi.outputs.baru }}** (${{ steps.versi.outputs.jenis }}, ${{ steps.versi.outputs.alasan }})"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

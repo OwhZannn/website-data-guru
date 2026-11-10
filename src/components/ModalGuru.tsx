@@ -22,18 +22,11 @@ export type ModalGuruProps =
 
 export default function ModalGuru(p: ModalGuruProps) {
   const [buka, setBuka] = useState(false)
-  const [terpasang, setTerpasang] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
-    setTerpasang(true)
-  }, [])
-
-  useEffect(() => {
     const d = ref.current
-    if (!d) return
-    if (buka && !d.open) d.showModal()
-    if (!buka && d.open) d.close()
+    if (buka && d && !d.open) d.showModal()
   }, [buka])
 
   function tutup() {
@@ -52,33 +45,31 @@ export default function ModalGuru(p: ModalGuruProps) {
         tutup()
       }}
     >
-      {buka && (
-        <div className="modal-profil__konten">
-          <div className="modal-profil__kepala">
-            <h2 id="judul-modal-guru">{judul}</h2>
-            <button
-              type="button"
-              className="biasa modal-profil__tutup"
-              onClick={tutup}
-              aria-label="Tutup modal"
-            >
-              <X size={18} strokeWidth={2} />
-            </button>
-          </div>
-          <div className="modal-profil__isi">
-            {p.mode === 'tambah' ? (
-              <FormGuruBaru mode="admin" onSelesai={tutup} />
-            ) : (
-              <FormProfil
-                awal={p.guru}
-                guruId={p.guru.id}
-                onSelesai={tutup}
-                anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} />}
-              />
-            )}
-          </div>
+      <div className="modal-profil__konten">
+        <div className="modal-profil__kepala">
+          <h2 id="judul-modal-guru">{judul}</h2>
+          <button
+            type="button"
+            className="biasa modal-profil__tutup"
+            onClick={tutup}
+            aria-label="Tutup modal"
+          >
+            <X size={18} strokeWidth={2} />
+          </button>
         </div>
-      )}
+        <div className="modal-profil__isi">
+          {p.mode === 'tambah' ? (
+            <FormGuruBaru mode="admin" onSelesai={tutup} />
+          ) : (
+            <FormProfil
+              awal={p.guru}
+              guruId={p.guru.id}
+              onSelesai={tutup}
+              anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} />}
+            />
+          )}
+        </div>
+      </div>
     </dialog>
   )
 
@@ -115,9 +106,9 @@ export default function ModalGuru(p: ModalGuruProps) {
         </button>
       )}
 
-      {terpasang && typeof document !== 'undefined'
+      {buka && typeof document !== 'undefined'
         ? createPortal(dialogElement, document.body)
-        : dialogElement}
+        : null}
     </>
   )
 }

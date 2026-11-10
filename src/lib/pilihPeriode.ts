@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import type { Periode } from '@prisma/client'
 import { prisma } from '@/lib/db'
 
@@ -9,10 +10,8 @@ export function pilihPeriode<P extends Pick<Periode, 'id' | 'dibuka'>>(daftar: P
   return dipilih ?? daftar.find((p) => p.dibuka) ?? daftar[0] ?? null
 }
 
-/** Semua periode, terbaru dulu (untuk admin). */
-export function semuaPeriode(): Promise<Periode[]> {
-  return prisma.periode.findMany({ orderBy: terbaruDulu })
-}
+/** Semua periode, terbaru dulu (untuk admin). Dibagi dalam satu permintaan (layout dan halaman), tidak antar permintaan. */
+export const semuaPeriode = cache((): Promise<Periode[]> => prisma.periode.findMany({ orderBy: terbaruDulu }))
 
 /**
  * Periode yang boleh dilihat seorang guru: yang punya minimal satu DokumenGuru miliknya,

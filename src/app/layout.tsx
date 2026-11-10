@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import { SKRIP_AWAL } from '@/lib/tema'
+import BilahNavigasi from '@/components/BilahNavigasi'
 import './globals.css'
 
 // Diunduh saat build lalu di-host sendiri; browser guru tidak memanggil Google.
@@ -23,7 +24,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: SKRIP_AWAL }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <BilahNavigasi />
+        {children}
+      </body>
     </html>
   )
 }

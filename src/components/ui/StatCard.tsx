@@ -1,3 +1,5 @@
+import Tautan from './Tautan'
+
 /** Kartu statistik kecil dengan nilai besar dan label kecil. Server component. */
 
 type Warna = 'sah' | 'tolak' | 'tunggu' | 'belum'
@@ -16,6 +18,6 @@ export default function StatCard(p: {
     </>
   )
   return p.href
-    ? <a href={p.href} className={cls}>{isi}</a>
+    ? <Tautan href={p.href} className={cls}>{isi}</Tautan>
     : <div className={cls}>{isi}</div>
 }

@@ -3,8 +3,9 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { ChevronDown, LogOut, User, FileText, UserCog } from 'lucide-react'
 import PilihTema from './PilihTema'
 import { useKeluar } from './TombolKeluar'
+import Tautan from './ui/Tautan'
 
-type Tautan = { href: string; teks: string; ikon: 'profil' | 'dokumen' | 'akun' }
+type TautanMenu = { href: string; teks: string; ikon: 'profil' | 'dokumen' | 'akun' }
 
 const IKON = { profil: User, dokumen: FileText, akun: UserCog } as const
 
@@ -22,7 +23,7 @@ export default function MenuProfil({ nama, peran, keterangan, tautan = [] }: {
   nama: string
   peran: 'Admin' | 'Guru'
   keterangan?: string
-  tautan?: Tautan[]
+  tautan?: TautanMenu[]
 }) {
   const [buka, setBuka] = useState(false)
   const pemicu = useRef<HTMLButtonElement>(null)
@@ -109,9 +110,9 @@ export default function MenuProfil({ nama, peran, keterangan, tautan = [] }: {
               {tautan.map((t) => {
                 const Ikon = IKON[t.ikon]
                 return (
-                  <a key={t.href} href={t.href} role="menuitem" tabIndex={-1} className="menu-profil__butir">
+                  <Tautan key={t.href} href={t.href} role="menuitem" tabIndex={-1} className="menu-profil__butir">
                     <Ikon size={16} strokeWidth={1.8} aria-hidden="true" />{t.teks}
-                  </a>
+                  </Tautan>
                 )
               })}
             </div>

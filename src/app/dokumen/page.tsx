@@ -6,6 +6,7 @@ import { periodeTerlihatGuru, pilihPeriode } from '@/lib/pilihPeriode'
 import { tanggalLokal } from '@/lib/waktu'
 import KartuDokumen from '@/components/KartuDokumen'
 import Kepala from '@/components/Kepala'
+import Tautan from '@/components/ui/Tautan'
 import KartuProgres from '@/components/KartuProgres'
 import KartuLangkahBerikutnya from '@/components/KartuLangkahBerikutnya'
 import { dokumenWajib, profilLengkap, kolomProfilKurang, TUGAS } from '@/lib/syarat'
@@ -81,7 +82,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <Kepala nama={guru.nama} aksi={<a href="/profil">Profil &amp; kata sandi</a>} periode={periode ? { daftar: daftarPeriode, dipilih: periode.id } : undefined} />
+      <Kepala nama={guru.nama} aksi={<Tautan href="/profil">Profil &amp; kata sandi</Tautan>} periode={periode ? { daftar: daftarPeriode, dipilih: periode.id } : undefined} />
       <main className="dua">
         <div className="dua-kiri">
           <h1>Dokumen Saya</h1>
@@ -96,7 +97,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
           {!lengkapProfil && (
             <div className="info" role="status">
               <p className="mb-s2">Lengkapi profil Anda dulu. Dokumen yang perlu diunggah ditentukan dari jabatan dan status kepegawaian Anda.</p>
-              <a className="tombol" href="/profil">Lengkapi profil</a>
+              <Tautan className="tombol" href="/profil">Lengkapi profil</Tautan>
             </div>
           )}
           {periode && dokumen.length > 0 && (

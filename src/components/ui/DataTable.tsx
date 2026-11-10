@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import Tautan from '@/components/ui/Tautan'
 import PilihPerHalaman from '@/components/PilihPerHalaman'
 import { ariaSort, bangunTautan, teksRentang, type ArahUrut } from '@/lib/dataTable'
 import { PILIHAN_PER, nomorHalaman, type RingkasanHalaman } from '@/lib/paginasi'
@@ -77,12 +78,12 @@ export default function DataTable<B>(p: Props<B>) {
                 {p.kolom.map((k) => (
                   <th key={k.id} scope="col" className={k.kelas} aria-sort={k.urut ? ariaSort(k.urut.arah) : undefined}>
                     {k.urut ? (
-                      <a href={k.urut.href} className="tajuk-urut">
+                      <Tautan href={k.urut.href} className="tajuk-urut" prefetch={false} scroll={false}>
                         {k.label}
                         {k.urut.arah === 'asc' ? <ChevronUp size={14} aria-hidden="true" />
                           : k.urut.arah === 'desc' ? <ChevronDown size={14} aria-hidden="true" />
                           : <ChevronsUpDown size={14} aria-hidden="true" />}
-                      </a>
+                      </Tautan>
                     ) : k.label}
                   </th>
                 ))}
@@ -110,13 +111,13 @@ export default function DataTable<B>(p: Props<B>) {
             <span className="dt__rentang" role="status">{teksRentang(r.dari, r.sampai, r.total, p.satuan)}</span>
             {r.jumlahHal > 1 && (
               <nav className="paginasi-nomor" aria-label={nama}>
-                {r.hal > 1 ? <a href={tautan({ hal: r.hal - 1 })} rel="prev">‹ Sebelumnya</a> : <span className="mati">‹ Sebelumnya</span>}
+                {r.hal > 1 ? <Tautan href={tautan({ hal: r.hal - 1 })} rel="prev" prefetch={false} scroll={false}>‹ Sebelumnya</Tautan> : <span className="mati">‹ Sebelumnya</span>}
                 {nomorHalaman(r.hal, r.jumlahHal).map((n, i) =>
                   n === null
                     ? <span key={`celah-${i}`} className="celah">…</span>
-                    : <a key={n} href={tautan({ hal: n })} aria-current={n === r.hal ? 'page' : undefined}>{n}</a>,
+                    : <Tautan key={n} href={tautan({ hal: n })} aria-current={n === r.hal ? 'page' : undefined} prefetch={false} scroll={false}>{n}</Tautan>,
                 )}
-                {r.hal < r.jumlahHal ? <a href={tautan({ hal: r.hal + 1 })} rel="next">Berikutnya ›</a> : <span className="mati">Berikutnya ›</span>}
+                {r.hal < r.jumlahHal ? <Tautan href={tautan({ hal: r.hal + 1 })} rel="next" prefetch={false} scroll={false}>Berikutnya ›</Tautan> : <span className="mati">Berikutnya ›</span>}
               </nav>
             )}
           </>

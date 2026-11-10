@@ -15,6 +15,7 @@ import { potongHalaman } from '@/lib/paginasi'
 import { urutkanGuru, parseUrut, type ItemUrutGuru } from '@/lib/urutGuru'
 import EmptyState from '@/components/ui/EmptyState'
 import { SearchX } from 'lucide-react'
+import Tautan from '@/components/ui/Tautan'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,7 +127,7 @@ export default async function HalamanGuru({ searchParams }: {
       sel: (g) => (
         <>
           {/* Tautan memanjang: area klik seluruh baris lewat CSS, jadi bekerja tanpa JavaScript */}
-          <a href={`/admin/guru/${g.id}`} className="baris-guru__tautan"><b>{g.nama}</b></a>
+          <Tautan href={`/admin/guru/${g.id}`} className="baris-guru__tautan" prefetch={false}><b>{g.nama}</b></Tautan>
           {keterangan(g) && <div className="kartu-sub">{keterangan(g)}</div>}
         </>
       ),
@@ -176,8 +177,8 @@ export default async function HalamanGuru({ searchParams }: {
         keterangan={periode ? `Status dokumen ${periode.nama}${periode.dibuka ? ' (dibuka)' : ' (ditutup)'} · ${totalAktif} guru aktif` : undefined}
         cari={{ nama: 'q', nilai: q, label: 'Cari nama atau NIP', placeholder: 'Cari nama, NIP…', formId: 'filter-guru' }}
         aksi={<>
-          <a className="tombol-garis" href="/admin/guru/impor">Impor guru</a>
-          <a className="tombol" href="/admin/guru/tambah">Tambah guru</a>
+          <Tautan className="tombol-garis" href="/admin/guru/impor">Impor guru</Tautan>
+          <Tautan className="tombol" href="/admin/guru/tambah">Tambah guru</Tautan>
         </>}
       />
       <BannerSandi />
@@ -196,9 +197,9 @@ export default async function HalamanGuru({ searchParams }: {
           {FILTER.map(([v, l]) => {
             const jumlah = v === 'semua' ? 0 : v === 'menunggu' ? hitungMenunggu : hitung(LABEL[v] ?? '')
             return (
-              <a key={v} href={tautan({ status: v === 'semua' ? undefined : v })} className="chip-filter" aria-current={filter === v ? 'true' : undefined}>
+              <Tautan key={v} href={tautan({ status: v === 'semua' ? undefined : v })} className="chip-filter" aria-current={filter === v ? 'true' : undefined}>
                 {l}{jumlah > 0 ? <span className="chip-filter__angka">{jumlah}</span> : null}
-              </a>
+              </Tautan>
             )
           })}
         </div>
@@ -210,7 +211,7 @@ export default async function HalamanGuru({ searchParams }: {
           <option value="">Semua jenis pegawai</option>
           {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
-        {adaFilter && <a href={hapusFilter} className="hapus-filter">Hapus filter</a>}
+        {adaFilter && <Tautan href={hapusFilter} className="hapus-filter">Hapus filter</Tautan>}
       </FormOtomatis>
 
       <DataTable
@@ -224,7 +225,7 @@ export default async function HalamanGuru({ searchParams }: {
         dasar={dasar}
         kosong={
           <EmptyState ikon={<SearchX size={32} />} teks="Tidak ada guru yang cocok." aksi={
-            adaFilter ? <a href={hapusFilter} className="hapus-filter">Hapus filter</a> : undefined
+            adaFilter ? <Tautan href={hapusFilter} className="hapus-filter">Hapus filter</Tautan> : undefined
           } />
         }
       />

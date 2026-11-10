@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTerpasang } from '@/lib/terpasang'
 import { JABATAN, STATUS_PEGAWAI } from '@/lib/syarat'
+import Tautan from '@/components/ui/Tautan'
 
 type AkunBaru = { nama: string; username: string; jenis: string; sandi: string }
 
@@ -80,7 +81,7 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
             </dd>
           </dl>
           <p><strong>Catat sekarang: kata sandi ini hanya tampil sekali.</strong> Kata sandi bisa diganti di menu Profil setelah masuk.</p>
-          {mode === 'daftar' && <p><a href="/masuk">Kembali ke halaman masuk</a></p>}
+          {mode === 'daftar' && <p><Tautan href="/masuk">Kembali ke halaman masuk</Tautan></p>}
         </section>
       )}
 

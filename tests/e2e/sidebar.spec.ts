@@ -61,6 +61,37 @@ test.describe('Sidebar admin — desktop (1280×800)', () => {
     // Setelah dilipat, tombol berganti label
     await expect(page.getByRole('button', { name: 'Buka menu samping' })).toBeVisible()
   })
+
+  test('status lipat tersimpan dan sudah terpasang sebelum cat pertama saat muat penuh', async ({ page }) => {
+    const galat: string[] = []
+    page.on('console', (m) => { if (/hydrat/i.test(m.text())) galat.push(m.text()) })
+    const admin = await buatAdmin()
+    await masuk(page, admin.email)
+    await page.getByRole('button', { name: 'Lipat menu' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-sidebar', 'lipat')
+
+    // Skrip awal memasang atribut saat DOM dibaca, sebelum hidrasi React; lebar sidebar sudah ringkas.
+    await page.addInitScript(() => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const a = document.querySelector('aside.admin-sidebar')
+        const lebar = a ? Math.round(a.getBoundingClientRect().width) : -1
+        ;(window as unknown as { __awal: unknown }).__awal = { attr: document.documentElement.dataset.sidebar, lebar }
+      })
+    })
+    await page.reload()
+    const hasil = await page.evaluate(() => (window as unknown as { __awal: { attr: string; lebar: number } }).__awal)
+    expect(hasil.attr).toBe('lipat')
+    expect(hasil.lebar).toBeLessThan(100)
+
+    // Membuka kembali tersimpan juga.
+    // Lewat papan ketik: indikator dev Next menutupi sudut kiri bawah saat sidebar ringkas.
+    await page.getByRole('button', { name: 'Buka menu samping' }).focus()
+    await page.keyboard.press('Enter')
+    await page.reload()
+    await expect(page.locator('html')).not.toHaveAttribute('data-sidebar', 'lipat')
+    await expect(page.getByRole('button', { name: 'Lipat menu' })).toBeVisible()
+    expect(galat).toEqual([])
+  })
 })
 
 test.describe('Navigasi mobile — laci (360×740)', () => {

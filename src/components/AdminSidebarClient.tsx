@@ -7,6 +7,7 @@ import {
   PanelLeftClose, PanelLeftOpen, X, Menu,
 } from 'lucide-react'
 import { KUNCI_LIPAT } from '@/lib/tema'
+import Tautan from '@/components/ui/Tautan'
 
 type Butir = {
   teks: string
@@ -48,7 +49,7 @@ function buatHref(href: string, periode?: string | null) {
 }
 
 /** Daftar menu berkelompok; dipakai sidebar desktop dan laci ponsel. */
-function DaftarMenu({ jumlahAntrean }: { jumlahAntrean: number }) {
+function DaftarMenu({ jumlahAntrean, onPilih }: { jumlahAntrean: number; onPilih?: () => void }) {
   const pathname = usePathname()
   // Layout tidak bisa membaca ?periode=; tautan hanya membawa periode yang dipilih di URL.
   const periodeUrl = useSearchParams().get('periode')
@@ -63,15 +64,16 @@ function DaftarMenu({ jumlahAntrean }: { jumlahAntrean: number }) {
               const badge = m.badgeKey === 'antrean' && jumlahAntrean > 0 ? jumlahAntrean : null
               return (
                 <li key={m.href} data-tip={m.teks}>
-                  <a
+                  <Tautan
                     href={buatHref(m.href, periodeUrl)}
                     className={`admin-nav-butir${aktif ? ' aktif' : ''}`}
                     aria-current={aktif ? 'page' : undefined}
+                    onClick={onPilih}
                   >
                     <span className="admin-nav-butir__ikon"><m.Ikon size={18} strokeWidth={1.8} /></span>
                     <span className="admin-nav-butir__teks">{m.teks}</span>
                     {badge !== null && <span className="admin-nav-butir__badge">{badge}</span>}
-                  </a>
+                  </Tautan>
                 </li>
               )
             })}
@@ -196,7 +198,7 @@ export function AdminLaci({ jumlahAntrean }: { jumlahAntrean: number; periodeId?
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
-        <DaftarMenu jumlahAntrean={jumlahAntrean} />
+        <DaftarMenu jumlahAntrean={jumlahAntrean} onPilih={() => setBuka(false)} />
       </div>
     </>
   )

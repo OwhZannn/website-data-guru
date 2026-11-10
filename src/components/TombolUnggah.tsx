@@ -3,6 +3,7 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { kecilkanGambar } from '@/lib/kecilkanGambar'
 import { BATAS_UKURAN, TEKS_BATAS } from '@/lib/periksaBerkas'
+import Tautan from '@/components/ui/Tautan'
 
 export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; teks: string }) {
   const router = useRouter()
@@ -140,7 +141,7 @@ export default function TombolUnggah({ dokumenId, teks }: { dokumenId: string; t
       )}
       {berakhir && (
         <p className="galat" role="alert">
-          Sesi Anda berakhir. <a href="/masuk">Silakan masuk lagi.</a>
+          Sesi Anda berakhir. <Tautan href="/masuk">Silakan masuk lagi.</Tautan>
         </p>
       )}
       {pesan && <p className="galat" role="alert">{pesan}</p>}

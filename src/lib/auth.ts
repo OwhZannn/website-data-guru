@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { cookies } from 'next/headers'
 import type { Admin, Guru } from '@prisma/client'
 import { prisma } from './db'
@@ -13,12 +14,13 @@ async function sesiAktif(tipe: TipeSesi) {
   return sesi
 }
 
-export async function wajibAdmin(): Promise<Admin> {
+// cache() hanya berlaku dalam satu render permintaan (layout + halaman berbagi hasil); di luar render tidak menyimpan apa pun.
+export const wajibAdmin = cache(async (): Promise<Admin> => {
   const { pemilikId } = await sesiAktif('admin')
   const admin = await prisma.admin.findUnique({ where: { id: pemilikId } })
   if (!admin || !admin.aktif) throw tidakSah()
   return admin
-}
+})
 
 export async function wajibGuru(): Promise<Guru> {
   const { pemilikId } = await sesiAktif('guru')

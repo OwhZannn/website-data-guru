@@ -9,6 +9,7 @@ import PageHeader from '@/components/ui/PageHeader'
 import FormOtomatis from '@/components/FormOtomatis'
 import { bangunTautan } from '@/lib/dataTable'
 import { ZONA_WAKTU } from '@/lib/waktu'
+import Tautan from '@/components/ui/Tautan'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,14 +56,14 @@ export default async function HalamanAntrean({ searchParams }: {
   const adaFilter = !!(sp.dok || sp.sekolah || q)
   const hapusFilter = bangunTautan({ periode: periode?.id })
   const kolom: Kolom<(typeof halaman.isi)[number]>[] = [
-    { id: 'guru', label: 'Guru', tanpaLabelPonsel: true, sel: (d) => <a className="tautan-nama" href={`/admin/guru/${d.guruId}?periode=${periode!.id}`}>{d.guru.nama}</a> },
+    { id: 'guru', label: 'Guru', tanpaLabelPonsel: true, sel: (d) => <Tautan className="tautan-nama" href={`/admin/guru/${d.guruId}?periode=${periode!.id}`} prefetch={false}>{d.guru.nama}</Tautan> },
     { id: 'nip', label: 'NIP / NIK', sel: (d) => d.guru.username },
     { id: 'sekolah', label: 'Sekolah', sel: (d) => d.guru.asalSekolah ?? '—' },
     { id: 'dokumen', label: 'Dokumen', sel: (d) => d.dokumen.nama },
     { id: 'diunggah', label: 'Diunggah', sel: (d) => (d.diunggahPada ? waktuWita(d.diunggahPada) : '—') },
     {
       id: 'aksi', label: 'Aksi', tanpaLabelPonsel: true, kelas: 'nowrap',
-      sel: (d) => <a className="tombol-tabel" href={`/admin/guru/${d.guruId}?periode=${periode!.id}&dok=${d.id}`}>Periksa →</a>,
+      sel: (d) => <Tautan className="tombol-tabel" href={`/admin/guru/${d.guruId}?periode=${periode!.id}&dok=${d.id}`} prefetch={false}>Periksa →</Tautan>,
     },
   ]
 
@@ -77,7 +78,7 @@ export default async function HalamanAntrean({ searchParams }: {
       />
 
       {!periode ? (
-        <EmptyState ikon={<CalendarX size={28} />} teks="Tidak ada periode yang sedang dibuka." aksi={<a className="tombol-garis" href="/admin">Kembali ke beranda</a>} />
+        <EmptyState ikon={<CalendarX size={28} />} teks="Tidak ada periode yang sedang dibuka." aksi={<Tautan className="tombol-garis" href="/admin">Kembali ke beranda</Tautan>} />
       ) : (
         <>
           <FormOtomatis id="filter-antrean" className="filter-bar" aria-label="Filter antrean" tombolTanpaJs="Saring">
@@ -90,7 +91,7 @@ export default async function HalamanAntrean({ searchParams }: {
               <option value="">Semua sekolah</option>
               {sekolahUnik.map((x) => <option key={x} value={x}>{x}</option>)}
             </select>
-            {adaFilter && <a href={hapusFilter} className="hapus-filter">Hapus filter</a>}
+            {adaFilter && <Tautan href={hapusFilter} className="hapus-filter">Hapus filter</Tautan>}
           </FormOtomatis>
 
           <DataTable
@@ -105,7 +106,7 @@ export default async function HalamanAntrean({ searchParams }: {
               <EmptyState
                 ikon={<CheckCircle2 size={28} />}
                 teks={adaFilter ? 'Tidak ada dokumen yang cocok dengan filter.' : 'Tidak ada dokumen yang menunggu.'}
-                aksi={adaFilter ? <a className="hapus-filter" href={hapusFilter}>Hapus filter</a> : <a className="tombol-garis" href="/admin">Kembali ke beranda</a>}
+                aksi={adaFilter ? <Tautan className="hapus-filter" href={hapusFilter}>Hapus filter</Tautan> : <Tautan className="tombol-garis" href="/admin">Kembali ke beranda</Tautan>}
               />
             }
           />

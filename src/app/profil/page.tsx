@@ -1,6 +1,7 @@
 import { halamanGuru } from '@/lib/halaman'
 import { profilLengkap, kolomProfilKurang } from '@/lib/syarat'
 import Kepala from '@/components/Kepala'
+import Tautan from '@/components/ui/Tautan'
 import FormProfil from '@/components/FormProfil'
 import FormGantiSandi from '@/components/FormGantiSandi'
 import { teksIdentitas } from '@/lib/identitas'
@@ -13,7 +14,7 @@ export default async function Profil() {
   const kurang = kolomProfilKurang(guru)
   return (
     <>
-      <Kepala nama={guru.nama} aksi={<a href="/dokumen">Dokumen saya</a>} />
+      <Kepala nama={guru.nama} aksi={<Tautan href="/dokumen">Dokumen saya</Tautan>} />
       <main className="profil-halaman">
         <h1>Profil Saya</h1>
         <p className="redup mb-s4">

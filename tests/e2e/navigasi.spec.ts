@@ -139,7 +139,7 @@ test('muat penuh dengan sidebar terlipat: atribut lipat sudah ada pada saat DOM 
     document.addEventListener('readystatechange', ambil)
     document.addEventListener('DOMContentLoaded', ambil)
   })
-  await page.goto('/admin')
+  await page.goto('/admin', { waitUntil: 'domcontentloaded' })
   expect(await page.evaluate(() => (window as unknown as { __awal?: string | null }).__awal), 'atribut saat <body> pertama muncul').toBe('lipat')
   expect(await page.evaluate(() => document.documentElement.dataset.sidebar)).toBe('lipat')
 })

@@ -13,16 +13,23 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   const [pesan, setPesan] = useState('')
   const [ok, setOk] = useState(false)
   const admin = p.guruId !== undefined
+  const a = p.awal
+  const [statusPegawai, setStatusPegawai] = useState(a.statusPegawai ?? 'PNS')
 
   async function kirim(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
-    const profil = {
+    const profil: Record<string, unknown> = {
+      nama: String(f.get('nama') ?? ''),
       asalSekolah: String(f.get('asalSekolah') ?? ''),
       statusPegawai: String(f.get('statusPegawai') ?? ''),
       jabatan: String(f.get('jabatan') ?? 'GURU'),
       tahunSertifikasi: String(f.get('tahunSertifikasi') ?? ''),
       sertifikasiBaru: f.get('sertifikasiBaru') === 'on',
+    }
+    if (admin) {
+      if (f.get('nip')) profil.nip = String(f.get('nip'))
+      if (f.get('nik')) profil.nik = String(f.get('nik'))
     }
     setSibuk(true); setPesan(''); setOk(false)
     try {
@@ -44,19 +51,67 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
     setSibuk(false)
   }
 
-  const a = p.awal
   return (
     <form method="post" onSubmit={kirim} className="panel profil">
-      {(a.nip || a.nik || a.username) && (
-        <>
-          <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
-            <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+      <label htmlFor="nama-profil">Nama lengkap (dengan gelar)
+        <input id="nama-profil" name="nama" defaultValue={a.nama ?? ''} required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
+      </label>
+      <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
+
+      {admin ? (
+        <div className="profil-dua">
+          <label htmlFor="status-pegawai">Status kepegawaian
+            <select
+              id="status-pegawai"
+              name="statusPegawai"
+              value={statusPegawai}
+              onChange={(e) => setStatusPegawai(e.target.value)}
+              required
+            >
+              <option value="" disabled>Pilih…</option>
+              {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
           </label>
-          <small className="redup bantuan">
-            {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
-          </small>
-        </>
+          {statusPegawai === 'NON_ASN' ? (
+            <label htmlFor="kolom-nik">NIK
+              <input
+                id="kolom-nik"
+                name="nik"
+                defaultValue={a.nik ?? ''}
+                inputMode="numeric"
+                required
+                placeholder={PETUNJUK.nik.contoh}
+              />
+              <small className="redup bantuan">{PETUNJUK.nik.bantuan}</small>
+            </label>
+          ) : (
+            <label htmlFor="kolom-nip">NIP
+              <input
+                id="kolom-nip"
+                name="nip"
+                defaultValue={a.nip ?? ''}
+                inputMode="numeric"
+                required
+                placeholder={PETUNJUK.nip.contoh}
+              />
+              <small className="redup bantuan">{PETUNJUK.nip.bantuan}</small>
+            </label>
+          )}
+        </div>
+      ) : (
+        (a.nip || a.nik || a.username) && (
+          <>
+            <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
+              <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+            </label>
+            <small className="redup bantuan">
+              {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
+            </small>
+          </>
+        )
       )}
+
       <label htmlFor="asal-sekolah">Asal sekolah
         <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
         <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
@@ -73,13 +128,15 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
         </div>
       </fieldset>
       <div className="profil-dua">
-        <label htmlFor="status-pegawai">Status kepegawaian
-          <select id="status-pegawai" name="statusPegawai" defaultValue={a.statusPegawai ?? ''} required>
-            <option value="" disabled>Pilih…</option>
-            {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-          <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
-        </label>
+        {!admin && (
+          <label htmlFor="status-pegawai">Status kepegawaian
+            <select id="status-pegawai" name="statusPegawai" defaultValue={a.statusPegawai ?? ''} required>
+              <option value="" disabled>Pilih…</option>
+              {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
+          </label>
+        )}
         <label htmlFor="tahun-sertifikasi">Tahun sertifikasi
           <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
           <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>

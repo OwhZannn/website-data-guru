@@ -1310,12 +1310,12 @@ main.profil-halaman { max-width: 760px; padding-top: var(--s-4); }
   margin: var(--s-2) 0 var(--s-3);
 }
 
-/* Dialog / Modal Koreksi Profil */
+/* Dialog / Modal Koreksi Profil & Tambah Guru */
 dialog.modal-profil {
   border: 0;
   border-radius: var(--r);
-  padding: var(--s-5);
-  width: min(740px, calc(100vw - 32px));
+  padding: var(--s-4) var(--s-5);
+  width: min(720px, calc(100vw - 32px));
   max-height: calc(100dvh - 48px);
   overflow-y: auto;
   box-shadow: var(--bayang-dialog);
@@ -1330,13 +1330,14 @@ dialog.modal-profil::backdrop {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--s-4);
+  margin-bottom: var(--s-3);
   padding-bottom: var(--s-2);
   border-bottom: 1px solid var(--garis);
 }
 .modal-profil__kepala h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: var(--t-md);
+  font-weight: 700;
 }
 .modal-profil__tutup {
   padding: 6px;
@@ -1361,6 +1362,51 @@ dialog.modal-profil::backdrop {
   border-radius: var(--r);
   margin-top: var(--s-3);
 }
+
+/* Penyesuaian ukuran font dan kontrol di dalam modal agar ringkas & rapi */
+.modal-profil label {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.modal-profil input,
+.modal-profil select {
+  font-size: var(--t-sm);
+  min-height: 38px;
+  padding: 0 10px;
+  margin: 2px 0 8px;
+}
+.modal-profil .bantuan {
+  font-size: 0.75rem;
+  margin: -4px 0 8px;
+}
+.modal-profil legend {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.modal-profil .centang {
+  font-size: var(--t-sm);
+  padding: 6px 10px;
+  min-height: 36px;
+}
+
+/* Posisi tombol simpan di kaki modal */
+.modal-profil__kaki {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--garis);
+}
+.modal-profil__kaki button {
+  min-height: 38px;
+  padding: 0 18px;
+  font-size: var(--t-sm);
+}
+
 .detail-profil__aksi {
   margin-top: var(--s-2);
 }

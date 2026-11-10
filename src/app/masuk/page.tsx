@@ -46,10 +46,13 @@ export default function Masuk() {
       <p className="sub">Verval Sertifikasi Guru</p>
       <form method="post" onSubmit={kirim}>
         <label>Username
-          <input name="username" autoComplete="username" required placeholder="NIP atau NIK" />
-          <small className="redup bantuan">Guru ASN memakai NIP, guru Non ASN memakai NIK. Admin memakai email.</small>
+          <input name="username" autoComplete="username" required placeholder="NIP, NIK, atau email" />
+          <small className="redup bantuan">Guru ASN memakai NIP, guru Non ASN memakai NIK, dan admin memakai email.</small>
         </label>
-        <label>Kata sandi<InputSandi name="sandi" autoComplete="current-password" required /></label>
+        <label>Kata sandi
+          <InputSandi name="sandi" autoComplete="current-password" required placeholder="Masukkan kata sandi" />
+          <small className="redup bantuan">Sandi awal 8 angka dari admin, atau sandi yang Anda buat saat daftar.</small>
+        </label>
         <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Memproses…' : 'Masuk'}</button>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>

@@ -9,7 +9,7 @@ import { daftarRiwayatDokumen, namaPelakuRiwayat } from '@/lib/riwayat'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import KartuProgres from '@/components/KartuProgres'
-import ModalKoreksiProfil from '@/components/ModalKoreksiProfil'
+import ModalGuru from '@/components/ModalGuru'
 import { teksIdentitas } from '@/lib/identitas'
 import { dokumenWajib, profilLengkap, LABEL_JABATAN, LABEL_PEGAWAI, TUGAS } from '@/lib/syarat'
 import PilihTugas from '@/components/PilihTugas'
@@ -153,7 +153,8 @@ export default async function DetailGuru({ params, searchParams }: {
           ))}
         </dl>
         <div className="detail-profil__aksi">
-          <ModalKoreksiProfil
+          <ModalGuru
+            mode="koreksi"
             guru={guru}
             tugas={Object.fromEntries(TUGAS.map(([k]) => [k, guru[k]])) as Record<(typeof TUGAS)[number][0], boolean>}
           />

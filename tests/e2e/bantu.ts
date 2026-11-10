@@ -38,7 +38,12 @@ export async function siapkan(opsi: { dibuka?: boolean; dokumen: Isi[] }) {
 /** Tombol kirim baru aktif setelah hidrasi; menunggu itu mencegah pengiriman formulir asli sebelum JS siap. */
 /** `email` untuk admin, NIP/NIK (username) untuk guru. */
 export async function masuk(page: Page, email: string, sandi = SANDI) {
-  await page.goto('/masuk')
+  try {
+    await page.goto('/masuk')
+  } catch {
+    await page.waitForTimeout(500)
+    await page.goto('/masuk')
+  }
   const tombol = page.locator('button[type=submit]')
   await expect(tombol).toBeEnabled()
   await page.fill('[name=username]', email)

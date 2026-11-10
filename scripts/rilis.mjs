@@ -7,6 +7,7 @@ import { resolve } from 'node:path'
 export const URUTAN = ['patch', 'minor', 'major']
 
 /** 'tanpa-rilis' membatalkan rilis; selain itu bawaan patch, dan label `rilis:minor` / `rilis:major` menaikkannya (tertinggi menang). */
+/** @param {string[]} [labels] @returns {string | null} */
 export function jenisDariLabel(labels = []) {
   const l = new Set(labels.map((x) => String(x).trim().toLowerCase()))
   if (l.has('tanpa-rilis')) return null
@@ -15,6 +16,7 @@ export function jenisDariLabel(labels = []) {
   return jenis
 }
 
+/** @param {string} versi @param {string} jenis */
 export function naikkan(versi, jenis) {
   const m = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(versi).trim())
   if (!m) throw new Error(`Versi tidak valid: ${versi}`)
@@ -27,8 +29,13 @@ export function naikkan(versi, jenis) {
 }
 
 /** Commit kenaikan versi buatan workflow sendiri tidak boleh memicu rilis lagi. */
+/** @param {string} [pesan] */
 export const commitRilis = (pesan = '') => /^Rilis v\d+\.\d+\.\d+/.test(pesan.trim())
 
+/**
+ * @param {{ versi: string, labels?: string[], pesan?: string }} p
+ * @returns {{ jenis: string, baru?: string, alasan: string }}
+ */
 export function putuskan({ versi, labels = [], pesan = '' }) {
   if (commitRilis(pesan)) return { jenis: 'lewati', alasan: 'commit ini adalah commit rilis' }
   const jenis = jenisDariLabel(labels)
@@ -37,6 +44,7 @@ export function putuskan({ versi, labels = [], pesan = '' }) {
 }
 
 function baca(argv) {
+  /** @type {{ labels: string[], versi: string, pesan: string }} */
   const o = { labels: [], versi: '', pesan: '' }
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--versi') o.versi = argv[++i] ?? ''

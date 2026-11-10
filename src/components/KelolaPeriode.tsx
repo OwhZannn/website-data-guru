@@ -6,6 +6,7 @@ import DataTable, { type Kolom } from './ui/DataTable'
 import PageHeader from './ui/PageHeader'
 import EmptyState from './ui/EmptyState'
 import { CalendarX } from 'lucide-react'
+import Tautan from '@/components/ui/Tautan'
 
 type P = { id: string; nama: string; dibuka: boolean }
 
@@ -47,7 +48,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
       id: 'dokumen', label: 'Dokumen', kelas: 'nowrap',
       sel: (p) => (
         <span className="aksi-baris">
-          <a className="tombol-tabel" href={`/admin/periode/${p.id}/dokumen`}>Daftar dokumen</a>
+          <Tautan className="tombol-tabel" href={`/admin/periode/${p.id}/dokumen`}>Daftar dokumen</Tautan>
           <a className="tombol-tabel" href={`/api/admin/rekap?periodeId=${p.id}&format=xlsx`}>Rekap XLSX</a>
           <a className="tombol-tabel" href={`/api/admin/rekap?periodeId=${p.id}&format=csv`}>Rekap CSV</a>
         </span>

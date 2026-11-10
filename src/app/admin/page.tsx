@@ -10,6 +10,7 @@ import ProgressBar from '@/components/ui/ProgressBar'
 import DataTable, { type Kolom } from '@/components/ui/DataTable'
 import PageHeader from '@/components/ui/PageHeader'
 import { FolderOpen, CheckCircle2, Activity, FileText } from 'lucide-react'
+import Tautan from '@/components/ui/Tautan'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,7 +56,7 @@ export default async function BerandaAdmin({
         <EmptyState
           ikon={<FolderOpen size={36} />}
           teks="Belum ada periode. Buat periode untuk mulai mengelola dokumen guru."
-          aksi={<a className="tombol" href="/admin/periode">Buat periode</a>}
+          aksi={<Tautan className="tombol" href="/admin/periode">Buat periode</Tautan>}
         />
       </>
     )
@@ -70,7 +71,7 @@ export default async function BerandaAdmin({
   const guruIdDariAntrean = new Map(data.antrean.map((x) => [x.namaGuru, x.guruId]))
 
   const kolomAntrean: Kolom<(typeof data.antrean)[number]>[] = [
-    { id: 'guru', label: 'Guru', tanpaLabelPonsel: true, sel: (i) => <a className="tautan-nama" href={`/admin/guru/${i.guruId}`}>{i.namaGuru}</a> },
+    { id: 'guru', label: 'Guru', tanpaLabelPonsel: true, sel: (i) => <Tautan className="tautan-nama" href={`/admin/guru/${i.guruId}`} prefetch={false}>{i.namaGuru}</Tautan> },
     { id: 'dokumen', label: 'Dokumen', sel: (i) => i.namaDokumen },
     { id: 'sejak', label: 'Menunggu', kelas: 'nowrap redup', sel: (i) => selisihWaktuIndonesia(i.menungguSejak) },
   ]
@@ -140,7 +141,7 @@ export default async function BerandaAdmin({
             keterangan="Status per dokumen" judul="Per dokumen"
             kolom={kolomPerDokumen} baris={data.perDokumen} kunciBaris={(d) => d.id}
             jumlahTeks={`${data.perDokumen.length} dokumen`}
-            kosong={<EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen pada periode ini." aksi={<a className="tombol-garis" href="/admin/periode">Atur dokumen periode</a>} />}
+            kosong={<EmptyState ikon={<FileText size={28} />} teks="Belum ada dokumen pada periode ini." aksi={<Tautan className="tombol-garis" href="/admin/periode">Atur dokumen periode</Tautan>} />}
           />
         </div>
 
@@ -153,12 +154,12 @@ export default async function BerandaAdmin({
                   <strong>{data.perluPersetujuan}</strong> guru belum disetujui dan belum bisa mengakses sistem.
                 </p>
               </div>
-              <a className="tombol" href={`/admin/guru?status=menunggu&${pq}`}>Tinjau pendaftaran</a>
+              <Tautan className="tombol" href={`/admin/guru?status=menunggu&${pq}`}>Tinjau pendaftaran</Tautan>
             </div>
           )}
           <DataTable
             keterangan="Antrean pemeriksaan terlama" judul="Antrean pemeriksaan"
-            aksiJudul={data.totalAntrean > 0 ? <a href="/admin/antrean" className="tautan-kecil">Lihat semua ({data.totalAntrean})</a> : undefined}
+            aksiJudul={data.totalAntrean > 0 ? <Tautan href="/admin/antrean" className="tautan-kecil">Lihat semua ({data.totalAntrean})</Tautan> : undefined}
             kolom={kolomAntrean} baris={antreanTampil} kunciBaris={(i) => i.dokumenGuruId}
             jumlahTeks={`${antreanTampil.length} dari ${data.totalAntrean} dokumen, terlama di atas`}
             kosong={<EmptyState ikon={<CheckCircle2 size={28} />} teks="Tidak ada dokumen menunggu pemeriksaan." />}
@@ -177,7 +178,7 @@ export default async function BerandaAdmin({
                         {LABEL_AKSI[a.aksi] ?? a.aksi}
                         {a.namaGuru && (
                           <> — {guruId
-                            ? <a href={`/admin/guru/${guruId}`}>{a.namaGuru}</a>
+                            ? <Tautan href={`/admin/guru/${guruId}`} prefetch={false}>{a.namaGuru}</Tautan>
                             : <span>{a.namaGuru}</span>
                           }</>
                         )}

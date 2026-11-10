@@ -4,6 +4,7 @@ import PilihTema from '@/components/PilihTema'
 import { useTerpasang } from '@/lib/terpasang'
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Tautan from '@/components/ui/Tautan'
 
 export default function Masuk() {
   const router = useRouter()
@@ -52,7 +53,7 @@ export default function Masuk() {
         <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Memproses…' : 'Masuk'}</button>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
-      <p className="masuk-daftar">Belum punya akun? <a href="/daftar">Buat akun guru</a></p>
+      <p className="masuk-daftar">Belum punya akun? <Tautan href="/daftar">Buat akun guru</Tautan></p>
       </div>
     </main>
   )

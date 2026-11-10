@@ -97,7 +97,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
           {!lengkapProfil && (
             <div className="info" role="status">
               <p className="mb-s2">Lengkapi profil Anda dulu. Dokumen yang perlu diunggah ditentukan dari jabatan dan status kepegawaian Anda.</p>
-              <a className="tombol" href="/profil">Lengkapi profil</a>
+              <Tautan className="tombol" href="/profil">Lengkapi profil</Tautan>
             </div>
           )}
           {periode && dokumen.length > 0 && (

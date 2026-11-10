@@ -5,6 +5,7 @@ import { HelpCircle, X } from 'lucide-react'
 import TombolKeputusan from './TombolKeputusan'
 import PanelPratinjau from './PanelPratinjau'
 import { useToast } from './Toast'
+import Tautan from '@/components/ui/Tautan'
 
 type DokItem = {
   id: string
@@ -233,14 +234,14 @@ export default function ReviewPanel({
           <div className="review-selesai">
             <p className="review-selesai__judul">Semua dokumen sudah diputuskan ✓</p>
             {guruBerikutnyaId && (
-              <a
+              <Tautan
                 href={`/admin/guru/${guruBerikutnyaId}?periode=${periodeId}`}
                 data-testid="link-guru-berikutnya"
               >
                 Guru berikutnya: {guruBerikutnyaNama} ›
-              </a>
+              </Tautan>
             )}
-            <a href={`/admin/antrean?periode=${periodeId}`}>Kembali ke antrean</a>
+            <Tautan href={`/admin/antrean?periode=${periodeId}`}>Kembali ke antrean</Tautan>
           </div>
         )}
 

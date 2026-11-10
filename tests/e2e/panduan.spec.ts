@@ -76,7 +76,9 @@ test.describe('Halaman Panduan (/panduan) dan Tautan Panduan', () => {
     await page.goto('/admin')
     const tombolMenu = page.getByRole('button', { name: 'Buka menu navigasi' })
     await tombolMenu.click()
-    const tautanLaci = page.locator('.admin-laci a[href="/panduan"]')
+    const laci = page.locator('.admin-laci')
+    await expect(laci).toBeVisible()
+    const tautanLaci = laci.locator('a[href="/panduan"]')
     await expect(tautanLaci).toBeVisible()
 
     // Desktop: ada di sidebar

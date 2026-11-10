@@ -92,12 +92,24 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
           </div>
         </div>
       ) : (
-        <>
-          <label htmlFor="nama-profil">Nama lengkap (dengan gelar)
-            <input id="nama-profil" name="nama" defaultValue={a.nama ?? ''} required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
-          </label>
-          <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
-        </>
+        <div className="profil-dua">
+          <div>
+            <label htmlFor="nama-profil">Nama lengkap (dengan gelar)
+              <input id="nama-profil" name="nama" defaultValue={a.nama ?? ''} required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
+            </label>
+            <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
+          </div>
+          {(a.nip || a.nik || a.username) && (
+            <div>
+              <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
+                <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+              </label>
+              <small className="redup bantuan">
+                {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
+              </small>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Baris grid ringkas: Asal sekolah, Status kepegawaian, Tahun sertifikasi sebaris di layar lebar */}

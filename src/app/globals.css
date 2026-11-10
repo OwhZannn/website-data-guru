@@ -569,6 +569,8 @@ tr.baris-menunggu td { background: var(--tunggu-baris); }
 .breadcrumb__butir a:hover { color: var(--tautan-kuat); }
 .breadcrumb__butir[aria-current="page"] { color: var(--teks); font-weight: 600; }
 .breadcrumb__pemisah { color: var(--redup); font-size: var(--t-xs); user-select: none; }
+.breadcrumb__butir { min-width: 0; }
+.breadcrumb__teks { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 28ch; }
 
 /* ---------- Ikon status kartu dokumen ---------- */
 .ikon-status { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }

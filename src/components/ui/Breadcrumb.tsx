@@ -1,3 +1,5 @@
+import Tautan from './Tautan'
+
 /** Navigasi breadcrumb dengan aria-label dan aria-current pada butir terakhir. Server component. */
 export default function Breadcrumb(p: { butir: { label: string; href?: string }[] }) {
   return (
@@ -11,7 +13,7 @@ export default function Breadcrumb(p: { butir: { label: string; href?: string }[
               {i > 0 && <span className="breadcrumb__pemisah" aria-hidden="true">/</span>}
               {terakhir || !b.href
                 ? <span className="breadcrumb__teks" title={b.label}>{b.label}</span>
-                : <a href={b.href}>{b.label}</a>}
+                : <Tautan href={b.href}>{b.label}</Tautan>}
             </li>
           )
         })}

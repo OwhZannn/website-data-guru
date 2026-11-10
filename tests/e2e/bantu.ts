@@ -45,7 +45,7 @@ export async function masuk(page: Page, email: string, sandi = SANDI) {
   await page.fill('[name=sandi]', sandi)
   await tombol.click()
   // Tunggu navigasi selesai; bisa ke /admin (admin), /dokumen (guru), atau tetap di /masuk (gagal).
-  await page.waitForURL((url) => !url.pathname.startsWith('/masuk'), { timeout: 10000 }).catch(() => {})
+  await page.waitForURL((url) => !url.pathname.startsWith('/masuk'), { timeout: process.env.CI ? 20_000 : 10_000 }).catch(() => {})
 }
 
 export const pdf = () => ({ name: 'baru.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%test\n') })

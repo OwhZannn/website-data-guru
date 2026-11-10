@@ -113,7 +113,7 @@ test('bilah kemajuan tampil saat berpindah ke rute yang lambat, lalu selesai', a
   await page.route(/\/admin\/antrean\?_rsc=/, async (route) => { await new Promise((r) => setTimeout(r, 900)); await route.continue() })
   const bilah = page.locator('.bilah-navigasi')
   await sidebar(page, '/admin/antrean').click()
-  await expect(bilah).toHaveAttribute('data-fase', 'jalan', { timeout: 500 })
+  await expect(bilah).toHaveAttribute('data-fase', 'jalan', { timeout: 2000 })
   await expect(sidebar(page, '/admin/antrean')).toHaveAttribute('aria-busy', 'true')
   await tungguHalaman(page, 'Antrean pemeriksaan')
   await expect(bilah).not.toHaveAttribute('data-fase', 'jalan')

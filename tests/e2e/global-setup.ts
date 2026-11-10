@@ -24,7 +24,7 @@ async function masukSebagai(email: string, sandi: string): Promise<string | null
 }
 
 export default async function setup() {
-  for (const f of ['e2e.db', 'e2e.db-journal']) rmSync(`prisma/${f}`, { force: true })
+  for (const f of ['e2e.db', 'e2e.db-journal', 'e2e.db-wal', 'e2e.db-shm']) rmSync(`prisma/${f}`, { force: true })
   execSync('npx prisma migrate deploy', {
     stdio: 'inherit',
     env: { ...process.env, DATABASE_URL: 'file:./e2e.db' },
@@ -35,6 +35,8 @@ export default async function setup() {
   // di sini: sekali tanpa sesi, lalu dengan sesi admin dan guru sungguhan.
   await panaskan('/masuk')
   await panaskan('/daftar')
+  await panaskan('/panduan')
+  await panaskan('/panduan/a1')
   // Tanpa sesi semuanya dijawab 401, tapi rutenya sudah tersusun.
   for (const jalur of [
     '/api/admin/keputusan', '/api/admin/guru', '/api/admin/guru/impor', '/api/admin/periode',

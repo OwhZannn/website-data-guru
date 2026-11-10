@@ -47,6 +47,16 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   const a = p.awal
   return (
     <form method="post" onSubmit={kirim} className="panel profil">
+      {(a.nip || a.nik || a.username) && (
+        <>
+          <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
+            <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
+          </label>
+          <small className="redup bantuan">
+            {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
+          </small>
+        </>
+      )}
       <label htmlFor="asal-sekolah">Asal sekolah
         <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
         <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
@@ -57,7 +67,7 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
           {JABATAN.map(([v, l]) => (
             <label className="centang" key={v}>
               <input type="radio" name="jabatan" value={v} defaultChecked={(a.jabatan ?? 'GURU') === v} />
-              <span>{l}{v === 'KEPSEK' && <small> (mengunggah SK dan program kepala sekolah, bukan jadwal dan absen sekolah)</small>}</span>
+              <span>{l}{v === 'KEPSEK' && <small className="redup"> ({PETUNJUK.jabatan.bantuan})</small>}</span>
             </label>
           ))}
         </div>

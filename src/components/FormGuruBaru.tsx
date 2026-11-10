@@ -90,12 +90,14 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
         <label>Nama lengkap (dengan gelar)
           <input name="nama" required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
         </label>
+        <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
         <div className="profil-dua">
           <label>Status kepegawaian
             <select ref={pilihStatus} name="statusPegawai" value={status} onChange={(e) => setStatus(e.target.value)} required>
               <option value="" disabled>Pilih…</option>
               {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
+            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
           </label>
           {nonAsn ? (
             <label key="nik">NIK
@@ -117,7 +119,7 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
             {JABATAN.map(([v, l]) => (
               <label className="centang" key={v}>
                 <input type="radio" name="jabatan" value={v} defaultChecked={v === 'GURU'} />
-                <span>{l}</span>
+                <span>{l}{v === 'KEPSEK' && <small className="redup"> ({PETUNJUK.jabatan.bantuan})</small>}</span>
               </label>
             ))}
           </div>

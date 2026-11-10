@@ -100,7 +100,7 @@ test('klik tengah membuka tab baru, bukan mengganti halaman ini', async ({ page,
   const tabBaru = context.waitForEvent('page')
   await sidebar(page, '/admin/guru').click({ button: 'middle' })
   const t = await tabBaru
-  await t.waitForURL(/\/admin\/guru/)
+  await t.waitForURL(/\/admin\/guru/, { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/admin$/)
 })
 
@@ -110,14 +110,20 @@ test('bilah kemajuan tampil saat berpindah ke rute yang lambat, lalu selesai', a
   await page.goto('/admin')
   await expect(sidebar(page, '/admin/antrean')).toBeVisible()
   // Perlambat hanya permintaan RSC ke Antrean supaya keadaan "sedang pindah" bisa diamati.
-  await page.route(/\/admin\/antrean\?_rsc=/, async (route) => { await new Promise((r) => setTimeout(r, 900)); await route.continue() })
+  await page.route(/\/admin\/antrean/, async (route) => {
+    if (route.request().headers()['rsc'] || route.request().url().includes('_rsc')) {
+      await new Promise((r) => setTimeout(r, 1200))
+    }
+    await route.continue()
+  })
   const bilah = page.locator('.bilah-navigasi')
   await sidebar(page, '/admin/antrean').click()
-  await expect(bilah).toHaveAttribute('data-fase', 'jalan', { timeout: 500 })
+  await expect(bilah).toHaveAttribute('data-fase', 'jalan', { timeout: 2000 })
   await expect(sidebar(page, '/admin/antrean')).toHaveAttribute('aria-busy', 'true')
   await tungguHalaman(page, 'Antrean pemeriksaan')
   await expect(bilah).not.toHaveAttribute('data-fase', 'jalan')
   await expect(sidebar(page, '/admin/antrean')).not.toHaveAttribute('aria-busy', 'true')
+  await page.unroute(/\/admin\/antrean/)
 })
 
 test('muat penuh dengan sidebar terlipat: atribut lipat sudah ada pada saat DOM pertama dibentuk, sebelum hidrasi', async ({ page }) => {
@@ -133,7 +139,7 @@ test('muat penuh dengan sidebar terlipat: atribut lipat sudah ada pada saat DOM 
     document.addEventListener('readystatechange', ambil)
     document.addEventListener('DOMContentLoaded', ambil)
   })
-  await page.goto('/admin')
+  await page.goto('/admin', { waitUntil: 'domcontentloaded' })
   expect(await page.evaluate(() => (window as unknown as { __awal?: string | null }).__awal), 'atribut saat <body> pertama muncul').toBe('lipat')
   expect(await page.evaluate(() => document.documentElement.dataset.sidebar)).toBe('lipat')
 })

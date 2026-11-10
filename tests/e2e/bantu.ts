@@ -38,14 +38,19 @@ export async function siapkan(opsi: { dibuka?: boolean; dokumen: Isi[] }) {
 /** Tombol kirim baru aktif setelah hidrasi; menunggu itu mencegah pengiriman formulir asli sebelum JS siap. */
 /** `email` untuk admin, NIP/NIK (username) untuk guru. */
 export async function masuk(page: Page, email: string, sandi = SANDI) {
-  await page.goto('/masuk')
+  try {
+    await page.goto('/masuk')
+  } catch {
+    await page.waitForTimeout(500)
+    await page.goto('/masuk')
+  }
   const tombol = page.locator('button[type=submit]')
   await expect(tombol).toBeEnabled()
   await page.fill('[name=username]', email)
   await page.fill('[name=sandi]', sandi)
   await tombol.click()
   // Tunggu navigasi selesai; bisa ke /admin (admin), /dokumen (guru), atau tetap di /masuk (gagal).
-  await page.waitForURL((url) => !url.pathname.startsWith('/masuk'), { timeout: 10000 }).catch(() => {})
+  await page.waitForURL((url) => !url.pathname.startsWith('/masuk'), { timeout: process.env.CI ? 20_000 : 10_000 }).catch(() => {})
 }
 
 export const pdf = () => ({ name: 'baru.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%test\n') })

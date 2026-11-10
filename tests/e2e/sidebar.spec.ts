@@ -130,6 +130,7 @@ test.describe('Navigasi mobile — laci (360×740)', () => {
   test('laci bisa ditutup dengan tombol tutup', async ({ page }) => {
     const admin = await buatAdmin()
     await masuk(page, admin.email)
+    await expect(page).toHaveURL(/\/admin/)
 
     await page.getByRole('button', { name: 'Buka menu navigasi' }).click()
     const laci = page.locator('.admin-laci')
@@ -142,6 +143,7 @@ test.describe('Navigasi mobile — laci (360×740)', () => {
   test('navigasi mobile: klik Guru di laci membuka halaman Guru', async ({ page }) => {
     const admin = await buatAdmin()
     await masuk(page, admin.email)
+    await expect(page).toHaveURL(/\/admin/)
 
     await page.getByRole('button', { name: 'Buka menu navigasi' }).click()
     const laci = page.locator('.admin-laci')

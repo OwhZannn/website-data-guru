@@ -61,7 +61,7 @@ export const LABEL_JABATAN: Record<string, string> = Object.fromEntries(JABATAN)
 export const KODE_JABATAN = JABATAN.map(([k]) => k) as [string, ...string[]]
 
 export type ProfilSyarat = Pick<Guru, 'statusPegawai' | 'jabatan' | 'sertifikasiBaru' | KunciTugas>
-export type ProfilGuru = ProfilSyarat & Pick<Guru, 'asalSekolah' | 'tahunSertifikasi'>
+export type ProfilGuru = ProfilSyarat & Pick<Guru, 'asalSekolah' | 'tahunSertifikasi'> & Partial<Pick<Guru, 'nama' | 'nip' | 'nik' | 'username'>>
 
 /** Apakah dokumen dengan syarat `berlaku` wajib bagi guru dengan profil ini. Syarat tak dikenal = tidak wajib. */
 export function wajibBagi(berlaku: string, p: ProfilSyarat): boolean {

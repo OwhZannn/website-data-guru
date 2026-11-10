@@ -2,8 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches: [main]
 
 # Satu proses per cabang/PR; yang lama dibatalkan saat ada dorongan baru.
 concurrency:

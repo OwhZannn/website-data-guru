@@ -1,0 +1,7 @@
+/* ================================================================
+   _code-highlights: Blok kode, kbd, pre, dan contoh impor
+   ================================================================ */
+code, kbd, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.contoh-impor { background: var(--latar); border: 1px dashed var(--garis-putus); border-radius: 10px; padding: 10px 12px; font-size: .82rem; overflow-x: auto; margin: 0 0 12px; }
+.akun-baru code { word-break: break-all; }
+.panduan-kode-blok { overflow-x: auto; padding: var(--s-3); background: var(--permukaan-2); border: 1px solid var(--garis); border-radius: var(--r-sm); font-size: .8rem; line-height: 1.5; }

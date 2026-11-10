@@ -54,6 +54,7 @@ export default function Masuk() {
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
       <p className="masuk-daftar">Belum punya akun? <Tautan href="/daftar">Buat akun guru</Tautan></p>
+        <p className="sandi-lupa-panduan"><Tautan href="/panduan">Panduan penggunaan</Tautan></p>
       </div>
     </main>
   )

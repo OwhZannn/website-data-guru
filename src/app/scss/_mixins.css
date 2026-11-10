@@ -1,0 +1,14 @@
+/* ================================================================
+   _mixins: Utilitas campuran dan pola desain bersama
+   ================================================================ */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.mb-0 { margin-bottom: 0 !important; }
+.mb-s2 { margin-bottom: var(--s-2); }
+.mb-s3 { margin-bottom: var(--s-3); }
+.mb-s4 { margin-bottom: var(--s-4); }
+.mb-s5 { margin-bottom: var(--s-5); }
+.mt-s5 { margin-top: var(--s-5); }
+.ml-s2 { margin-left: var(--s-2); }

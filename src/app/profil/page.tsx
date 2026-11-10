@@ -2,6 +2,7 @@ import { halamanGuru } from '@/lib/halaman'
 import { profilLengkap, kolomProfilKurang } from '@/lib/syarat'
 import Kepala from '@/components/Kepala'
 import Tautan from '@/components/ui/Tautan'
+import KakiHalaman from '@/components/KakiHalaman'
 import FormProfil from '@/components/FormProfil'
 import FormGantiSandi from '@/components/FormGantiSandi'
 import { teksIdentitas } from '@/lib/identitas'
@@ -39,6 +40,7 @@ export default async function Profil() {
           <FormGantiSandi />
         </div>
       </main>
+      <KakiHalaman />
     </>
   )
 }

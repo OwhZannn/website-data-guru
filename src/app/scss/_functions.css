@@ -1,0 +1,7 @@
+/* ================================================================
+   _functions: Perhitungan responsif dan fungsi helper
+   ================================================================ */
+/* Penjaga penunjuk sentuh kasar vs presisi */
+@media (max-width: 719px), (pointer: coarse) {
+  .admin-konten { --kontrol-tinggi: 44px; }
+}

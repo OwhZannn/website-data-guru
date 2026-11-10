@@ -15,6 +15,7 @@ export default function Daftar() {
         <p className="sub">Isi data Anda. Akun bisa dipakai setelah disetujui admin.</p>
         <FormGuruBaru mode="daftar" />
         <p className="masuk-daftar">Sudah punya akun? <Tautan href="/masuk">Masuk</Tautan></p>
+        <p className="sandi-lupa-panduan"><Tautan href="/panduan">Panduan penggunaan</Tautan></p>
       </div>
     </main>
   )

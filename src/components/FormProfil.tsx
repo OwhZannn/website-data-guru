@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTerpasang } from '@/lib/terpasang'
 import { JABATAN, STATUS_PEGAWAI, type ProfilGuru } from '@/lib/syarat'
+import { PETUNJUK } from '@/lib/petunjukIsian'
 
 /** Formulir profil guru. Guru menyimpan lewat /api/profil; admin lewat /api/admin/guru (aksi profil). */
 export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setelahSimpan?: string }) {
@@ -47,7 +48,8 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   return (
     <form method="post" onSubmit={kirim} className="panel profil">
       <label htmlFor="asal-sekolah">Asal sekolah
-        <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder="Contoh: SMA Negeri 1 Mataram" />
+        <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
+        <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
       </label>
       <fieldset>
         <legend>Jabatan</legend>
@@ -66,9 +68,11 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
             <option value="" disabled>Pilih…</option>
             {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
+          <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
         </label>
         <label htmlFor="tahun-sertifikasi">Tahun sertifikasi
-          <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder="Contoh: 2015" />
+          <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
+          <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
         </label>
       </div>
 

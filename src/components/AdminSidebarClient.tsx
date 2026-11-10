@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard, Inbox, Users, CalendarDays, MessageSquareX, Shield,
-  PanelLeftClose, PanelLeftOpen, X, Menu,
+  PanelLeftClose, PanelLeftOpen, X, Menu, BookOpen,
 } from 'lucide-react'
 import { KUNCI_LIPAT } from '@/lib/tema'
 import Tautan from '@/components/ui/Tautan'
@@ -107,6 +107,10 @@ export function AdminSidebar({ jumlahAntrean }: { jumlahAntrean: number; periode
     <aside className="admin-sidebar">
       <DaftarMenu jumlahAntrean={jumlahAntrean} />
       <div className="admin-sidebar__kaki" data-tip="Buka menu">
+        <Tautan href="/panduan" className="admin-nav-butir admin-sidebar__panduan" data-tip="Panduan">
+          <span className="admin-nav-butir__ikon"><BookOpen size={18} strokeWidth={1.8} aria-hidden="true" /></span>
+          <span className="admin-nav-butir__teks">Panduan</span>
+        </Tautan>
         <button
           type="button"
           onClick={toggleLipat}
@@ -199,6 +203,10 @@ export function AdminLaci({ jumlahAntrean }: { jumlahAntrean: number; periodeId?
           </button>
         </div>
         <DaftarMenu jumlahAntrean={jumlahAntrean} onPilih={() => setBuka(false)} />
+        <Tautan href="/panduan" className="admin-nav-butir admin-laci__panduan" onClick={() => setBuka(false)}>
+          <span className="admin-nav-butir__ikon"><BookOpen size={18} strokeWidth={1.8} aria-hidden="true" /></span>
+          <span className="admin-nav-butir__teks">Panduan</span>
+        </Tautan>
       </div>
     </>
   )

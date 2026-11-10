@@ -1,0 +1,12 @@
+/* Bilah kemajuan navigasi: fixed sehingga tidak menggeser tata letak. */
+.bilah-navigasi {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1000;
+  background: var(--tautan); pointer-events: none;
+  transform-origin: left; transform: scaleX(0); opacity: 0;
+}
+.bilah-navigasi[data-fase=jalan] { opacity: 1; transform: scaleX(.85); transition: transform 8s cubic-bezier(.1, .6, .2, 1); }
+.bilah-navigasi[data-fase=selesai] { opacity: 0; transform: scaleX(1); transition: transform .2s ease-out, opacity .2s ease-out .2s; }
+@media (prefers-reduced-motion: reduce) {
+  .bilah-navigasi[data-fase=jalan] { transform: scaleX(1); transition: none; }
+  .bilah-navigasi[data-fase=selesai] { transition: none; }
+}

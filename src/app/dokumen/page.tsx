@@ -7,6 +7,7 @@ import { tanggalLokal } from '@/lib/waktu'
 import KartuDokumen from '@/components/KartuDokumen'
 import Kepala from '@/components/Kepala'
 import Tautan from '@/components/ui/Tautan'
+import KakiHalaman from '@/components/KakiHalaman'
 import KartuProgres from '@/components/KartuProgres'
 import KartuLangkahBerikutnya from '@/components/KartuLangkahBerikutnya'
 import { dokumenWajib, profilLengkap, kolomProfilKurang, TUGAS } from '@/lib/syarat'
@@ -159,6 +160,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
           </div>
         )}
       </main>
+      <KakiHalaman />
     </>
   )
 }

@@ -1,0 +1,16 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px; line-height: 1.5; color: var(--teks); background: var(--latar);
+  -webkit-font-smoothing: antialiased;
+}
+/* Logo resmi tetap berwarna asli; di mode gelap diberi lencana putih. */
+.kepala-logo, .admin-kepala__logo img { background: var(--logo-latar); border-radius: 8px; padding: 2px; }
+main { max-width: 640px; margin: 0 auto; padding: var(--konten-pad-atas) var(--konten-pad-x) var(--konten-pad-bawah); }
+main.lebar { max-width: 1440px; }
+h1 { font-size: var(--judul-halaman); font-weight: 800; letter-spacing: -.01em; margin: var(--judul-margin); }
+h2 { font-size: 1.1rem; font-weight: 700; margin: var(--jarak-seksi) 0 var(--s-2); }
+h3 { font-size: 1rem; font-weight: 700; margin: var(--s-3) 0 var(--s-2); }
+a { color: var(--tautan); }
+a:hover { color: var(--tautan-kuat); }
+:focus-visible { outline: 2px solid var(--hijau-2); outline-offset: 2px; }

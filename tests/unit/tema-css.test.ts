@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
+import path from 'node:path'
 
-const css = readFileSync('src/app/globals.css', 'utf8')
+function muatCss(berkas: string): string {
+  const teks = readFileSync(berkas, 'utf8')
+  return teks.replace(/@import\s+['"]([^'"]+)['"];/g, (_, rel) => {
+    const target = path.resolve(path.dirname(berkas), rel)
+    return existsSync(target) ? muatCss(target) : ''
+  })
+}
+
+const css = muatCss('src/app/globals.css')
 
 /** Mengambil isi blok CSS yang kurung kurawalnya seimbang, mulai dari pembuka selektor. */
 function isiBlok(pembuka: string): string {

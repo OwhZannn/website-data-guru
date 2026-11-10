@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useTerpasang } from '@/lib/terpasang'
 import { JABATAN, STATUS_PEGAWAI } from '@/lib/syarat'
 import Tautan from '@/components/ui/Tautan'
+import { PETUNJUK, bantuanIdentitas } from '@/lib/petunjukIsian'
 
 type AkunBaru = { nama: string; username: string; jenis: string; sandi: string }
 
@@ -87,7 +88,7 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
 
       <form method="post" onSubmit={kirim} className="panel profil">
         <label>Nama lengkap (dengan gelar)
-          <input name="nama" required maxLength={200} placeholder="Contoh: Siti Rahmawati, S.Pd.I." />
+          <input name="nama" required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
         </label>
         <div className="profil-dua">
           <label>Status kepegawaian
@@ -98,17 +99,17 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
           </label>
           {nonAsn ? (
             <label key="nik">NIK
-              <input name="nik" inputMode="numeric" pattern="[0-9 ]{16,20}" required placeholder="16 angka sesuai KTP" />
+              <input name="nik" inputMode="numeric" pattern="[0-9 ]{16,20}" required placeholder={PETUNJUK.nik.contoh} />
             </label>
           ) : (
             <label key="nip">NIP
               <input name="nip" inputMode="numeric" pattern="[0-9 ]{18,24}" required={status !== ''} disabled={status === ''}
-                placeholder={status === '' ? 'Pilih status kepegawaian dulu' : '18 angka'} />
+                placeholder={PETUNJUK.nip.contoh} />
             </label>
           )}
         </div>
         <p className="redup bantuan bantuan-atas">
-          {nonAsn ? 'Non ASN masuk memakai NIK sebagai username.' : 'PNS, PPPK, dan Paruh waktu masuk memakai NIP sebagai username.'}
+          {bantuanIdentitas(status, nonAsn)}
         </p>
         <fieldset>
           <legend>Jabatan</legend>
@@ -123,10 +124,12 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
         </fieldset>
         <div className="profil-dua">
           <label>Tahun sertifikasi
-            <input name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} required placeholder="Contoh: 2015" />
+            <input name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
+            <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
           </label>
           <label>Asal sekolah <small className="redup">(boleh diisi nanti)</small>
-            <input name="asalSekolah" maxLength={200} placeholder="Contoh: SMA Negeri 1 Mataram" />
+            <input name="asalSekolah" maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
+            <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
           </label>
         </div>
         <div className="aksi">

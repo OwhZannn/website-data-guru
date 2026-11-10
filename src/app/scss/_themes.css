@@ -1,0 +1,157 @@
+/* Gaya "Bersih Modern": putih lapang, hijau Kemenag sebagai aksen. Warna utama diambil dari logo. */
+:root {
+  --hijau: #006316;        /* hijau logo Kemenag */
+  --hijau-2: #0f7a45;      /* tombol dan gradasi */
+  --hijau-3: #16a05c;
+  --hijau-muda: #e8f4ec;
+  --emas: #f0bf01;         /* aksen kecil saja, bukan untuk teks */
+  --latar: #f4f6f5;
+  --kartu: #ffffff;
+  --teks: #1d2b24;
+  --redup: #5b6b63;
+  --garis: #e2e7e4;
+  --sah-bg: #dcf3e4; --sah: #15703a;
+  --tolak-bg: #fde2e1; --tolak: #b42318;
+  --tunggu-bg: #fdf0d5; --tunggu: #8a5a00;
+  --belum-bg: #eceeed; --belum: #4f5d56;
+  --info-bg: #e8f1fc; --info: #1a5eb8;
+  --r: 14px;
+  --r-sm: 6px;
+  --r-pill: 999px;
+  --bayang: 0 1px 2px rgba(16, 40, 28, .06), 0 4px 14px rgba(16, 40, 28, .05);
+  --bayang-sm: 0 1px 2px rgba(16, 40, 28, .06);
+  --bayang-md: 0 4px 12px rgba(16, 40, 28, .10);
+  /* Skala jarak */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+  /* Skala tipografi */
+  --t-xs: 0.75rem;
+  --t-sm: 0.85rem;
+  --t-base: 1rem;
+  --t-md: 1.05rem;
+  --t-lg: 1.1rem;
+  --t-xl: 1.45rem;
+  --t-2xl: 1.7rem;
+
+  /* Kepadatan (Fase 8): satu tempat untuk menyetel jarak dan ukuran seluruh aplikasi */
+  --judul-halaman: 1.35rem;                 /* h1; ≤ 1.4rem */
+  --judul-margin: 0 0 var(--s-2);           /* margin h1; ≤ 8px */
+  --konten-pad-x: var(--s-4);
+  --konten-pad-atas: var(--s-3);
+  --konten-pad-bawah: var(--s-6);           /* ≤ 24px */
+  --jarak-seksi: var(--s-4);
+  --jarak-kartu: var(--s-3);
+  --kontrol-tinggi: 44px;                   /* bawaan (halaman guru, target sentuh); .admin-konten memakai 40px */
+  --target-min: 24px;                       /* WCAG 2.2 SC 2.5.8 */
+  --baris-tabel: 52px;                      /* baris tabel ±48–56px */
+
+  /* Token semantik (ditimpa oleh mode gelap) */
+  --permukaan: #ffffff;          /* kartu, panel, input */
+  --permukaan-2: #fafbfa;        /* latar halus */
+  --kepala-tabel: #f1f4f2;       /* kepala tabel abu muda (redup di atasnya ≥4.5:1) */
+  --permukaan-3: #dfe3e1;        /* hover tombol biasa */
+  --garis-input: #7f8e86;        /* ≥3:1 terhadap putih (WCAG 1.4.11) */
+  --garis-putus: #c3cec8;
+  --mati: #b3bcb7;
+  --di-aksen: #ffffff;           /* teks di atas hijau/merah */
+  --hijau-tua: #0d4a26;          /* teks di atas --sah-bg */
+  --hijau-cincin: #0c6d33;
+  --sah-garis: #a9dcbb; --sah-garis-2: #a8e6c0;
+  --tolak-garis: #f5c2bf; --tolak-garis-2: #e8a8a3; --tolak-hover: #8f1c13;
+  --alasan-bg: #fff5f4; --alasan-teks: #7a1b13;
+  --tunggu-baris: #fffaf0; --tunggu-garis: #f0cc7c;
+  --info-garis: #c3d7f7;
+  --galat-bg: #fdecea; --galat: #b71c1c;
+  --kaca-1: rgba(255,255,255,.15); --kaca-2: rgba(255,255,255,.2); --kaca-3: rgba(255,255,255,.3);
+  --tirai: rgba(14, 32, 23, .45);
+  --bayang-dialog: 0 24px 60px rgba(10, 30, 20, .28);
+  --bayang-progres: 0 8px 22px rgba(0, 99, 22, .22);
+  --bayang-kepala: 0 1px 4px rgba(0,0,0,.15);
+  --kerangka: #e6ebe8; --kerangka-kilau: #f3f6f4;
+  --tautan: #0f7a45; --tautan-kuat: #006316;   /* hijau sebagai warna teks */
+  --bahaya: #b42318;                         /* latar tombol/lencana merah */
+  /* Fase 7 */
+  --fokus: #0f7a45; --hover-halus: rgba(16, 40, 28, .06); --logo-latar: transparent;
+  --bayang-menu: 0 12px 32px rgba(16, 40, 28, .16), 0 2px 6px rgba(16, 40, 28, .08);
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235b6b63' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  color-scheme: light dark;
+}
+
+/* ---------- Mode gelap ----------
+   Satu isi token, dua pemicu: pilihan eksplisit (data-tema=gelap) dan pengaturan perangkat
+   selama pengguna tidak memilih Terang. CSS tidak bisa menggabungkan @media dengan selektor
+   atribut tanpa mengulang blok, jadi isinya tertulis dua kali; tests/unit/tema-css.test.ts
+   menjamin keduanya selalu identik. Ubah di satu tempat lalu salin ke yang lain. */
+:root[data-tema=gelap] {
+  --hijau: #0d5c26; --hijau-2: #127a43; --hijau-3: #1b9e5a; --hijau-muda: #1d3a2a;
+  --latar: #0f1a14; --kartu: #16241c; --teks: #e6efe9; --redup: #a3b5ab; --garis: #2a3c32;
+  --sah-bg: #173b26; --sah: #7ee2a5;
+  --tolak-bg: #4a1c1a; --tolak: #ffaaa3;
+  --tunggu-bg: #3f3112; --tunggu: #f3c56b;
+  --belum-bg: #26332c; --belum: #b8c6be;
+  --info-bg: #16283f; --info: #93c1ff;
+  --bayang: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+  --bayang-sm: 0 1px 2px rgba(0,0,0,.4);
+  --bayang-md: 0 4px 12px rgba(0,0,0,.45);
+  --permukaan: #16241c; --permukaan-2: #1b2b22; --permukaan-3: #24372c; --kepala-tabel: #1d2e24;
+  --garis-input: #5f766a; --garis-putus: #3d5246; --mati: #5d6e65;
+  --hijau-tua: #b5ecc9; --hijau-cincin: #0a4f20;
+  --sah-garis: #2f6a47; --sah-garis-2: #2f6a47;
+  --tolak-garis: #7a2f2a; --tolak-garis-2: #8f3b35; --tolak-hover: #9e2219;
+  --alasan-bg: #3a1816; --alasan-teks: #ffc2bc;
+  --tunggu-baris: #2a2412; --tunggu-garis: #6b5420;
+  --info-garis: #2c4a75;
+  --galat-bg: #3f1715; --galat: #ff9c94;
+  --tirai: rgba(0, 0, 0, .6);
+  --bayang-dialog: 0 24px 60px rgba(0, 0, 0, .6);
+  --bayang-progres: 0 8px 22px rgba(0, 0, 0, .4);
+  --bayang-kepala: 0 1px 4px rgba(0, 0, 0, .5);
+  --kerangka: #213129; --kerangka-kilau: #2b3e33;
+  --tautan: #5fd391; --tautan-kuat: #8ae6b0;
+  --bahaya: #c0362b;
+  --fokus: #5fd391; --hover-halus: rgba(255, 255, 255, .07); --logo-latar: #ffffff;
+  --bayang-menu: 0 12px 32px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .4);
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a3b5ab' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema=terang]) {
+    --hijau: #0d5c26; --hijau-2: #127a43; --hijau-3: #1b9e5a; --hijau-muda: #1d3a2a;
+    --latar: #0f1a14; --kartu: #16241c; --teks: #e6efe9; --redup: #a3b5ab; --garis: #2a3c32;
+    --sah-bg: #173b26; --sah: #7ee2a5;
+    --tolak-bg: #4a1c1a; --tolak: #ffaaa3;
+    --tunggu-bg: #3f3112; --tunggu: #f3c56b;
+    --belum-bg: #26332c; --belum: #b8c6be;
+    --info-bg: #16283f; --info: #93c1ff;
+    --bayang: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+    --bayang-sm: 0 1px 2px rgba(0,0,0,.4);
+    --bayang-md: 0 4px 12px rgba(0,0,0,.45);
+    --permukaan: #16241c; --permukaan-2: #1b2b22; --permukaan-3: #24372c; --kepala-tabel: #1d2e24;
+    --garis-input: #5f766a; --garis-putus: #3d5246; --mati: #5d6e65;
+    --hijau-tua: #b5ecc9; --hijau-cincin: #0a4f20;
+    --sah-garis: #2f6a47; --sah-garis-2: #2f6a47;
+    --tolak-garis: #7a2f2a; --tolak-garis-2: #8f3b35; --tolak-hover: #9e2219;
+    --alasan-bg: #3a1816; --alasan-teks: #ffc2bc;
+    --tunggu-baris: #2a2412; --tunggu-garis: #6b5420;
+    --info-garis: #2c4a75;
+    --galat-bg: #3f1715; --galat: #ff9c94;
+    --tirai: rgba(0, 0, 0, .6);
+    --bayang-dialog: 0 24px 60px rgba(0, 0, 0, .6);
+    --bayang-progres: 0 8px 22px rgba(0, 0, 0, .4);
+    --bayang-kepala: 0 1px 4px rgba(0, 0, 0, .5);
+    --kerangka: #213129; --kerangka-kilau: #2b3e33;
+    --tautan: #5fd391; --tautan-kuat: #8ae6b0;
+    --bahaya: #c0362b;
+    --fokus: #5fd391; --hover-halus: rgba(255, 255, 255, .07); --logo-latar: #ffffff;
+    --bayang-menu: 0 12px 32px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .4);
+    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a3b5ab' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    color-scheme: dark;
+  }
+}
+:root[data-tema=terang] { color-scheme: light; }

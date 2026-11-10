@@ -70,6 +70,8 @@ jobs:
       # Halamannya tetap dibuka (terang dan gelap, ponsel dan lebar); hanya perbandingan gambar dilewati.
       - name: Playwright
         run: npx playwright test --ignore-snapshots
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
       - name: Unggah laporan bila gagal
         if: failure()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,14 @@
+/* ================================================================
+   _typography: Tipografi, judul, teks redup, bantuan, dan tautan
+   ================================================================ */
+h1 { font-size: var(--judul-halaman); font-weight: 800; letter-spacing: -.01em; margin: var(--judul-margin); }
+h2 { font-size: 1.1rem; font-weight: 700; margin: var(--jarak-seksi) 0 var(--s-2); }
+h3 { font-size: 1rem; font-weight: 700; margin: var(--s-3) 0 var(--s-2); }
+a { color: var(--tautan); }
+a:hover { color: var(--tautan-kuat); }
+.redup { color: var(--redup); }
+.teks-sm { font-size: var(--t-sm); }
+.bantuan { display: block; font-weight: 400; font-size: .8rem; margin: -8px 0 14px; }
+.sub { text-align: center; color: var(--redup); margin: 4px 0 22px; font-size: .9rem; }
+.lencana { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; background: var(--belum-bg); color: var(--belum); }
+.lencana.buka { background: var(--sah-bg); color: var(--sah); }

@@ -5,6 +5,7 @@ const PORT = 3100
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
+  reporter: 'list',
   // Runner CI jauh lebih lambat dari laptop (±2×); beri ruang agar tes yang sah tidak habis waktu.
   timeout: process.env.CI ? 60_000 : 30_000,
   fullyParallel: false,
@@ -17,6 +18,11 @@ export default defineConfig({
     url: `http://localhost:${PORT}/masuk`,
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { DATABASE_URL: 'file:./e2e.db', DRIVE_PALSU: '1', NODE_ENV: 'development' },
+    env: {
+      DATABASE_URL: 'file:./e2e.db',
+      DRIVE_PALSU: '1',
+      NODE_ENV: 'development',
+      NODE_OPTIONS: '--max-old-space-size=4096',
+    },
   },
 })

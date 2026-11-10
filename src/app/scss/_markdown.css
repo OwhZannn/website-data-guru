@@ -1,0 +1,196 @@
+/* ---------- Footer dan halaman panduan (publik) ---------- */
+.kaki-halaman { display: flex; flex-wrap: wrap; gap: var(--s-2); justify-content: center; align-items: center; padding: var(--s-4) var(--s-4) var(--s-5); font-size: var(--t-xs); color: var(--redup); }
+.kaki-halaman a { font-weight: 600; }
+.sandi-lupa-panduan { text-align: center; margin: var(--s-2) 0 0; font-size: .85rem; }
+
+/* Sembunyikan portal dev Next.js agar tidak bocor ke tangkapan layar */
+nextjs-portal, [data-nextjs-dev-tools-indicator], [data-nextjs-toast], #__next-build-watcher {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.panduan-kepala { position: sticky; top: 0; z-index: 40; background: var(--permukaan); border-bottom: 1px solid var(--garis); }
+.panduan-kepala__isi { max-width: 1200px; margin: 0 auto; padding: 0 var(--s-4); min-height: 56px; display: flex; gap: var(--s-3); align-items: center; }
+.panduan-kepala__teks { display: flex; flex-direction: column; line-height: 1.2; margin-right: auto; min-width: 0; }
+.panduan-kepala__teks b { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.panduan-kepala__teks span { font-size: var(--t-xs); color: var(--redup); }
+.tombol--kecil { padding: 6px 16px; font-size: .85rem; }
+
+/* Tata letak dokumentasi bergaya yab manual (Sidebar TOC + Dokumen) */
+.panduan-tata-letak {
+  max-width: 1200px; margin: 0 auto; padding: 0 var(--s-4);
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 0;
+}
+@media (min-width: 960px) {
+  .panduan-tata-letak {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: var(--s-7);
+    padding: 0 var(--s-6);
+  }
+}
+
+.panduan-toc-box { display: none; }
+@media (min-width: 960px) {
+  .panduan-toc-box { display: block; position: relative; }
+  .panduan-toc-side {
+    position: sticky; top: 56px; height: calc(100vh - 56px); height: calc(100dvh - 56px);
+    overflow-y: auto; padding: var(--s-5) var(--s-3) var(--s-6) 0; scrollbar-width: thin;
+  }
+  .panduan-toc-side::-webkit-scrollbar { width: 4px; }
+  .panduan-toc-side::-webkit-scrollbar-thumb { background: var(--garis); border-radius: var(--r-pill); }
+}
+
+.panduan-toc-kelompok { margin-bottom: var(--s-5); }
+.panduan-toc-judul {
+  margin: 0 0 var(--s-2); font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--redup);
+}
+.panduan-toc-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.panduan-toc-link {
+  display: flex; align-items: baseline; gap: var(--s-2); padding: 6px 10px;
+  border-radius: var(--r-sm); color: var(--redup); text-decoration: none;
+  font-size: .85rem; line-height: 1.35; transition: background-color .12s, color .12s;
+}
+.panduan-toc-link:hover { background: var(--hover-halus); color: var(--teks); }
+.panduan-toc-link.aktif {
+  background: var(--hijau-muda); color: var(--tautan-kuat); font-weight: 700;
+}
+.panduan-toc-kode {
+  font-weight: 800; font-size: .75rem; color: var(--tautan-kuat); min-width: 1.8em; flex-shrink: 0;
+}
+.panduan-kepala__link { text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+.panduan-eyebrow {
+  font-size: var(--t-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--redup); margin: 0 0 var(--s-2);
+  display: flex; align-items: center; gap: var(--s-2);
+}
+.panduan-eyebrow a { color: var(--redup); text-decoration: none; }
+.panduan-eyebrow a:hover { color: var(--teks); text-decoration: underline; }
+.panduan-eyebrow__pemisah { color: var(--garis-input); }
+.panduan-judul {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  font-size: 1.7rem;
+  margin: 0 0 var(--s-2);
+  line-height: 1.25;
+}
+.panduan-kode-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  background: var(--hijau-muda);
+  color: var(--tautan-kuat);
+  border: 1px solid var(--sah-garis);
+  border-radius: var(--r-sm);
+  font-size: .95rem;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+  transform: translateY(1px);
+}
+.panduan-ringkas-lede {
+  font-size: 1.05rem; color: var(--redup); line-height: 1.5; margin: 0 0 var(--s-5);
+  border-bottom: 1px solid var(--garis); padding-bottom: var(--s-4);
+}
+.panduan-isi-artikel { font-size: .95rem; line-height: 1.65; }
+
+/* Navigasi sebelumnya & berikutnya di bawah artikel */
+.panduan-nav-bawah {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s-3); margin-top: var(--s-7); padding-top: var(--s-5); border-top: 1px solid var(--garis);
+}
+.panduan-nav-link {
+  display: flex; flex-direction: column; padding: var(--s-3) var(--s-4);
+  background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r);
+  text-decoration: none; transition: border-color .15s, background-color .15s, transform .1s;
+}
+.panduan-nav-link:hover {
+  border-color: var(--hijau-2); background: var(--hover-halus); transform: translateY(-2px);
+}
+.panduan-nav-link--berikut { text-align: right; margin-left: auto; width: 100%; }
+.panduan-nav-link__label {
+  font-size: var(--t-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--redup); margin-bottom: 4px;
+}
+.panduan-nav-link__judul { font-size: var(--t-sm); font-weight: 700; color: var(--tautan); }
+
+/* Index halaman panduan (kartu grid) */
+.panduan-kelompok-index { margin: var(--s-6) 0; }
+.panduan-kelompok-index__kepala { margin-bottom: var(--s-3); }
+.panduan-kelompok-index__kepala h2 { font-size: 1.25rem; margin: 0 0 var(--s-1); }
+.panduan-kisi-kartu {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-3);
+}
+.panduan-kartu-topik {
+  display: flex; flex-direction: column; padding: var(--s-3) var(--s-4);
+  background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r);
+  text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .1s;
+}
+.panduan-kartu-topik:hover {
+  border-color: var(--hijau-2); box-shadow: var(--bayang-md); transform: translateY(-2px);
+}
+.panduan-kartu-topik__kepala { display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-1); }
+.panduan-kartu-topik__judul { font-size: var(--t-sm); font-weight: 700; color: var(--teks); }
+.panduan-kartu-topik__ringkas { font-size: var(--t-xs); color: var(--redup); line-height: 1.45; margin: 0; }
+
+/* Lipatan TOC di layar sempit / ponsel */
+.panduan-toc-fold {
+  display: block; margin: var(--s-4) 0;
+  background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r);
+  overflow: hidden;
+}
+@media (min-width: 960px) { .panduan-toc-fold { display: none; } }
+.panduan-toc-fold summary {
+  display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4);
+  font-size: var(--t-sm); font-weight: 700; cursor: pointer; list-style: none;
+}
+.panduan-toc-fold summary::-webkit-details-marker { display: none; }
+.panduan-toc-fold summary .rot {
+  margin-left: auto; transition: transform .2s ease; color: var(--redup); display: inline-flex;
+}
+.panduan-toc-fold[open] summary .rot { transform: rotate(90deg); }
+.panduan-toc-fold__isi {
+  padding: var(--s-3) var(--s-4) var(--s-4); border-top: 1px solid var(--garis);
+  display: grid; gap: var(--s-4);
+}
+@media (min-width: 600px) {
+  .panduan-toc-fold__isi { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.panduan-doc { min-width: 0; max-width: 840px; padding: var(--s-5) 0 var(--s-8); }
+.panduan-pembuka h1 { font-size: 1.6rem; margin-bottom: var(--s-2); }
+.panduan-pembuka p { margin: 0 0 var(--s-2); }
+.panduan-judul-besar { font-size: 1.3rem; margin: var(--s-7) 0 var(--s-2); padding-bottom: var(--s-2); border-bottom: 2px solid var(--hijau-2); scroll-margin-top: 72px; }
+.panduan-bagian { margin: var(--s-5) 0; scroll-margin-top: 72px; }
+.panduan-bagian h3 { font-size: 1.1rem; margin: 0 0 var(--s-2); }
+.panduan-bagian h4 { font-size: .95rem; margin: var(--s-4) 0 var(--s-1); }
+.panduan-bagian ol, .panduan-bagian ul { padding-left: 1.4rem; margin: var(--s-2) 0; }
+.panduan-bagian li { margin: 4px 0; }
+.panduan-bagian p { margin: var(--s-2) 0; }
+.panduan-gambar { margin: var(--s-4) 0; padding: var(--s-2); background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r); box-shadow: var(--bayang-sm); }
+.panduan-gambar img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.panduan-gambar--ponsel { max-width: 340px; margin-left: auto; margin-right: auto; }
+.panduan-gambar figcaption { margin-top: var(--s-2); font-size: var(--t-sm); color: var(--redup); text-align: center; }
+.panduan-catatan { margin: var(--s-3) 0; padding: var(--s-3) var(--s-4); border-radius: 12px; border-left: 4px solid; font-size: .92rem; }
+.panduan-catatan p, .panduan-catatan ul { margin: var(--s-1) 0 0; }
+.panduan-catatan--tips { background: var(--info-bg); border-color: var(--info); }
+.panduan-catatan--penting { background: var(--tunggu-bg); border-color: var(--tunggu); }
+.panduan-tabel { overflow-x: auto; margin: var(--s-3) 0; border: 1px solid var(--garis); border-radius: var(--r-sm); background: var(--permukaan); }
+.panduan-tabel table { min-width: 560px; }
+.panduan-tabel th, .panduan-tabel td { padding: 8px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--garis); }
+.panduan-tabel thead th { background: var(--kepala-tabel); font-size: .8rem; }
+.panduan-tabel tr:last-child td { border-bottom: 0; }
+.panduan-kode-blok { overflow-x: auto; padding: var(--s-3); background: var(--permukaan-2); border: 1px solid var(--garis); border-radius: var(--r-sm); font-size: .8rem; line-height: 1.5; }
+.panduan-faq details { background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r-sm); margin: var(--s-2) 0; padding: 0 var(--s-4); }
+.panduan-faq summary { padding: var(--s-3) 0; font-weight: 700; }
+.panduan-faq p { margin: 0 0 var(--s-3); color: var(--redup); }
+@media (min-width: 720px) {
+  .panduan-kepala__isi { padding: 0 var(--s-6); }
+}
+@media (prefers-reduced-motion: no-preference) { html:has(.panduan-doc) { scroll-behavior: smooth; } }
+.admin-sidebar__kaki .admin-sidebar__panduan { margin-bottom: var(--s-1); }
+.admin-laci__panduan { margin: var(--s-2) var(--s-3) var(--s-3); }

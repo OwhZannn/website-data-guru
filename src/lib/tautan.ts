@@ -4,5 +4,5 @@ export function pakaiLink(href: string): boolean {
   if (href.startsWith('//')) return false
   if (href.startsWith('#')) return false
   if (href === '/api' || href.startsWith('/api/') || href.startsWith('/api?') || href.startsWith('/api#')) return false
-  return href.startsWith('/')
+  return href.startsWith('/') || href.startsWith('?')
 }

@@ -7,6 +7,8 @@ describe('pakaiLink', () => {
     ['/admin?x=1', true],
     ['/admin#a', true],
     ['/profil#id', true],
+    ['?hal=2', true],
+    ['?', true],
     ['#a', false],
     ['/api/x', false],
     ['/api/admin/rekap?periodeId=1', false],

@@ -123,6 +123,7 @@ test('bilah kemajuan tampil saat berpindah ke rute yang lambat, lalu selesai', a
   await tungguHalaman(page, 'Antrean pemeriksaan')
   await expect(bilah).not.toHaveAttribute('data-fase', 'jalan')
   await expect(sidebar(page, '/admin/antrean')).not.toHaveAttribute('aria-busy', 'true')
+  await page.unroute(/\/admin\/antrean/)
 })
 
 test('muat penuh dengan sidebar terlipat: atribut lipat sudah ada pada saat DOM pertama dibentuk, sebelum hidrasi', async ({ page }) => {

@@ -1,4 +1,5 @@
 'use client'
+import type { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { BookOpen, ChevronRight } from 'lucide-react'
 import Tautan from '@/components/ui/Tautan'
@@ -37,7 +38,7 @@ function KelompokMenu({ judul, butir, pathname, onPilih }: {
 }
 
 /** Navigasi sidebar meja (desktop) yang lengket di sisi kiri. */
-export function PanduanSidebarDesktop() {
+export function PanduanSidebarDesktop({ pdf }: { pdf?: ReactNode }) {
   const pathname = usePathname()
   return (
     <aside className="panduan-toc-box" aria-label="Daftar isi panduan">
@@ -55,13 +56,14 @@ export function PanduanSidebarDesktop() {
         <KelompokMenu judul="Bagian A · Untuk guru" butir={DAFTAR_ISI.guru} pathname={pathname} />
         <KelompokMenu judul="Bagian B · Untuk admin" butir={DAFTAR_ISI.admin} pathname={pathname} />
         <KelompokMenu judul="Lampiran" butir={DAFTAR_ISI.lampiran} pathname={pathname} />
+        {pdf}
       </nav>
     </aside>
   )
 }
 
 /** Lipatan navigasi di ponsel / layar sempit. */
-export function PanduanMobileFold() {
+export function PanduanMobileFold({ pdf }: { pdf?: ReactNode }) {
   const pathname = usePathname()
   return (
     <details className="panduan-toc-fold">
@@ -84,6 +86,7 @@ export function PanduanMobileFold() {
         <KelompokMenu judul="Bagian A · Untuk guru" butir={DAFTAR_ISI.guru} pathname={pathname} />
         <KelompokMenu judul="Bagian B · Untuk admin" butir={DAFTAR_ISI.admin} pathname={pathname} />
         <KelompokMenu judul="Lampiran" butir={DAFTAR_ISI.lampiran} pathname={pathname} />
+        {pdf}
       </div>
     </details>
   )

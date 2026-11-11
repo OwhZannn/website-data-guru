@@ -194,3 +194,49 @@ nextjs-portal, [data-nextjs-dev-tools-indicator], [data-nextjs-toast], #__next-b
 @media (prefers-reduced-motion: no-preference) { html:has(.panduan-doc) { scroll-behavior: smooth; } }
 .admin-sidebar__kaki .admin-sidebar__panduan { margin-bottom: var(--s-1); }
 .admin-laci__panduan { margin: var(--s-2) var(--s-3) var(--s-3); }
+
+/* ---------- Tombol PDF panduan ---------- */
+.panduan-pdf { display: flex; flex-wrap: wrap; gap: var(--s-2); margin: var(--s-3) 0 0; }
+.panduan-pdf .tombol, .panduan-pdf .tombol-garis { gap: var(--s-2); }
+.panduan-pdf .tombol small { font-size: var(--t-xs); font-weight: 600; opacity: .85; }
+
+.panduan-pdf--sisi { flex-direction: column; margin: var(--s-4) 0 0; padding-top: var(--s-3); border-top: 1px solid var(--garis); }
+.panduan-pdf--sisi .tombol, .panduan-pdf--sisi .tombol-garis { justify-content: center; width: 100%; }
+
+/* ---------- Halaman cetak (/panduan/cetak): seluruh panduan dalam satu dokumen untuk PDF ---------- */
+body:has(.panduan-cetak) .panduan-kepala,
+body:has(.panduan-cetak) .panduan-toc-box,
+body:has(.panduan-cetak) .panduan-toc-fold,
+body:has(.panduan-cetak) .kaki-halaman--panduan { display: none; }
+body:has(.panduan-cetak) .panduan-tata-letak { display: block; max-width: none; padding: 0; }
+body:has(.panduan-cetak) .panduan-doc { max-width: 190mm; margin: 0 auto; padding: var(--s-5) 0; }
+.panduan-cetak { font-size: 10.5pt; line-height: 1.55; }
+.cetak-sampul { min-height: 240mm; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: var(--s-3); break-after: page; }
+.cetak-sampul img { width: 96px; height: auto; margin-bottom: var(--s-4); }
+.cetak-sampul__instansi { margin: 0; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tautan-kuat); }
+.cetak-sampul h1 { margin: 0; font-size: 28pt; line-height: 1.15; }
+.cetak-sampul__sub { margin: 0; max-width: 140mm; font-size: 13pt; color: var(--redup); }
+.cetak-sampul__meta { margin: var(--s-6) 0 0; padding-top: var(--s-3); border-top: 2px solid var(--hijau-2); font-size: 10pt; color: var(--redup); }
+.cetak-isi { break-after: page; }
+.cetak-isi h2 { margin: 0 0 var(--s-4); font-size: 18pt; }
+.cetak-isi h3 { margin: var(--s-4) 0 var(--s-2); font-size: 11pt; color: var(--tautan-kuat); }
+.cetak-isi ul { list-style: none; margin: 0; padding: 0; }
+.cetak-isi li { padding: 3px 0; border-bottom: 1px dotted var(--garis); }
+.cetak-isi a { display: flex; gap: var(--s-2); align-items: center; color: var(--teks); text-decoration: none; }
+.cetak-kelompok__judul { margin: 0 0 var(--s-4); padding-bottom: var(--s-2); border-bottom: 2px solid var(--hijau-2); font-size: 17pt; break-before: page; break-after: avoid; }
+.cetak-bagian { margin: 0 0 var(--s-6); }
+.cetak-bagian .panduan-judul { font-size: 15pt; break-after: avoid; }
+.cetak-bagian .panduan-ringkas-lede { font-size: 10.5pt; margin-bottom: var(--s-3); padding-bottom: var(--s-2); break-after: avoid; }
+.cetak-bagian .panduan-gambar, .cetak-bagian .panduan-catatan, .cetak-bagian .panduan-tabel tr, .cetak-bagian h4 { break-inside: avoid; }
+.cetak-bagian h4 { break-after: avoid; }
+.cetak-bagian .panduan-gambar img { max-height: 120mm; width: auto; max-width: 100%; margin: 0 auto; }
+.cetak-bagian .panduan-gambar--ponsel img { max-height: 100mm; }
+.cetak-bagian .panduan-tabel { overflow: visible; }
+.cetak-bagian .panduan-tabel table { min-width: 0; width: 100%; }
+.cetak-bagian .panduan-faq details > summary::marker, .cetak-bagian .panduan-faq details > summary::-webkit-details-marker { display: none; }
+@media print {
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  html, body { background: #fff; }
+  body:has(.panduan-cetak) .panduan-doc { max-width: none; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+}

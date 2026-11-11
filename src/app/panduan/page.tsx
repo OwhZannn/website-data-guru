@@ -1,5 +1,6 @@
 import Tautan from '@/components/ui/Tautan'
 import { SEMUA_BAGIAN } from './konten'
+import TombolPdf from './TombolPdf'
 
 export const metadata = {
   title: 'Buku panduan aplikasi Verval Sertifikasi Guru',
@@ -35,6 +36,7 @@ export default function PanduanIndexPage() {
         <p className="teks-sm redup">
           Pilih salah satu topik di bawah atau gunakan menu di samping untuk membaca petunjuk lengkap per bagian.
         </p>
+        <TombolPdf />
       </div>
 
       <section className="panduan-kelompok-index" id="bagian-a">

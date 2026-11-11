@@ -8,13 +8,17 @@ import { TUGAS, type KunciTugas } from '@/lib/syarat'
  * Centang tugas tambahan. Setiap perubahan langsung disimpan, lalu halaman disegarkan supaya
  * unggahan laporannya muncul atau hilang. Guru menyimpan lewat /api/tugas; admin lewat /api/admin/guru.
  */
-export default function PilihTugas(p: { awal: Record<KunciTugas, boolean>; guruId?: string; terkunci?: boolean }) {
+export default function PilihTugas(p: {
+  awal: Record<KunciTugas, boolean>
+  guruId?: string
+  terkunci?: boolean
+  bukaAwal?: boolean
+}) {
   const router = useRouter()
   const terpasang = useTerpasang()
   const [nilai, setNilai] = useState(p.awal)
   const jumlahDipilih = Object.values(nilai).filter(Boolean).length
-  // Admin yang mengoreksi tugas guru melihat daftar terbuka; guru melihat ringkasan dulu.
-  const dibukaAwal = p.guruId !== undefined
+  const dibukaAwal = p.bukaAwal ?? false
   const [sibuk, setSibuk] = useState<KunciTugas | null>(null)
   const [pesan, setPesan] = useState('')
   const admin = p.guruId !== undefined

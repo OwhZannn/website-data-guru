@@ -12,15 +12,28 @@ input[type=checkbox], input[type=radio], input[type=file] { display: inline-bloc
 button, .tombol {
   font: inherit; font-size: 15px; font-weight: 700; border: 0; border-radius: 999px;
   padding: calc((var(--kontrol-tinggi) - 1.5em) / 2) 18px; /* tinggi total = --kontrol-tinggi (baris 1.5em) */
-  background: var(--hijau-2); color: var(--di-aksen); cursor: pointer; text-decoration: none; display: inline-block;
+  background: var(--hijau-2); color: var(--di-aksen); cursor: pointer; text-decoration: none; display: inline-flex;
+  align-items: center; justify-content: center; gap: var(--s-1);
   transition: background .15s;
 }
 button:hover:not(:disabled), .tombol:hover { background: var(--hijau); color: var(--di-aksen); }
 button:disabled { opacity: .55; cursor: default; }
 button.biasa { background: var(--belum-bg); color: var(--teks); }
 button.biasa:hover:not(:disabled) { background: var(--permukaan-3); color: var(--teks); }
-button.bahaya { background: var(--bahaya); }
-button.bahaya:hover:not(:disabled) { background: var(--tolak-hover); }
+button.bahaya { background: var(--bahaya); color: #ffffff; }
+button.bahaya:hover:not(:disabled) { background: var(--tolak-hover); color: #ffffff; }
+
+/* ---------- Tombol Bergaris (.tombol-garis) ---------- */
+button.tombol-garis, a.tombol-garis, .tombol-garis {
+  background: transparent; color: var(--tautan-kuat);
+  border: 1.5px solid var(--garis-input); border-radius: var(--r-pill);
+  font: inherit; font-size: var(--t-sm); font-weight: 700; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-1);
+}
+button.tombol-garis:hover:not(:disabled), a.tombol-garis:hover, .tombol-garis:hover {
+  background: var(--hijau-muda); border-color: var(--hijau-2); color: var(--tautan-kuat);
+}
+.tombol-garis--sm { min-height: 32px; padding: 0 12px; font-size: var(--t-sm); }
 
 /* ---------- Kepala halaman guru ---------- */
 .kepala { position: sticky; top: 0; z-index: 40; background: var(--permukaan); border-bottom: 1px solid var(--garis); }
@@ -260,10 +273,10 @@ main.profil-halaman { max-width: 860px; padding-top: var(--s-5); }
 .konfirmasi-aksi { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
 
 /* ---------- Tombol bergaris (nonaktifkan, aktifkan) ---------- */
-button.garis-bahaya { background: var(--permukaan); color: var(--tolak); box-shadow: inset 0 0 0 1.5px var(--tolak-garis-2); }
-button.garis-bahaya:hover:not(:disabled) { background: var(--tolak-bg); color: var(--tolak-hover); }
-button.garis-hijau { background: var(--permukaan); color: var(--tautan); box-shadow: inset 0 0 0 1.5px var(--hijau-2); }
-button.garis-hijau:hover:not(:disabled) { background: var(--hijau-muda); color: var(--tautan-kuat); }
+button.garis-bahaya { background: var(--permukaan) !important; color: var(--tolak) !important; box-shadow: inset 0 0 0 1.5px var(--tolak-garis-2); }
+button.garis-bahaya:hover:not(:disabled) { background: var(--tolak-bg) !important; color: var(--tolak-hover) !important; }
+button.garis-hijau { background: var(--permukaan) !important; color: var(--tautan-kuat) !important; box-shadow: inset 0 0 0 1.5px var(--hijau-2); }
+button.garis-hijau:hover:not(:disabled) { background: var(--hijau-muda) !important; color: var(--tautan-kuat) !important; }
 td button.garis-bahaya, td button.garis-hijau { padding: 6px 12px; font-size: 13px; }
 tr.baris-menunggu td { background: var(--tunggu-baris); }
 .contoh-impor { background: var(--latar); border: 1px dashed var(--garis-putus); border-radius: 10px; padding: 10px 12px; font-size: .82rem; overflow-x: auto; margin: 0 0 12px; }
@@ -1359,8 +1372,31 @@ dialog.modal-profil::backdrop {
 }
 .modal-profil .panel.tugas {
   border: 1px solid var(--garis);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   margin-top: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  background: var(--permukaan);
+}
+.modal-profil .tugas summary {
+  min-height: 36px;
+}
+.modal-profil .tugas-daftar {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 4px 8px !important;
+  margin-top: var(--s-2);
+}
+.modal-profil .tugas-daftar .centang {
+  padding: 6px 10px !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  font-size: var(--t-xs) !important;
+  font-weight: 600;
+  border-radius: 6px;
+}
+.modal-profil .tugas-daftar .centang input {
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
 }
 
 /* Penyesuaian ukuran font dan kontrol di dalam modal agar ringkas & rapi */
@@ -1400,11 +1436,20 @@ dialog.modal-profil::backdrop {
   margin-top: var(--s-4);
   padding-top: var(--s-3);
   border-top: 1px solid var(--garis);
+  flex-shrink: 0;
 }
-.modal-profil__kaki button {
-  min-height: 38px;
-  padding: 0 18px;
+.modal-profil__kaki button[type=submit] {
+  min-height: 40px;
+  padding: 0 24px;
   font-size: var(--t-sm);
+  font-weight: 700;
+  background: var(--hijau-2) !important;
+  color: #ffffff !important;
+  border-radius: var(--r-pill);
+}
+.modal-profil__kaki button[type=submit]:hover:not(:disabled) {
+  background: var(--hijau) !important;
+  color: #ffffff !important;
 }
 
 .detail-profil__aksi {

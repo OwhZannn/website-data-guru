@@ -172,8 +172,10 @@ jobs:
           gh release create "v${{ steps.versi.outputs.baru }}" \
             --verify-tag \
             --title "v${{ steps.versi.outputs.baru }}" \
-            --generate-notes \
-            --notes-start-tag "v${{ steps.versi.outputs.lama }}"
+            --generate-notes || \
+          gh release create "v${{ steps.versi.outputs.baru }}" \
+            --verify-tag \
+            --title "v${{ steps.versi.outputs.baru }}"
 
       - name: Ringkasan
         if: always()

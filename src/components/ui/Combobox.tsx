@@ -226,7 +226,7 @@ export default function Combobox({
       <select
         ref={selectRef}
         name={name}
-        aria-label={ariaLabel}
+        aria-label={terpasang ? undefined : ariaLabel}
         className={terpasang ? 'combobox-select-asli' : className}
         value={nilai}
         disabled={disabled}

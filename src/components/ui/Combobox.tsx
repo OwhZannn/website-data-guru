@@ -86,7 +86,10 @@ export default function Combobox({
   const idInput = `combobox-input-${idAcak}`
   const idListbox = `combobox-listbox-${idAcak}`
 
-  // Saring opsi berdasarkan ketikan
+  const labelTerpilih = opsiLengkap.find((o) => o.nilai === nilai)?.label ?? ''
+  const placeholderTeks = labelTerpilih || placeholder || kosongLabel || 'Pilih…'
+
+  // Saring opsi berdasarkan ketikan saat popup terbuka
   const opsiTersaring = opsiLengkap.filter((o) => {
     return cocokTeks(o.label, kueri)
   })
@@ -106,20 +109,26 @@ export default function Combobox({
     setArahAtas(sisaBawah < 260 && rect.top > 260)
   }, [buka])
 
-  // Tutup saat klik di luar
+  // Tutup saat klik di luar dan kembalikan nilai terpilih
   useEffect(() => {
     if (!buka) return
     function klikLuar(e: MouseEvent) {
       if (wadahRef.current && !wadahRef.current.contains(e.target as Node)) {
         setBuka(false)
-        // Kembalikan ketikan ke label yang sedang terpilih
-        const terpilih = opsiLengkap.find((o) => o.nilai === nilai)
-        setKueri(terpilih ? terpilih.label : '')
+        setKueri(labelTerpilih)
       }
     }
     document.addEventListener('mousedown', klikLuar)
     return () => document.removeEventListener('mousedown', klikLuar)
-  }, [buka, nilai, opsiLengkap])
+  }, [buka, labelTerpilih])
+
+  function bukaDanKosongkan() {
+    if (!buka) {
+      setBuka(true)
+      setKueri('')
+      setSorotIdx(-1)
+    }
+  }
 
   function pilihOpsi(o: ButirCombobox) {
     if (o.nonaktif) return
@@ -144,6 +153,7 @@ export default function Combobox({
         e.preventDefault()
         if (!buka) {
           setBuka(true)
+          setKueri('')
           setSorotIdx(0)
         } else {
           setSorotIdx((prev) => {
@@ -158,6 +168,7 @@ export default function Combobox({
         e.preventDefault()
         if (!buka) {
           setBuka(true)
+          setKueri('')
           setSorotIdx(opsiTersaring.length - 1)
         } else {
           setSorotIdx((prev) => {
@@ -179,8 +190,7 @@ export default function Combobox({
         if (buka) {
           e.preventDefault()
           setBuka(false)
-          const terpilih = opsiLengkap.find((o) => o.nilai === nilai)
-          setKueri(terpilih ? terpilih.label : '')
+          setKueri(labelTerpilih)
         }
         break
       }
@@ -203,8 +213,7 @@ export default function Combobox({
       }
       case 'Tab': {
         setBuka(false)
-        const terpilih = opsiLengkap.find((o) => o.nilai === nilai)
-        setKueri(terpilih ? terpilih.label : '')
+        setKueri(labelTerpilih)
         break
       }
     }
@@ -263,20 +272,18 @@ export default function Combobox({
               buka && sorotIdx >= 0 ? `${idListbox}-opsi-${sorotIdx}` : undefined
             }
             aria-label={ariaLabel}
-            value={kueri}
+            value={buka ? kueri : labelTerpilih}
             disabled={disabled}
-            placeholder={placeholder ?? kosongLabel ?? 'Pilih…'}
+            placeholder={placeholderTeks}
             className="combobox-input"
             autoComplete="off"
             spellCheck={false}
+            onClick={bukaDanKosongkan}
+            onFocus={bukaDanKosongkan}
             onChange={(e) => {
               setKueri(e.target.value)
-              setBuka(true)
+              if (!buka) setBuka(true)
               setSorotIdx(0)
-            }}
-            onFocus={() => {
-              setBuka(true)
-              setSorotIdx(-1)
             }}
             onKeyDown={tanganiKeyDown}
           />

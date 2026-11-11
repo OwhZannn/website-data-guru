@@ -74,4 +74,24 @@ test.describe('Combobox dengan pencarian di dalam kolom (Issue #51)', () => {
     await expect(listbox).toBeVisible()
     await expect(listbox.getByText('Tidak ada yang cocok')).toBeVisible()
   })
+
+  test('saat diklik kolom dikosongkan agar pengguna langsung bisa mengetik pencarian baru', async ({ page }) => {
+    const admin = await buatAdmin()
+    await masuk(page, admin.email)
+    await page.goto('/admin/guru?statusPegawai=PNS')
+
+    const input = page.locator('.combobox-input[aria-label="Jenis pegawai"]')
+    await expect(input).toHaveValue('PNS')
+
+    // Klik input mengosongkan textfield dan membuka daftar
+    await input.click()
+    await expect(input).toHaveValue('')
+    await expect(input).toHaveAttribute('placeholder', 'PNS')
+    const listbox = page.locator('ul[role="listbox"][aria-label="Jenis pegawai"]')
+    await expect(listbox).toBeVisible()
+
+    // Batal dengan Escape mengembalikan nilai sebelumnya
+    await input.press('Escape')
+    await expect(input).toHaveValue('PNS')
+  })
 })

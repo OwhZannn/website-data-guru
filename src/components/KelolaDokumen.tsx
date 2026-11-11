@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { BERLAKU, LABEL_BERLAKU } from '@/lib/syarat'
 import DataTable, { type Kolom } from './ui/DataTable'
 import PageHeader from './ui/PageHeader'
+import Combobox from './ui/Combobox'
 
 type Dok = { id: string; nama: string; urutan: number; berlakuUntuk: string }
 
@@ -72,10 +73,14 @@ export default function KelolaDokumen({ periodeId, periodeNama, aktif, nonaktif 
     {
       id: 'berlaku', label: 'Berlaku untuk',
       sel: (d) => (
-        <select aria-label={`Berlaku untuk ${d.nama}`} value={d.berlakuUntuk} disabled={sibuk}
-          onChange={(e) => kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, berlakuUntuk: e.target.value })}>
-          {BERLAKU.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
+        <Combobox
+          name={`berlaku-${d.id}`}
+          ariaLabel={`Berlaku untuk ${d.nama}`}
+          defaultValue={d.berlakuUntuk}
+          disabled={sibuk}
+          opsi={BERLAKU}
+          onChange={(val) => void kirim({ aksi: 'ubah', periodeId, dokumenId: d.id, berlakuUntuk: val })}
+        />
       ),
     },
     {
@@ -120,9 +125,13 @@ export default function KelolaDokumen({ periodeId, periodeNama, aktif, nonaktif 
         aksi={(
           <form className="form-inline" onSubmit={(e) => { e.preventDefault(); void tambah() }}>
             <input aria-label="Nama dokumen baru" placeholder="Nama dokumen baru" value={nama} onChange={(e) => setNama(e.target.value)} maxLength={200} />
-            <select aria-label="Berlaku untuk" value={berlaku} onChange={(e) => setBerlaku(e.target.value)}>
-              {BERLAKU.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
+            <Combobox
+              name="berlaku-baru"
+              ariaLabel="Berlaku untuk"
+              defaultValue={berlaku}
+              opsi={BERLAKU}
+              onChange={setBerlaku}
+            />
             <button type="submit" disabled={sibuk}>Tambah dokumen</button>
           </form>
         )}

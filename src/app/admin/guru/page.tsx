@@ -17,6 +17,7 @@ import EmptyState from '@/components/ui/EmptyState'
 import { SearchX } from 'lucide-react'
 import Tautan from '@/components/ui/Tautan'
 import ModalGuru from '@/components/ModalGuru'
+import Combobox from '@/components/ui/Combobox'
 
 export const dynamic = 'force-dynamic'
 
@@ -204,14 +205,20 @@ export default async function HalamanGuru({ searchParams }: {
             )
           })}
         </div>
-        <select name="asalSekolah" aria-label="Asal sekolah" defaultValue={filterSekolah}>
-          <option value="">Semua sekolah</option>
-          {daftarSekolah.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select name="statusPegawai" aria-label="Jenis pegawai" defaultValue={filterPegawai}>
-          <option value="">Semua jenis pegawai</option>
-          {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
+        <Combobox
+          name="asalSekolah"
+          ariaLabel="Asal sekolah"
+          kosongLabel="Semua sekolah"
+          defaultValue={filterSekolah}
+          opsi={daftarSekolah}
+        />
+        <Combobox
+          name="statusPegawai"
+          ariaLabel="Jenis pegawai"
+          kosongLabel="Semua jenis pegawai"
+          defaultValue={filterPegawai}
+          opsi={STATUS_PEGAWAI}
+        />
         {adaFilter && <Tautan href={hapusFilter} className="hapus-filter">Hapus filter</Tautan>}
       </FormOtomatis>
 

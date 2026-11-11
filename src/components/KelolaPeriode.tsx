@@ -7,6 +7,7 @@ import PageHeader from './ui/PageHeader'
 import EmptyState from './ui/EmptyState'
 import { CalendarX } from 'lucide-react'
 import Tautan from '@/components/ui/Tautan'
+import Combobox from './ui/Combobox'
 
 type P = { id: string; nama: string; dibuka: boolean }
 
@@ -58,10 +59,14 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
       id: 'salin', label: 'Salin dokumen',
       sel: (p) => periode.length > 1 ? (
         <span className="aksi-baris">
-          <select aria-label={`Sumber salinan untuk ${p.nama}`} value={sumber[p.id] ?? ''} onChange={(e) => setSumber({ ...sumber, [p.id]: e.target.value })}>
-            <option value="">Dari periode lain…</option>
-            {periode.filter((x) => x.id !== p.id).map((x) => <option key={x.id} value={x.id}>{x.nama}</option>)}
-          </select>
+          <Combobox
+            name={`sumber-${p.id}`}
+            ariaLabel={`Sumber salinan untuk ${p.nama}`}
+            kosongLabel="Dari periode lain…"
+            defaultValue={sumber[p.id] ?? ''}
+            opsi={periode.filter((x) => x.id !== p.id).map((x) => [x.id, x.nama] as [string, string])}
+            onChange={(val) => setSumber((prev) => ({ ...prev, [p.id]: val }))}
+          />
           <button className="biasa" disabled={sibuk || !sumber[p.id]} onClick={() => kirim({ aksi: 'salin', dariPeriodeId: sumber[p.id], kePeriodeId: p.id }, (j) => `${j.jumlah} dokumen disalin ke ${p.nama}`)}>Salin</button>
         </span>
       ) : <span className="redup">—</span>,

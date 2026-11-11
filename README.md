@@ -175,6 +175,16 @@ Di Komodo, Stack harus mengambil compose dari repo ini pada cabang `main`. Komod
 
 Cara kerjanya: workflow menandatangani isi `{"ref":"refs/heads/main",…}` dengan HMAC-SHA256 dan mengirimnya sebagai `X-Hub-Signature-256`, persis seperti yang dikirim GitHub, sehingga tidak perlu webhook git terpisah di repo (dua jalur akan men-deploy dua kali dan melewati CI). Komodo Core harus bisa dijangkau dari internet pada jalur `/listener`.
 
+## 9c. Memperbarui PDF buku panduan
+
+Halaman `/panduan` punya tombol **Unduh PDF** dan **Pratinjau PDF**. Berkasnya `public/panduan/Panduan-Penggunaan-Verval-Sertifikasi-Guru.pdf` dan ikut tersimpan di git supaya terpasang di image. Setelah isi panduan (`src/app/panduan/konten.tsx`) berubah, buat ulang dengan:
+
+```bash
+npm run panduan:pdf     # butuh Chromium Playwright: npx playwright install chromium
+```
+
+Skrip ini menjalankan server pengembangan sementara, mencetak `/panduan/cetak` (seluruh bagian dalam satu dokumen) ke PDF A4, lalu mematikan servernya. Lalu commit berkas PDF-nya. Tombol disembunyikan otomatis bila berkas belum ada.
+
 ## 10. Daftar periksa sebelum dibuka
 
 - [ ] Server berarsitektur x86_64/amd64. Image menargetkan `linux-musl-openssl-3.0.x`; build sengaja gagal di arm64.

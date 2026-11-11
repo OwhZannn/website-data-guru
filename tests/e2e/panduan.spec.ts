@@ -120,4 +120,37 @@ test.describe('Halaman Panduan (/panduan) dan Tautan Panduan', () => {
     await expect(page.locator('.menu-profil')).toBeVisible()
     await expect(page.locator('header a[href="/masuk"]')).toHaveCount(0)
   })
+
+  test('tombol Unduh PDF dan Pratinjau PDF mengarah ke berkas PDF panduan yang bisa diunduh', async ({ page, request }) => {
+    await page.goto('/panduan')
+    const unduh = page.getByRole('link', { name: /Unduh PDF/ }).first()
+    const pratinjau = page.getByRole('link', { name: /Pratinjau PDF/ }).first()
+    await expect(unduh).toBeVisible()
+    await expect(unduh).toHaveAttribute('href', '/panduan/Panduan-Penggunaan-Verval-Sertifikasi-Guru.pdf')
+    await expect(unduh).toHaveAttribute('download', 'Panduan-Penggunaan-Verval-Sertifikasi-Guru.pdf')
+    await expect(pratinjau).toHaveAttribute('target', '_blank')
+
+    const res = await request.get('/panduan/Panduan-Penggunaan-Verval-Sertifikasi-Guru.pdf')
+    expect(res.status()).toBe(200)
+    expect(res.headers()['content-type']).toContain('application/pdf')
+    expect((await res.body()).subarray(0, 5).toString()).toBe('%PDF-')
+
+    // Juga tersedia di halaman bagian (sidebar desktop).
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/panduan/a1')
+    await expect(page.locator('.panduan-toc-side').getByRole('link', { name: /Unduh PDF/ })).toBeVisible()
+  })
+
+  test('halaman cetak /panduan/cetak memuat seluruh bagian dalam satu dokumen tanpa kepala dan sidebar', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/panduan/cetak')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Buku Panduan Aplikasi Verval Sertifikasi Guru')
+    for (const id of ['a1', 'a9', 'b1', 'b10', 'l1', 'l3']) await expect(page.locator(`#bagian-${id}`)).toHaveCount(1)
+    await expect(page.locator('.panduan-kepala')).toBeHidden()
+    await expect(page.locator('.panduan-toc-side')).toBeHidden()
+    // FAQ dibuka semua supaya jawabannya ikut tercetak.
+    const lipatan = page.locator('.panduan-cetak details')
+    expect(await lipatan.count()).toBeGreaterThan(0)
+    expect(await lipatan.evaluateAll((els) => els.every((e) => (e as HTMLDetailsElement).open))).toBe(true)
+  })
 })

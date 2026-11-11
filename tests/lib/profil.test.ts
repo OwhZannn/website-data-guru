@@ -16,6 +16,21 @@ describe('simpanProfil', () => {
     periodeId = (await prisma.periode.create({ data: { nama: 'P', dibuka: true } })).id
   })
 
+  it('menyimpan tugas tambahan bersama profil dalam satu catatan riwayat', async () => {
+    await simpanProfil({ guruId, data: { ...sah, jabatan: 'KEPSEK' }, tugas: { tugasTbq: true, tugasOsis: true }, oleh: adminId, olehTipe: 'admin' })
+    const g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })
+    expect(g).toMatchObject({ jabatan: 'KEPSEK', tugasTbq: true, tugasOsis: true, tugasRohis: false })
+    const riwayat = await prisma.riwayat.findMany({ where: { guruId, aksi: 'ubah_profil' } })
+    expect(riwayat).toHaveLength(1)
+    expect(riwayat[0].alasan).toContain('jabatan')
+    expect(riwayat[0].alasan).toContain('Jam tambahan TBQ: tidak → ya')
+  })
+
+  it('tugas yang tidak valid menggagalkan seluruh penyimpanan', async () => {
+    await expect(simpanProfil({ guruId, data: sah, tugas: { tugasTbq: 'ya' }, oleh: adminId, olehTipe: 'admin' })).rejects.toThrow()
+    expect((await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })).asalSekolah).toBeNull()
+  })
+
   it('menyimpan profil dan mencatat perubahan di riwayat periode yang dibuka', async () => {
     await simpanProfil({ guruId, data: { ...sah, jabatan: 'KEPSEK' }, oleh: guruId, olehTipe: 'guru' })
     const g = await prisma.guru.findUniqueOrThrow({ where: { id: guruId } })

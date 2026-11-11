@@ -82,7 +82,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
   }
 
   return (
-    <>
+    <div className="halaman-guru-cangkang">
       <Kepala nama={guru.nama} aksi={<Tautan href="/profil">Profil &amp; kata sandi</Tautan>} periode={periode ? { daftar: daftarPeriode, dipilih: periode.id } : undefined} />
       <main className="dua">
         <div className="dua-kiri">
@@ -138,14 +138,18 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
             {perluTindakan.length > 0 && (
               <section className="kelompok" id="perlu-tindakan" aria-label="Perlu tindakan">
                 <h3 className="kelompok__judul kelompok__judul--tolak">Perlu tindakan</h3>
-                {perluTindakan.map(renderKartu)}
+                <div className="kelompok-daftar">
+                  {perluTindakan.map(renderKartu)}
+                </div>
               </section>
             )}
 
             {sedangDiperiksa.length > 0 && (
               <section className="kelompok" id="sedang-diperiksa" aria-label="Sedang diperiksa">
                 <h3 className="kelompok__judul kelompok__judul--tunggu">Sedang diperiksa</h3>
-                {sedangDiperiksa.map(renderKartu)}
+                <div className="kelompok-daftar">
+                  {sedangDiperiksa.map(renderKartu)}
+                </div>
               </section>
             )}
 
@@ -154,13 +158,15 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
                 <summary className="kelompok__judul kelompok__judul--sah">
                   Sudah sah ({sudahSah.length})
                 </summary>
-                {sudahSah.map(renderKartu)}
+                <div className="kelompok-daftar">
+                  {sudahSah.map(renderKartu)}
+                </div>
               </details>
             )}
           </div>
         )}
       </main>
       <KakiHalaman />
-    </>
+    </div>
   )
 }

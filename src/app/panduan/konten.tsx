@@ -358,15 +358,15 @@ Nur Hasanah;;5201014507900001;Non ASN;2021`}</pre>
       <>
         <ol>
           <li>Tekan nama guru di daftar, antrean, atau beranda untuk membuka <b>Detail Guru</b>.</li>
-          <li>Pada dokumen <b>Menunggu diperiksa</b>, buka berkasnya (tombol <b>Buka di Drive</b>). Berkas terbuka di Google Drive.</li>
+          <li>Pada dokumen <b>Menunggu diperiksa</b>, periksa berkas langsung melalui penampil dokumen atau unduh berkas (tombol <b>Unduh</b>).</li>
           <li>Bila sesuai ketentuan, tekan <b>Sahkan</b>.</li>
           <li>Bila tidak sesuai, tekan <b>Tolak</b>, tulis alasan penolakan yang jelas (atau pilih alasan siap pakai), lalu tekan <b>Kirim penolakan</b>. Alasan ini tampil di halaman guru.</li>
         </ol>
         <Gambar berkas="admin-detail-guru.webp" alt="Detail Guru: profil, progres, dan dokumen yang diminta" lebar={1280} tinggi={720}>
           Gambar B5. Detail Guru: profil, progres, dan dokumen yang diminta
         </Gambar>
-        <Gambar berkas="klip-periksa.webp" alt="Klip simulasi memeriksa dokumen: mengesahkan dan menolak dengan alasan" lebar={610} tinggi={445}>
-          Klip B1. Alur memeriksa, mengesahkan, dan menolak dokumen (diperbesar dengan kursor interaktif)
+        <Gambar berkas="klip-periksa.webp" alt="Tampilan dokumen yang diperiksa dalam penampil dokumen" lebar={610} tinggi={445}>
+          Gambar B6. Tampilan dokumen yang diperiksa dalam penampil dokumen
         </Gambar>
         <h4>Menulis alasan penolakan</h4>
         <p>Sebutkan apa yang kurang dan apa yang harus dilakukan guru, misalnya “Stempel terpotong, mohon pindai ulang seluruh halaman” atau “Tanda tangan kepala sekolah belum ada”. Daftar alasan siap pakai diatur di menu <b>Alasan penolakan</b>.</p>

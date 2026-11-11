@@ -7,6 +7,7 @@ import KakiHalaman from '@/components/KakiHalaman'
 import MenuProfil from '@/components/MenuProfil'
 import Tautan from '@/components/ui/Tautan'
 import { PanduanSidebarDesktop, PanduanMobileFold } from './PanduanSidebar'
+import TombolPdf from './TombolPdf'
 
 export const metadata = {
   title: 'Panduan penggunaan · Verval Sertifikasi Guru',
@@ -90,9 +91,9 @@ export default async function PanduanLayout({ children }: { children: ReactNode 
       </header>
 
       <div className="panduan-tata-letak">
-        <PanduanSidebarDesktop />
+        <PanduanSidebarDesktop pdf={<TombolPdf kelas="panduan-pdf--sisi" />} />
         <main className="panduan-doc">
-          <PanduanMobileFold />
+          <PanduanMobileFold pdf={<TombolPdf kelas="panduan-pdf--sisi" />} />
           {children}
         </main>
       </div>

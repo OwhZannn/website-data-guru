@@ -115,6 +115,38 @@ export async function unduhInfoFile(
   }
 }
 
+/** Mengunduh berkas langsung dari Google Drive sebagai stream untuk pratinjau atau unduh internal. */
+export async function unduhStreamDrive(fileId: string): Promise<{
+  stream: Readable
+  nama: string
+  tipe: string
+  ukuran: number
+} | null> {
+  if (palsu()) {
+    const dummyPdf = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 595 842]/Parent 2 0 R>>endobj\nxref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000052 00000 n \n0000000101 00000 n \ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n162\n%%EOF\n')
+    return {
+      stream: Readable.from(dummyPdf),
+      nama: 'dokumen.pdf',
+      tipe: 'application/pdf',
+      ukuran: dummyPdf.length,
+    }
+  }
+  try {
+    const d = drive()
+    const meta = await d.files.get({ fileId, fields: 'name,mimeType,size' })
+    const res = await d.files.get({ fileId, alt: 'media' }, { responseType: 'stream' })
+    return {
+      stream: res.data as Readable,
+      nama: meta.data.name ?? 'dokumen.pdf',
+      tipe: meta.data.mimeType ?? 'application/pdf',
+      ukuran: Number(meta.data.size ?? 0),
+    }
+  } catch (e: any) {
+    if (e?.code === 404 || e?.status === 404) return null
+    throw e
+  }
+}
+
 /** Pemeriksaan kesehatan: satu panggilan ringan ke folder induk, dengan batas waktu. */
 export async function periksaDrive(batasMs = 5000): Promise<void> {
   if (palsu()) return

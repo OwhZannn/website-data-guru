@@ -129,3 +129,22 @@ test('admin dapat menambah dan menonaktifkan alasan penolakan', async ({ page })
   const sesudah = await db.alasanTolak.findUnique({ where: { id: baris!.id } })
   expect(sesudah!.aktif).toBe(false)
 })
+
+test('tombol item dokumen di panel review rata ke kiri (justify-content: flex-start)', async ({ page }) => {
+  const { guru, periode } = await siapkan({ dokumen: [{ status: 'MENUNGGU' }] })
+  const admin = await buatAdmin()
+
+  await masuk(page, admin.email)
+  await page.goto(`/admin/guru/${guru.id}?periode=${periode.id}`)
+  await page.waitForLoadState('networkidle')
+
+  const item = page.locator('.review-item').first()
+  await expect(item).toBeVisible()
+
+  const jc = await item.evaluate((el) => window.getComputedStyle(el).justifyContent)
+  expect(jc).toBe('flex-start')
+
+  const ta = await item.evaluate((el) => window.getComputedStyle(el).textAlign)
+  expect(ta).toBe('left')
+})
+

@@ -85,4 +85,12 @@ test.describe('halaman admin muat satu layar di 1440×900', () => {
       expect(t.dokumen, `${nama}: tinggi dokumen ${t.dokumen}px melebihi layar ${t.viewport}px`).toBeLessThanOrEqual(t.viewport + 1)
     })
   }
+
+  test('Dokumen guru tanpa gulir halaman', async ({ page }) => {
+    const g = await db.guru.findFirstOrThrow()
+    await masuk(page, g.username)
+    await page.goto('/dokumen')
+    const t = await tinggi(page)
+    expect(t.dokumen, `Dokumen guru: tinggi dokumen ${t.dokumen}px melebihi layar ${t.viewport}px`).toBeLessThanOrEqual(t.viewport + 1)
+  })
 })

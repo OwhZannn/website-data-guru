@@ -25,6 +25,7 @@ test.describe('Sidebar admin — desktop (1280×800)', () => {
   test('navigasi ke Guru mengubah butir aktif', async ({ page }) => {
     const admin = await buatAdmin()
     await masuk(page, admin.email)
+    await expect(page).toHaveURL('/admin')
 
     const sidebar = page.locator('aside.admin-sidebar')
     const nav = sidebar.getByRole('navigation', { name: 'Menu admin' })

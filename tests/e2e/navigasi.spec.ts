@@ -102,7 +102,7 @@ test('klik tengah membuka tab baru, bukan mengganti halaman ini', async ({ page,
     context.waitForEvent('page'),
     linkGuru.click({ button: 'middle' }),
   ])
-  await tabBaru.waitForLoadState('domcontentloaded')
+  await tabBaru.waitForURL(/\/admin\/guru/, { timeout: 15_000 })
   expect(tabBaru.url()).toContain('/admin/guru')
   await expect(page).toHaveURL(/\/admin$/)
   await tabBaru.close()

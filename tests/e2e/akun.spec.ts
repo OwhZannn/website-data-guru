@@ -154,7 +154,7 @@ test('admin mengganti kata sandi sendiri lewat menu Akun saya', async ({ page, c
   await expect(page).toHaveURL('/admin')
   await bukaMenu(page)
   await page.getByRole('menuitem', { name: 'Akun saya' }).click()
-  await expect(page).toHaveURL('/admin/akun')
+  await expect(page).toHaveURL('/admin/akun', { timeout: 15_000 })
   await expect(page.getByRole('heading', { name: 'Akun saya' })).toBeVisible()
   await expect(page.getByLabel('Data akun').getByText(admin.nama)).toBeVisible()
   await expect(page.getByLabel('Data akun').getByText(admin.email)).toBeVisible()

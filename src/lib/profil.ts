@@ -64,8 +64,10 @@ async function simpanDenganRiwayat(
   })
 }
 
-export async function simpanProfil(m: { guruId: string; data: unknown; oleh: string; olehTipe: 'guru' | 'admin' }) {
+/** Simpan profil; `tugas` (opsional) ikut disimpan dalam transaksi yang sama sehingga semuanya berhasil atau tidak sama sekali. */
+export async function simpanProfil(m: { guruId: string; data: unknown; tugas?: unknown; oleh: string; olehTipe: 'guru' | 'admin' }) {
   const masukan = bacaProfil(m.data)
+  const tugasBaru = m.tugas === undefined ? undefined : baca(skemaTugas, m.tugas, 'Isian tugas tambahan tidak sah')
 
   return prisma.$transaction(async (tx) => {
     const lama = await tx.guru.findUnique({ where: { id: m.guruId } })
@@ -144,6 +146,15 @@ export async function simpanProfil(m: { guruId: string; data: unknown; oleh: str
     }
     if (lama.sertifikasiBaru !== masukan.sertifikasiBaru) {
       ubah.push(`sertifikasi baru: ${ya(lama.sertifikasiBaru)} → ${ya(masukan.sertifikasiBaru)}`)
+    }
+    if (tugasBaru) {
+      const dataTugas: Prisma.GuruUpdateInput = data
+      for (const [k, label] of TUGAS) {
+        const v = tugasBaru[k]
+        if (v === undefined || v === lama[k]) continue
+        dataTugas[k] = v
+        ubah.push(`${label}: ${ya(lama[k])} → ${ya(v)}`)
+      }
     }
 
     if (ubah.length === 0) return { berubah: false }

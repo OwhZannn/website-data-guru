@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check } from 'lucide-react'
 import { useTerpasang } from '@/lib/terpasang'
 import { TUGAS, type KunciTugas } from '@/lib/syarat'
 
@@ -14,7 +13,6 @@ export default function PilihTugas(p: {
   guruId?: string
   terkunci?: boolean
   bukaAwal?: boolean
-  varian?: 'kartu' | 'pil'
 }) {
   const router = useRouter()
   const terpasang = useTerpasang()
@@ -46,33 +44,6 @@ export default function PilihTugas(p: {
       setPesan('Koneksi terputus. Periksa jaringan Anda lalu coba lagi.')
     }
     setSibuk(null)
-  }
-
-  if (p.varian === 'pil') {
-    return (
-      <div className="tugas-pil-wrap" role="group" aria-labelledby="judul-tugas-pil">
-        <div className="tugas-pil-judul" id="judul-tugas-pil">
-          Tugas tambahan
-          <span className="redup">{jumlahDipilih > 0 ? `${jumlahDipilih} dipilih` : 'Pilih yang sesuai, boleh lebih dari satu'}</span>
-        </div>
-        <div className="tugas-pil-daftar">
-          {TUGAS.map(([k, l]) => (
-            <label className="tugas-pil" key={k}>
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={nilai[k]}
-                disabled={!terpasang || p.terkunci || sibuk !== null}
-                onChange={(e) => void ubah(k, e.target.checked)}
-              />
-              {nilai[k] && <Check className="tugas-pil__ikon" size={14} strokeWidth={3} aria-hidden="true" />}
-              <span>{l}</span>
-            </label>
-          ))}
-        </div>
-        {pesan && <p className="galat" role="alert">{pesan}</p>}
-      </div>
-    )
   }
 
   return (

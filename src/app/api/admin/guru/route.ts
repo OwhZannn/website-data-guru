@@ -10,7 +10,7 @@ const id = z.string().min(1)
 const skema = z.discriminatedUnion('aksi', [
   z.object({ aksi: z.literal('aktif'), guruId: id, aktif: z.boolean() }),
   z.object({ aksi: z.literal('atur_ulang_sandi'), guruId: id }),
-  z.object({ aksi: z.literal('profil'), guruId: id, profil: z.unknown() }),
+  z.object({ aksi: z.literal('profil'), guruId: id, profil: z.unknown(), tugas: z.unknown().optional() }),
   z.object({ aksi: z.literal('tugas'), guruId: id, tugas: z.unknown() }),
   z.object({ aksi: z.literal('tambah'), data: z.unknown() }),
   z.object({ aksi: z.literal('setujui'), guruId: id }),
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     if (!h.success) return gagal('Permintaan tidak sah')
     const b = h.data
     if (b.aksi === 'profil') {
-      return Response.json({ ok: true, ...(await simpanProfil({ guruId: b.guruId, data: b.profil, oleh: admin.id, olehTipe: 'admin' })) })
+      return Response.json({ ok: true, ...(await simpanProfil({ guruId: b.guruId, data: b.profil, tugas: b.tugas, oleh: admin.id, olehTipe: 'admin' })) })
     }
     if (b.aksi === 'tambah') {
       const akun = await buatAkunGuru({ data: b.data, disetujui: true, oleh: admin.id })

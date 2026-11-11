@@ -6,7 +6,6 @@ import type { Guru } from '@prisma/client'
 import { type KunciTugas } from '@/lib/syarat'
 import FormProfil from './FormProfil'
 import FormGuruBaru from './FormGuruBaru'
-import PilihTugas from './PilihTugas'
 
 export type ModalGuruProps =
   | {
@@ -32,7 +31,11 @@ export default function ModalGuru(p: ModalGuruProps) {
   useEffect(() => {
     const d = ref.current
     if (!d) return
-    if (buka && !d.open) d.showModal()
+    if (buka && !d.open) {
+      d.showModal()
+      // Fokus ke isian pertama, bukan tombol tutup.
+      d.querySelector<HTMLElement>('.modal-profil__badan input:not([disabled])')?.focus()
+    }
     if (!buka && d.open) d.close()
   }, [buka])
 
@@ -65,16 +68,17 @@ export default function ModalGuru(p: ModalGuruProps) {
           </button>
         </div>
         <div className="modal-profil__isi">
-          {p.mode === 'tambah' ? (
+          {/* Dipasang hanya saat terbuka: menutup tanpa simpan membuang perubahan, membuka lagi memuat data terbaru. */}
+          {buka && (p.mode === 'tambah' ? (
             <FormGuruBaru mode="admin" onSelesai={tutup} />
           ) : (
             <FormProfil
               awal={p.guru}
               guruId={p.guru.id}
               onSelesai={tutup}
-              anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} varian="pil" />}
+              tugas={p.tugas}
             />
-          )}
+          ))}
         </div>
       </div>
     </dialog>

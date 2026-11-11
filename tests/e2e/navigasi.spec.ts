@@ -96,12 +96,16 @@ test('klik tengah membuka tab baru, bukan mengganti halaman ini', async ({ page,
   const admin = await buatAdmin()
   await masuk(page, admin.email)
   await page.goto('/admin')
-  await expect(sidebar(page, '/admin/guru')).toBeVisible()
-  const tabBaru = context.waitForEvent('page')
-  await sidebar(page, '/admin/guru').click({ button: 'middle' })
-  const t = await tabBaru
-  await t.waitForURL(/\/admin\/guru/, { waitUntil: 'domcontentloaded' })
+  const linkGuru = sidebar(page, '/admin/guru')
+  await expect(linkGuru).toBeVisible()
+  const [tabBaru] = await Promise.all([
+    context.waitForEvent('page'),
+    linkGuru.click({ button: 'middle' }),
+  ])
+  await tabBaru.waitForLoadState('domcontentloaded')
+  expect(tabBaru.url()).toContain('/admin/guru')
   await expect(page).toHaveURL(/\/admin$/)
+  await tabBaru.close()
 })
 
 test('bilah kemajuan tampil saat berpindah ke rute yang lambat, lalu selesai', async ({ page }) => {

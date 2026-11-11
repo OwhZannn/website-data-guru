@@ -1562,3 +1562,148 @@ button.modal-profil__tutup:hover:not(:disabled) { background: var(--hover-halus)
   white-space: nowrap;
   border: 0;
 }
+
+/* ---------- PDFViewer (komponen penampil dokumen interaktif) ---------- */
+.pdf-viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 440px;
+  background: #1e293b;
+  border: 1px solid var(--garis);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.pdf-viewer--fullscreen,
+.pdf-viewer:fullscreen {
+  border-radius: 0;
+  border: none;
+  background: #0f172a;
+}
+.pdf-viewport {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-3);
+  position: relative;
+  user-select: none;
+}
+.pdf-viewport--panning {
+  cursor: grab;
+}
+.pdf-viewport--active-pan {
+  cursor: grabbing;
+}
+.pdf-canvas-wrap {
+  display: inline-block;
+  transition: transform 0.05s ease-out;
+  transform-origin: center center;
+}
+.pdf-canvas {
+  display: block;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.pdf-loading,
+.pdf-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  color: #94a3b8;
+  font-size: var(--t-sm);
+  padding: var(--s-6);
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+.pdf-loading-spin {
+  animation: spin 1s linear infinite;
+  color: var(--hijau);
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.pdf-toolbar {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f8fafc;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+.pdf-toolbar-btn {
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, opacity 0.15s;
+}
+.pdf-toolbar-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+.pdf-toolbar-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.pdf-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 2px;
+}
+.pdf-toolbar-page {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.pdf-toolbar-slider {
+  width: 70px;
+  height: 4px;
+  accent-color: var(--hijau);
+  cursor: pointer;
+  margin: 0 2px;
+}
+.pdf-toolbar-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+  min-width: 36px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.pdf-toolbar-badge:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

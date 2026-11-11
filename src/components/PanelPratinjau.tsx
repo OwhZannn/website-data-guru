@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { Download } from 'lucide-react'
+import PDFViewer from './PDFViewer'
 
 export default function PanelPratinjau({
   fileId,
@@ -21,24 +22,22 @@ export default function PanelPratinjau({
     )
   }
 
-  const urlPratinjau = `https://drive.google.com/file/d/${fileId}/preview`
-  const urlDrive = `https://drive.google.com/file/d/${fileId}/view`
+  const urlPratinjau = `/api/dokumen/berkas/${fileId}`
 
   return (
     <div className={`pratinjau-panel${tampil ? '' : ' pratinjau-panel--sembunyikan'}`}>
-      {/* Kepala: nama + tautan Drive selalu terlihat */}
+      {/* Kepala: nama + tombol unduh selalu terlihat */}
       <div className="pratinjau-kepala">
         <span className="pratinjau-nama">{namaDokumen}</span>
         <a
-          href={urlDrive}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={urlPratinjau}
+          download
           className="tombol-garis tombol-garis--sm"
-          aria-label="Buka di Drive"
-          title="Buka di Drive"
+          aria-label="Unduh berkas"
+          title="Unduh berkas"
         >
-          <ExternalLink size={16} />
-          <span>Buka di Drive</span>
+          <Download size={16} />
+          <span>Unduh</span>
         </a>
       </div>
 
@@ -55,13 +54,7 @@ export default function PanelPratinjau({
       </div>
 
       <div className={`pratinjau-isi${tampilMobile ? ' pratinjau-isi--aktif' : ''}`}>
-        <iframe
-          src={urlPratinjau}
-          title={`Pratinjau ${namaDokumen}`}
-          className="pratinjau-iframe"
-          allow="autoplay"
-          loading="lazy"
-        />
+        <PDFViewer documentUrl={urlPratinjau} documentName={namaDokumen} />
       </div>
     </div>
   )

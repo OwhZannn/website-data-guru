@@ -293,9 +293,6 @@ tr.baris-menunggu td { background: var(--tunggu-baris); }
 }
 @media (min-width: 1400px) {
   main.dua { grid-template-columns: 380px minmax(0, 1fr); }
-  .dua-kanan { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
-  .dua-kanan > .kartu { margin: 0; }
-  .dua-kanan > .siaga { grid-column: 1 / -1; margin: 0; }
 }
 
 /* ---------- Kolom sandi dengan tombol mata ---------- */
@@ -773,12 +770,14 @@ button.segmen-tema__butir.aktif, button.segmen-tema__butir.aktif:hover:not(:disa
 }
 .review-daftar { display: flex; flex-direction: column; gap: var(--s-1); }
 .review-item {
-  display: flex; align-items: center; width: 100%; text-align: left;
+  display: flex; align-items: center; justify-content: flex-start; width: 100%; text-align: left;
   color: var(--teks); /* tombol mewarisi putih dari aturan button; di atas kartu putih itu tak terbaca */
   background: var(--kartu); border: 1px solid var(--garis);
   border-radius: var(--r-sm); padding: var(--s-2) var(--s-3);
   cursor: pointer; font-size: var(--t-sm); transition: border-color .12s;
 }
+.review-item > span:first-child { flex-shrink: 0; }
+.review-item > span[role="heading"] { flex: 1 1 auto; text-align: left; min-width: 0; overflow-wrap: break-word; }
 .review-item:hover:not(:disabled) { border-color: var(--hijau-2); background: var(--hijau-muda); color: var(--teks); }
 .review-item--aktif { border-color: var(--hijau-2); background: var(--hijau-muda); font-weight: 600; }
 
@@ -1180,7 +1179,7 @@ tbody tr:hover td { background: var(--permukaan-2); }
 
 .review-bantuan { align-items: center; justify-content: space-between; margin-bottom: var(--s-2); }
 .review-judul { font-size: var(--t-sm); font-weight: 700; }
-.review-item { min-height: 36px; padding: var(--s-1) var(--s-3); }
+.review-item { min-height: 36px; padding: var(--s-1) var(--s-3); justify-content: flex-start; text-align: left; }
 .review-keputusan { margin-top: var(--s-3); }
 .review-keputusan h3 { margin: 0 0 var(--s-2); font-size: var(--t-base); }
 .review-alasan { margin: 0 0 var(--s-2); }
@@ -1327,30 +1326,47 @@ main.profil-halaman { max-width: 760px; padding-top: var(--s-4); }
 dialog.modal-profil {
   border: 0;
   border-radius: var(--r);
-  padding: var(--s-4) var(--s-5);
+  padding: 0;
   width: min(720px, calc(100vw - 32px));
-  max-height: calc(100dvh - 48px);
-  overflow-y: auto;
+  height: min(85dvh, 760px);
+  max-height: min(85dvh, 760px);
   box-shadow: var(--bayang-dialog);
   color: var(--teks);
   background: var(--permukaan);
+  overflow: hidden;
+  display: none;
+}
+dialog.modal-profil[open] {
+  display: flex;
+  flex-direction: column;
 }
 dialog.modal-profil::backdrop {
   background: var(--tirai);
   backdrop-filter: blur(2px);
 }
+.modal-profil__konten {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
 .modal-profil__kepala {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--s-3);
-  padding-bottom: var(--s-2);
+  flex-shrink: 0;
+  padding: var(--s-3) var(--s-5);
   border-bottom: 1px solid var(--garis);
+  background: var(--permukaan);
 }
 .modal-profil__kepala h2 {
   margin: 0;
   font-size: var(--t-md);
   font-weight: 700;
+  color: var(--teks);
 }
 .modal-profil__tutup {
   padding: 6px;
@@ -1363,6 +1379,33 @@ dialog.modal-profil::backdrop {
 .modal-profil__tutup:hover {
   background: var(--hover-halus);
   color: var(--teks);
+}
+.modal-profil__isi {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.modal-profil .modal-profil__form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.modal-profil .modal-profil__badan {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--s-4) var(--s-5);
 }
 .modal-profil .panel.profil {
   padding: 0;
@@ -1377,27 +1420,6 @@ dialog.modal-profil::backdrop {
   padding: var(--s-2) var(--s-3);
   background: var(--permukaan);
 }
-.modal-profil .tugas summary {
-  min-height: 36px;
-}
-.modal-profil .tugas-daftar {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 4px 8px !important;
-  margin-top: var(--s-2);
-}
-.modal-profil .tugas-daftar .centang {
-  padding: 6px 10px !important;
-  min-height: auto !important;
-  margin: 0 !important;
-  font-size: var(--t-xs) !important;
-  font-weight: 600;
-  border-radius: 6px;
-}
-.modal-profil .tugas-daftar .centang input {
-  width: 15px;
-  height: 15px;
-  margin-top: 1px;
-}
 
 /* Penyesuaian ukuran font dan kontrol di dalam modal agar ringkas & rapi */
 .modal-profil label {
@@ -1408,13 +1430,13 @@ dialog.modal-profil::backdrop {
 .modal-profil input,
 .modal-profil select {
   font-size: var(--t-sm);
-  min-height: 38px;
+  min-height: 36px;
   padding: 0 10px;
-  margin: 2px 0 8px;
+  margin: 2px 0 6px;
 }
 .modal-profil .bantuan {
   font-size: 0.75rem;
-  margin: -4px 0 8px;
+  margin: -4px 0 6px;
 }
 .modal-profil legend {
   font-size: var(--t-xs);
@@ -1422,9 +1444,75 @@ dialog.modal-profil::backdrop {
   margin-bottom: 4px;
 }
 .modal-profil .centang {
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
   padding: 6px 10px;
-  min-height: 36px;
+  min-height: 32px;
+  margin: 0;
+  border-radius: 8px;
+  gap: 8px;
+}
+.modal-profil .centang input {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+}
+.modal-profil .profil-ringkas-fieldset {
+  margin: var(--s-1) 0;
+}
+.modal-profil .pilihan-dua--ringkas {
+  gap: var(--s-2);
+}
+.modal-profil .sertifikasi-ringkas {
+  margin: var(--s-1) 0 var(--s-2);
+}
+
+/* Tugas tambahan via combobox multi-select */
+.tugas-combobox-wrap {
+  margin: var(--s-3) 0 var(--s-2);
+}
+.tugas-combobox-label {
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  margin-bottom: var(--s-1);
+}
+.tugas-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-2);
+  margin-bottom: var(--s-2);
+}
+.tugas-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--hijau-muda);
+  color: var(--tautan-kuat);
+  border: 1px solid var(--sah-garis);
+  font-size: var(--t-xs);
+  font-weight: 600;
+}
+.tugas-chip__hapus {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--tautan-kuat) !important;
+  cursor: pointer;
+  opacity: .75;
+  transition: opacity .12s, background-color .12s;
+}
+.tugas-chip__hapus:hover:not(:disabled) {
+  opacity: 1;
+  background: rgba(0, 99, 22, .15) !important;
 }
 
 /* Posisi tombol simpan di kaki modal */
@@ -1433,10 +1521,11 @@ dialog.modal-profil::backdrop {
   align-items: center;
   justify-content: flex-end;
   gap: var(--s-2);
-  margin-top: var(--s-4);
-  padding-top: var(--s-3);
+  margin-top: 0;
+  padding: var(--s-3) var(--s-5);
   border-top: 1px solid var(--garis);
   flex-shrink: 0;
+  background: var(--permukaan);
 }
 .modal-profil__kaki button[type=submit] {
   min-height: 40px;
@@ -1462,8 +1551,29 @@ dialog.modal-profil::backdrop {
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
-    padding: var(--s-4);
   }
+}
+
+/* Cangkang halaman guru dan daftar dokumen berpetak */
+.halaman-guru-cangkang {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.kelompok-daftar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+@media (min-width: 1280px) {
+  .kelompok-daftar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-2) var(--s-3);
+  }
+}
+.kelompok-daftar > .kartu {
+  margin-bottom: 0;
 }
 
 /* ================================================================

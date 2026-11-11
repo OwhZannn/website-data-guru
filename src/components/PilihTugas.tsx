@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { X } from 'lucide-react'
 import { useTerpasang } from '@/lib/terpasang'
 import { TUGAS, type KunciTugas } from '@/lib/syarat'
+import Combobox from './ui/Combobox'
 
 /**
  * Centang tugas tambahan. Setiap perubahan langsung disimpan, lalu halaman disegarkan supaya
@@ -13,6 +15,7 @@ export default function PilihTugas(p: {
   guruId?: string
   terkunci?: boolean
   bukaAwal?: boolean
+  varian?: 'kartu' | 'combobox'
 }) {
   const router = useRouter()
   const terpasang = useTerpasang()
@@ -44,6 +47,57 @@ export default function PilihTugas(p: {
       setPesan('Koneksi terputus. Periksa jaringan Anda lalu coba lagi.')
     }
     setSibuk(null)
+  }
+
+  if (p.varian === 'combobox') {
+    const sisaOpsi = TUGAS.filter(([k]) => !nilai[k])
+    return (
+      <div className="tugas-combobox-wrap">
+        <label className="tugas-combobox-label">
+          Tugas tambahan
+          {jumlahDipilih > 0 && <span className="redup"> ({jumlahDipilih} dipilih)</span>}
+        </label>
+        {jumlahDipilih > 0 && (
+          <div className="tugas-chips">
+            {TUGAS.filter(([k]) => nilai[k]).map(([k, l]) => (
+              <span key={k} className="tugas-chip">
+                <span>{l}</span>
+                <button
+                  type="button"
+                  className="tugas-chip__hapus"
+                  onClick={() => void ubah(k, false)}
+                  aria-label={`Hapus tugas ${l}`}
+                  disabled={!terpasang || p.terkunci || sibuk !== null}
+                  title="Hapus tugas"
+                >
+                  <X size={13} strokeWidth={2.5} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+        {sisaOpsi.length > 0 ? (
+          <Combobox
+            name="tambah-tugas"
+            placeholder="Cari & tambah tugas tambahan…"
+            ariaLabel="Pilih tugas tambahan"
+            resetOnSelect
+            opsi={sisaOpsi.map(([k, l]) => ({
+              nilai: k,
+              label: l,
+            }))}
+            onChange={(k) => {
+              if (k) void ubah(k as KunciTugas, true)
+            }}
+            disabled={!terpasang || p.terkunci || sibuk !== null}
+          />
+        ) : (
+          <p className="redup bantuan mb-0">Semua tugas tambahan sudah dipilih.</p>
+        )}
+        <small className="redup bantuan">Pilih tugas yang diemban untuk memunculkan berkas laporan terkait.</small>
+        {pesan && <p className="galat" role="alert">{pesan}</p>}
+      </div>
+    )
   }
 
   return (

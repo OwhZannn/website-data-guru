@@ -14,7 +14,44 @@
   .admin-sidebar { display: flex; }
   .admin-kepala__hamburger-slot { display: none; }
   .admin-laci, .admin-laci-overlay { display: none; }
-  main.dua { padding-top: var(--s-4); gap: var(--s-6); grid-template-columns: 340px minmax(0, 1fr); }
+  .halaman-guru-cangkang {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+  .halaman-guru-cangkang > .kepala {
+    flex-shrink: 0;
+  }
+  .halaman-guru-cangkang > main.dua {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    overflow: hidden;
+    padding-top: var(--s-3);
+    padding-bottom: var(--s-3);
+    gap: var(--s-5);
+    grid-template-columns: 340px minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .halaman-guru-cangkang .dua-kiri {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 4px;
+  }
+  .halaman-guru-cangkang .dua-kanan {
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 6px;
+  }
+  .halaman-guru-cangkang > .kaki-halaman {
+    flex-shrink: 0;
+    padding: var(--s-2) var(--s-4);
+    border-top: 1px solid var(--garis);
+    background: var(--permukaan);
+  }
   main.profil-halaman { max-width: 1100px; }
   .profil-kolom { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--s-4); }
 }
@@ -23,11 +60,7 @@
   .kepala-isi { padding-left: var(--s-7); padding-right: var(--s-7); }
 }
 @media (min-width: 1400px) {
-  main.dua { grid-template-columns: 380px minmax(0, 1fr); }
-  .dua-kanan { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
-  .dua-kanan > .kartu:first-child { margin-top: 0; }
-  .dua-kanan > .kartu { margin: 0; }
-  .dua-kanan > .siaga { grid-column: 1 / -1; margin: 0; }
+  .halaman-guru-cangkang > main.dua { grid-template-columns: 380px minmax(0, 1fr); }
 }
 @media (max-width: 639px) {
   .dt tbody tr {

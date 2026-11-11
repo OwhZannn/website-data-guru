@@ -94,53 +94,56 @@ export default function FormGuruBaru({
         </section>
       )}
 
-      <form method="post" onSubmit={kirim} className="panel profil">
-        <label>Nama lengkap (dengan gelar)
-          <input name="nama" required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
-        </label>
-        <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
-        <div className="profil-dua">
-          <label>Status kepegawaian
-            <select ref={pilihStatus} name="statusPegawai" value={status} onChange={(e) => setStatus(e.target.value)} required>
-              <option value="" disabled>Pilih…</option>
-              {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
+      <form method="post" onSubmit={kirim} className="panel profil modal-profil__form">
+        <div className="modal-profil__badan">
+          <label>Nama lengkap (dengan gelar)
+            <input name="nama" required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
           </label>
-          {nonAsn ? (
-            <label key="nik">NIK
-              <input name="nik" inputMode="numeric" pattern="[0-9 ]{16,20}" required placeholder={PETUNJUK.nik.contoh} />
+          <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
+          <div className="profil-dua">
+            <label>Status kepegawaian
+              <select ref={pilihStatus} name="statusPegawai" value={status} onChange={(e) => setStatus(e.target.value)} required>
+                <option value="" disabled>Pilih…</option>
+                {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+              <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
             </label>
-          ) : (
-            <label key="nip">NIP
-              <input name="nip" inputMode="numeric" pattern="[0-9 ]{18,24}" required={status !== ''} disabled={status === ''}
-                placeholder={PETUNJUK.nip.contoh} />
-            </label>
-          )}
-        </div>
-        <p className="redup bantuan bantuan-atas">
-          {bantuanIdentitas(status, nonAsn)}
-        </p>
-        <fieldset>
-          <legend>Jabatan</legend>
-          <div className="pilihan-dua">
-            {JABATAN.map(([v, l]) => (
-              <label className="centang" key={v}>
-                <input type="radio" name="jabatan" value={v} defaultChecked={v === 'GURU'} />
-                <span>{l}{v === 'KEPSEK' && <small className="redup"> ({PETUNJUK.jabatan.bantuan})</small>}</span>
+            {nonAsn ? (
+              <label key="nik">NIK
+                <input name="nik" inputMode="numeric" pattern="[0-9 ]{16,20}" required placeholder={PETUNJUK.nik.contoh} />
               </label>
-            ))}
+            ) : (
+              <label key="nip">NIP
+                <input name="nip" inputMode="numeric" pattern="[0-9 ]{18,24}" required={status !== ''} disabled={status === ''}
+                  placeholder={PETUNJUK.nip.contoh} />
+              </label>
+            )}
           </div>
-        </fieldset>
-        <div className="profil-dua">
-          <label>Tahun sertifikasi
-            <input name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
-            <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
-          </label>
-          <label>Asal sekolah <small className="redup">(boleh diisi nanti)</small>
-            <input name="asalSekolah" maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
-            <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
-          </label>
+          <p className="redup bantuan bantuan-atas">
+            {bantuanIdentitas(status, nonAsn)}
+          </p>
+          <fieldset>
+            <legend>Jabatan</legend>
+            <div className="pilihan-dua">
+              {JABATAN.map(([v, l]) => (
+                <label className="centang" key={v}>
+                  <input type="radio" name="jabatan" value={v} defaultChecked={v === 'GURU'} />
+                  <span>{l}{v === 'KEPSEK' && <small className="redup"> ({PETUNJUK.jabatan.bantuan})</small>}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="profil-dua">
+            <label>Tahun sertifikasi
+              <input name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
+              <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
+            </label>
+            <label>Asal sekolah <small className="redup">(boleh diisi nanti)</small>
+              <input name="asalSekolah" maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
+              <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
+            </label>
+          </div>
+          {pesan && <p className="galat" role="alert">{pesan}</p>}
         </div>
         {onBatal || mode === 'admin' ? (
           <div className="modal-profil__kaki">
@@ -155,7 +158,6 @@ export default function FormGuruBaru({
             </button>
           </div>
         )}
-        {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
     </>
   )

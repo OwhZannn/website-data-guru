@@ -1420,3 +1420,127 @@ dialog.modal-profil::backdrop {
     padding: var(--s-4);
   }
 }
+
+/* ================================================================
+   Combobox (Issue #51)
+   ================================================================ */
+.combobox-wrap {
+  position: relative;
+  display: inline-block;
+  min-width: 180px;
+}
+.combobox-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.combobox-input {
+  width: 100%;
+  min-height: var(--kontrol-tinggi, 40px);
+  padding: 0 32px 0 12px;
+  margin: 0 !important;
+  font: inherit;
+  font-size: var(--t-sm);
+  color: var(--teks);
+  background: var(--permukaan);
+  border: 1px solid var(--garis-input);
+  border-radius: var(--r-sm, 8px);
+  transition: border-color .15s, outline .15s;
+}
+.combobox-input:focus {
+  border-color: var(--fokus);
+  outline: 3px solid var(--hijau-muda);
+}
+.combobox-ikon {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: var(--redup);
+  display: flex;
+  align-items: center;
+  transition: transform .18s ease;
+}
+.combobox-wrap[data-buka=true] .combobox-ikon {
+  transform: rotate(180deg);
+}
+
+/* Listbox Popup */
+.combobox-popup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--permukaan);
+  border: 1px solid var(--garis);
+  border-radius: var(--r-sm, 8px);
+  box-shadow: var(--bayang-menu);
+  padding: 4px;
+  list-style: none;
+  margin: 0;
+}
+.combobox-popup--bawah {
+  top: calc(100% + 4px);
+}
+.combobox-popup--atas {
+  bottom: calc(100% + 4px);
+}
+
+.combobox-opsi {
+  padding: 8px 12px;
+  font-size: var(--t-sm);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--teks);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  transition: background-color .1s, color .1s;
+}
+.combobox-opsi:hover,
+.combobox-opsi.sorot {
+  background: var(--hover-halus);
+  color: var(--teks);
+}
+.combobox-opsi[aria-selected=true] {
+  background: var(--hijau-muda);
+  color: var(--tautan-kuat);
+  font-weight: 700;
+}
+.combobox-opsi[aria-disabled=true] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.combobox-ceklis {
+  color: var(--tautan-kuat);
+  flex-shrink: 0;
+  margin-left: var(--s-2);
+}
+.combobox-kosong {
+  padding: 10px 12px;
+  font-size: var(--t-sm);
+  color: var(--redup);
+  text-align: center;
+}
+.combobox-sorot {
+  background: var(--tunggu-bg);
+  color: var(--tunggu);
+  font-weight: 700;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* Select asli untuk penyerahan form & fallback tanpa JavaScript */
+.combobox-select-asli {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

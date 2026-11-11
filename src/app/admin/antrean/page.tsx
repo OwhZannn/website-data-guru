@@ -10,6 +10,7 @@ import FormOtomatis from '@/components/FormOtomatis'
 import { bangunTautan } from '@/lib/dataTable'
 import { ZONA_WAKTU } from '@/lib/waktu'
 import Tautan from '@/components/ui/Tautan'
+import Combobox from '@/components/ui/Combobox'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,14 +84,20 @@ export default async function HalamanAntrean({ searchParams }: {
         <>
           <FormOtomatis id="filter-antrean" className="filter-bar" aria-label="Filter antrean" tombolTanpaJs="Saring">
             <input type="hidden" name="periode" value={periode.id} />
-            <select name="dok" aria-label="Jenis dokumen" defaultValue={sp.dok ?? ''}>
-              <option value="">Semua jenis dokumen</option>
-              {jenisDokumen.map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}
-            </select>
-            <select name="sekolah" aria-label="Sekolah" defaultValue={sp.sekolah ?? ''}>
-              <option value="">Semua sekolah</option>
-              {sekolahUnik.map((x) => <option key={x} value={x}>{x}</option>)}
-            </select>
+            <Combobox
+              name="dok"
+              ariaLabel="Jenis dokumen"
+              kosongLabel="Semua jenis dokumen"
+              defaultValue={sp.dok ?? ''}
+              opsi={jenisDokumen.map((d) => [d.id, d.nama] as [string, string])}
+            />
+            <Combobox
+              name="sekolah"
+              ariaLabel="Sekolah"
+              kosongLabel="Semua sekolah"
+              defaultValue={sp.sekolah ?? ''}
+              opsi={sekolahUnik}
+            />
             {adaFilter && <Tautan href={hapusFilter} className="hapus-filter">Hapus filter</Tautan>}
           </FormOtomatis>
 

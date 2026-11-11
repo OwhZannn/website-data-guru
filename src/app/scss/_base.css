@@ -1394,10 +1394,10 @@ button.modal-profil__tutup:hover:not(:disabled) { background: var(--hover-halus)
 .tugas-pil-daftar .tugas-pil:has(input:disabled) { cursor: default; opacity: .65; }
 .tugas-pil__ikon { flex: none; }
 
-/* Kaki modal: tombol simpan selalu terlihat di kanan bawah; padding sama dengan kepala. */
+/* Kaki modal: tombol simpan selalu terlihat di kanan bawah; lebih tipis dari kepala, padding horizontal sama. */
 .modal-profil__kaki {
   display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); flex: none; margin: 0;
-  box-sizing: border-box; height: 64px; padding: 0 var(--s-6); border-top: 1px solid var(--garis); background: var(--permukaan);
+  box-sizing: border-box; height: 56px; padding: 0 var(--s-6); border-top: 1px solid var(--garis); background: var(--permukaan);
 }
 .modal-profil__kaki button[type=submit] {
   min-height: var(--kontrol-tinggi); padding: 0 24px; font-size: .95rem; font-weight: 700;

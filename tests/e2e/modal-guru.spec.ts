@@ -84,7 +84,6 @@ test('modal tambah dan koreksi memakai tata letak yang sama: kepala, kaki, dan r
   const koreksi = await ukur()
   expect(koreksi.kepala).toBe(koreksi.badan)
   expect(koreksi.kaki).toBe(koreksi.badan)
-  expect(koreksi.tinggiKepala).toBe(koreksi.tinggiKaki)
   await page.keyboard.press('Escape')
 
   await page.goto('/admin/guru')

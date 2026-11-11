@@ -145,7 +145,7 @@ test('admin dapat mengoreksi nama dan NIP guru, memperbarui username masuk', asy
   await page.locator('input[name="nama"]').fill('Drs. Guru Terkoreksi')
   await page.locator('input[name="nip"]').fill(nipBaru)
   await page.getByRole('button', { name: 'Simpan profil' }).click()
-  await expect(page.locator('.ok')).toContainText('Profil tersimpan.')
+  await expect(page.locator('dialog.modal-profil')).not.toBeVisible()
 
   const g = await db.guru.findUniqueOrThrow({ where: { id: guru.id } })
   expect(g.nama).toBe('Drs. Guru Terkoreksi')
@@ -153,4 +153,31 @@ test('admin dapat mengoreksi nama dan NIP guru, memperbarui username masuk', asy
   expect(g.username).toBe(nipBaru)
 
   await expect(page.getByLabel('Riwayat profil')).toContainText(`NIP: ${guru.nip} → ${nipBaru}`)
+})
+
+test('tombol koreksi profil membuka modal yang bisa ditutup dengan tombol tutup atau Esc', async ({ page }) => {
+  const { guru } = await siapkan({ dokumen: [] })
+  const admin = await buatAdmin()
+
+  await masuk(page, admin.email)
+  await page.goto(`/admin/guru/${guru.id}`)
+
+  const modal = page.locator('dialog.modal-profil')
+  await expect(modal).toHaveCount(1)
+  await expect(modal).not.toBeVisible()
+
+  // Buka modal
+  await page.getByRole('button', { name: 'Koreksi profil dan tugas' }).click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Koreksi Profil dan Tugas Guru' })).toBeVisible()
+
+  // Tutup dengan tombol Escape
+  await page.keyboard.press('Escape')
+  await expect(modal).not.toBeVisible()
+
+  // Buka lagi lalu tutup dengan tombol X
+  await page.getByRole('button', { name: 'Koreksi profil dan tugas' }).click()
+  await expect(modal).toBeVisible()
+  await page.getByRole('button', { name: 'Tutup modal' }).click()
+  await expect(modal).not.toBeVisible()
 })

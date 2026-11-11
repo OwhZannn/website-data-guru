@@ -16,6 +16,7 @@ import { urutkanGuru, parseUrut, type ItemUrutGuru } from '@/lib/urutGuru'
 import EmptyState from '@/components/ui/EmptyState'
 import { SearchX } from 'lucide-react'
 import Tautan from '@/components/ui/Tautan'
+import ModalGuru from '@/components/ModalGuru'
 
 export const dynamic = 'force-dynamic'
 
@@ -178,7 +179,7 @@ export default async function HalamanGuru({ searchParams }: {
         cari={{ nama: 'q', nilai: q, label: 'Cari nama atau NIP', placeholder: 'Cari nama, NIP…', formId: 'filter-guru' }}
         aksi={<>
           <Tautan className="tombol-garis" href="/admin/guru/impor">Impor guru</Tautan>
-          <Tautan className="tombol" href="/admin/guru/tambah">Tambah guru</Tautan>
+          <ModalGuru mode="tambah" />
         </>}
       />
       <BannerSandi />

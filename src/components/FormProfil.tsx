@@ -6,7 +6,13 @@ import { JABATAN, STATUS_PEGAWAI, type ProfilGuru } from '@/lib/syarat'
 import { PETUNJUK } from '@/lib/petunjukIsian'
 
 /** Formulir profil guru. Guru menyimpan lewat /api/profil; admin lewat /api/admin/guru (aksi profil). */
-export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setelahSimpan?: string }) {
+export default function FormProfil(p: {
+  awal: ProfilGuru
+  guruId?: string
+  setelahSimpan?: string
+  onSelesai?: () => void
+  anak?: React.ReactNode
+}) {
   const router = useRouter()
   const terpasang = useTerpasang()
   const [sibuk, setSibuk] = useState(false)
@@ -41,6 +47,7 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
       const j = await r.json().catch(() => null)
       if (r.ok && j?.ok) {
         setOk(true)
+        if (p.onSelesai) p.onSelesai()
         if (p.setelahSimpan) router.push(p.setelahSimpan)
         router.refresh()
       } else if (r.status === 401) setPesan('Sesi berakhir. Silakan masuk lagi.')
@@ -52,110 +59,115 @@ export default function FormProfil(p: { awal: ProfilGuru; guruId?: string; setel
   }
 
   return (
-    <form method="post" onSubmit={kirim} className="panel profil">
+    <form method="post" onSubmit={kirim} className="panel profil profil--ringkas">
+      {/* Baris 1: Nama lengkap (dengan gelar) */}
       <label htmlFor="nama-profil">Nama lengkap (dengan gelar)
         <input id="nama-profil" name="nama" defaultValue={a.nama ?? ''} required maxLength={200} placeholder={PETUNJUK.nama.contoh} />
       </label>
       <small className="redup bantuan">{PETUNJUK.nama.bantuan}</small>
 
-      {admin ? (
-        <div className="profil-dua">
-          <label htmlFor="status-pegawai">Status kepegawaian
-            <select
-              id="status-pegawai"
-              name="statusPegawai"
-              value={statusPegawai}
-              onChange={(e) => setStatusPegawai(e.target.value)}
-              required
-            >
-              <option value="" disabled>Pilih…</option>
-              {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
-          </label>
-          {statusPegawai === 'NON_ASN' ? (
-            <label htmlFor="kolom-nik">NIK
-              <input
-                id="kolom-nik"
-                name="nik"
-                defaultValue={a.nik ?? ''}
-                inputMode="numeric"
-                required
-                placeholder={PETUNJUK.nik.contoh}
-              />
-              <small className="redup bantuan">{PETUNJUK.nik.bantuan}</small>
-            </label>
-          ) : (
-            <label htmlFor="kolom-nip">NIP
-              <input
-                id="kolom-nip"
-                name="nip"
-                defaultValue={a.nip ?? ''}
-                inputMode="numeric"
-                required
-                placeholder={PETUNJUK.nip.contoh}
-              />
-              <small className="redup bantuan">{PETUNJUK.nip.bantuan}</small>
-            </label>
-          )}
-        </div>
-      ) : (
-        (a.nip || a.nik || a.username) && (
-          <>
-            <label>{a.statusPegawai === 'NON_ASN' ? 'NIK' : 'NIP'}
-              <input defaultValue={a.nip ?? a.nik ?? a.username ?? ''} disabled readOnly />
-            </label>
-            <small className="redup bantuan">
-              {a.statusPegawai === 'NON_ASN' ? PETUNJUK.nik.bantuan : PETUNJUK.nip.bantuan}
-            </small>
-          </>
-        )
-      )}
+      {/* Baris 2: Status kepegawaian & NIP/NIK (Satu-satunya tempat untuk status kepegawaian) */}
+      <div className="profil-dua">
+        <label htmlFor="status-pegawai">Status kepegawaian
+          <select
+            id="status-pegawai"
+            name="statusPegawai"
+            value={statusPegawai}
+            onChange={(e) => setStatusPegawai(e.target.value)}
+            required
+          >
+            <option value="" disabled>Pilih…</option>
+            {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+          <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
+        </label>
 
-      <label htmlFor="asal-sekolah">Asal sekolah
-        <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
-        <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
-      </label>
-      <fieldset>
+        {statusPegawai === 'NON_ASN' ? (
+          <label htmlFor="kolom-nik">NIK
+            <input
+              id="kolom-nik"
+              name="nik"
+              defaultValue={a.nik ?? a.username ?? ''}
+              disabled={!admin}
+              readOnly={!admin}
+              inputMode="numeric"
+              required
+              placeholder={PETUNJUK.nik.contoh}
+            />
+            <small className="redup bantuan">{PETUNJUK.nik.bantuan}</small>
+          </label>
+        ) : (
+          <label htmlFor="kolom-nip">NIP
+            <input
+              id="kolom-nip"
+              name="nip"
+              defaultValue={a.nip ?? a.username ?? ''}
+              disabled={!admin}
+              readOnly={!admin}
+              inputMode="numeric"
+              required
+              placeholder={PETUNJUK.nip.contoh}
+            />
+            <small className="redup bantuan">{PETUNJUK.nip.bantuan}</small>
+          </label>
+        )}
+      </div>
+
+      {/* Baris 3: Asal sekolah & Tahun sertifikasi */}
+      <div className="profil-dua">
+        <div>
+          <label htmlFor="asal-sekolah">Asal sekolah
+            <input id="asal-sekolah" name="asalSekolah" defaultValue={a.asalSekolah ?? ''} required maxLength={200} placeholder={PETUNJUK.asalSekolah.contoh} />
+          </label>
+          <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
+        </div>
+        <div>
+          <label htmlFor="tahun-sertifikasi">Tahun sertifikasi
+            <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
+          </label>
+          <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
+        </div>
+      </div>
+
+      {/* Baris 4: Jabatan sebagai segmen dua opsi satu baris */}
+      <fieldset className="profil-ringkas-fieldset">
         <legend>Jabatan</legend>
-        <div className="pilihan-dua">
+        <div className="pilihan-dua pilihan-dua--ringkas">
           {JABATAN.map(([v, l]) => (
-            <label className="centang" key={v}>
+            <label className="centang centang--ringkas" key={v}>
               <input type="radio" name="jabatan" value={v} defaultChecked={(a.jabatan ?? 'GURU') === v} />
-              <span>{l}{v === 'KEPSEK' && <small className="redup"> ({PETUNJUK.jabatan.bantuan})</small>}</span>
+              <span>{l}{v === 'KEPSEK' && <small className="redup"> (SK &amp; program kepala sekolah, bukan jadwal dan absen)</small>}</span>
             </label>
           ))}
         </div>
       </fieldset>
-      <div className="profil-dua">
-        {!admin && (
-          <label htmlFor="status-pegawai">Status kepegawaian
-            <select id="status-pegawai" name="statusPegawai" defaultValue={a.statusPegawai ?? ''} required>
-              <option value="" disabled>Pilih…</option>
-              {STATUS_PEGAWAI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-            <small className="redup bantuan">{PETUNJUK.statusPegawai.bantuan}</small>
-          </label>
-        )}
-        <label htmlFor="tahun-sertifikasi">Tahun sertifikasi
-          <input id="tahun-sertifikasi" name="tahunSertifikasi" type="number" inputMode="numeric" min={1990} max={2100} defaultValue={a.tahunSertifikasi ?? ''} required placeholder={PETUNJUK.tahunSertifikasi.contoh} />
-          <small className="redup bantuan">{PETUNJUK.tahunSertifikasi.bantuan}</small>
-        </label>
-      </div>
 
-      <fieldset>
-        <legend>Sertifikasi</legend>
-        <label className="centang">
+      {/* Baris 5: Sertifikasi baru satu baris centang ringkas */}
+      <div className="sertifikasi-ringkas">
+        <label className="centang centang--ringkas">
           <input type="checkbox" name="sertifikasiBaru" defaultChecked={a.sertifikasiBaru} />
-          <span>Guru sertifikasi baru <small>(menambah unggahan buku rekening, NUPTK/NPWP/KTP, ijazah, sertifikat pendidik)</small></span>
+          <span>Guru sertifikasi baru <small className="redup">(menambah 4 berkas sertifikasi baru)</small></span>
         </label>
-      </fieldset>
-
-
-      <div className="aksi">
-        <button type="submit" disabled={sibuk || !terpasang}>{sibuk ? 'Menyimpan…' : 'Simpan profil'}</button>
-        {ok && <span className="ok" role="status">Profil tersimpan.</span>}
       </div>
+
+      {/* Slot untuk Tugas tambahan bila ada di modal */}
+      {p.anak}
+
+      {/* Posisi tombol simpan di kaki modal tanpa tombol Batal yang berlebih */}
+      {p.onSelesai ? (
+        <div className="modal-profil__kaki">
+          <button type="submit" className="tombol" disabled={sibuk || !terpasang}>
+            {sibuk ? 'Menyimpan…' : 'Simpan profil'}
+          </button>
+        </div>
+      ) : (
+        <div className="aksi">
+          <button type="submit" className="tombol" disabled={sibuk || !terpasang}>
+            {sibuk ? 'Menyimpan…' : 'Simpan profil'}
+          </button>
+          {ok && <span className="ok" role="status">Profil tersimpan.</span>}
+        </div>
+      )}
       {pesan && <p className="galat" role="alert">{pesan}</p>}
     </form>
   )

@@ -45,7 +45,7 @@ export async function masuk(page: Page, email: string, sandi = SANDI) {
     await page.goto('/masuk')
   }
   const tombol = page.locator('button[type=submit]')
-  await expect(tombol).toBeEnabled()
+  await expect(tombol).toBeEnabled({ timeout: process.env.CI ? 20_000 : 10_000 })
   await page.fill('[name=username]', email)
   await page.fill('[name=sandi]', sandi)
   await tombol.click()

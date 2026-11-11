@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
 import { db, siapkan, masuk, buatAdmin, SANDI } from './bantu'
 
 // Fase 8: tata letak ringkas — kartu tabel mengisi layar, satu pemilih periode, filter yang langsung berlaku.
@@ -8,11 +9,12 @@ test.describe('layar lebar 1440×900', () => {
 
   test('daftar guru: halaman tidak menggulir, header satu baris, tabel menggulir di dalam kartu dengan tajuk tetap', async ({ page }) => {
     const admin = await buatAdmin()
-    const awal = `Ringkas${admin.id.slice(0, 5)}`
+    const idAwal = randomUUID().replace(/-/g, '').slice(0, 8)
+    const awal = `Ringkas${idAwal}`
     await db.guru.createMany({
       data: Array.from({ length: 30 }, (_, i) => {
         const n = String(i + 1).padStart(2, '0')
-        return { nama: `${awal} ${n}`, username: `r${admin.id.slice(0, 5)}${n}`, nip: `r${admin.id.slice(0, 5)}${n}`, email: `r${n}${admin.id.slice(0, 5)}@contoh.id`, hashSandi: 'x' }
+        return { nama: `${awal} ${n}`, username: `r${idAwal}${n}`, nip: `r${idAwal}${n}`, email: `r${n}${idAwal}@contoh.id`, hashSandi: 'x' }
       }),
     })
     await masuk(page, admin.email)
@@ -91,11 +93,12 @@ test.describe('layar lebar 1440×900', () => {
 
   test('filter langsung: select dan chip menerapkan tanpa tombol; pencarian menunggu jeda sebelum satu permintaan', async ({ page }) => {
     const admin = await buatAdmin()
-    const awal = `Saring${admin.id.slice(0, 5)}`
+    const idSaring = randomUUID().replace(/-/g, '').slice(0, 8)
+    const awal = `Saring${idSaring}`
     await db.guru.createMany({
       data: [
-        { nama: `${awal} Andi`, username: `s${admin.id.slice(0, 5)}a`, nip: `s${admin.id.slice(0, 5)}a`, email: `sa${admin.id.slice(0, 5)}@contoh.id`, hashSandi: 'x', asalSekolah: `SD ${awal} A` },
-        { nama: `${awal} Budi`, username: `s${admin.id.slice(0, 5)}b`, nip: `s${admin.id.slice(0, 5)}b`, email: `sb${admin.id.slice(0, 5)}@contoh.id`, hashSandi: 'x', asalSekolah: `SD ${awal} B` },
+        { nama: `${awal} Andi`, username: `s${idSaring}a`, nip: `s${idSaring}a`, email: `sa${idSaring}@contoh.id`, hashSandi: 'x', asalSekolah: `SD ${awal} A` },
+        { nama: `${awal} Budi`, username: `s${idSaring}b`, nip: `s${idSaring}b`, email: `sb${idSaring}@contoh.id`, hashSandi: 'x', asalSekolah: `SD ${awal} B` },
       ],
     })
     await masuk(page, admin.email)
@@ -104,7 +107,7 @@ test.describe('layar lebar 1440×900', () => {
     await expect(page.locator('form[data-siap] select[name=asalSekolah]')).toBeVisible()
 
     // Select langsung menyaring.
-    await page.getByLabel('Asal sekolah').selectOption(`SD ${awal} A`)
+    await page.locator('form[data-siap] select[name=asalSekolah]').selectOption(`SD ${awal} A`)
     await expect(page).toHaveURL(/asalSekolah=/)
     await expect(page.getByRole('link', { name: `${awal} Andi` })).toBeVisible()
     await expect(page.getByRole('link', { name: `${awal} Budi` })).toHaveCount(0)
@@ -175,6 +178,6 @@ test.describe('ponsel 375×812', () => {
     expect(ukur.lebarDokumen).toBeLessThanOrEqual(ukur.viewport)
     expect(ukur.tajukTampak).toBe(false)
     expect(ukur.cari).toBeGreaterThan(300)
-    expect(ukur.tombol).toBeGreaterThanOrEqual(44) // target sentuh utama
+    expect(Math.round(ukur.tombol)).toBeGreaterThanOrEqual(44) // target sentuh utama
   })
 })

@@ -12,7 +12,15 @@ type AkunBaru = { nama: string; username: string; jenis: string; sandi: string }
  * Formulir guru baru. `admin`: admin menambah guru (langsung aktif).
  * `daftar`: guru membuat akun sendiri (menunggu persetujuan admin).
  */
-export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
+export default function FormGuruBaru({
+  mode,
+  onBatal,
+  onSelesai,
+}: {
+  mode: 'admin' | 'daftar'
+  onBatal?: () => void
+  onSelesai?: () => void
+}) {
   const router = useRouter()
   const terpasang = useTerpasang()
   const [status, setStatus] = useState('')
@@ -134,11 +142,19 @@ export default function FormGuruBaru({ mode }: { mode: 'admin' | 'daftar' }) {
             <small className="redup bantuan">{PETUNJUK.asalSekolah.bantuan}</small>
           </label>
         </div>
-        <div className="aksi">
-          <button type="submit" disabled={sibuk || !terpasang}>
-            {sibuk ? 'Menyimpan…' : mode === 'admin' ? 'Tambah guru' : 'Buat akun'}
-          </button>
-        </div>
+        {onBatal || mode === 'admin' ? (
+          <div className="modal-profil__kaki">
+            <button type="submit" className="tombol" disabled={sibuk || !terpasang}>
+              {sibuk ? 'Menyimpan…' : 'Tambah guru'}
+            </button>
+          </div>
+        ) : (
+          <div className="aksi">
+            <button type="submit" disabled={sibuk || !terpasang}>
+              {sibuk ? 'Menyimpan…' : 'Buat akun'}
+            </button>
+          </div>
+        )}
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </form>
     </>

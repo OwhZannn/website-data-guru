@@ -50,7 +50,6 @@ export default function Combobox({
   className = '',
   onChange,
   disabled = false,
-  resetOnSelect = false,
 }: {
   name: string
   defaultValue?: string
@@ -61,7 +60,6 @@ export default function Combobox({
   className?: string
   onChange?: (nilai: string) => void
   disabled?: boolean
-  resetOnSelect?: boolean
 }) {
   const terpasang = useTerpasang()
   const daftarOpsi = normalisasiOpsi(opsi)
@@ -89,7 +87,7 @@ export default function Combobox({
   const idListbox = `combobox-listbox-${idAcak}`
 
   const labelTerpilih = opsiLengkap.find((o) => o.nilai === nilai)?.label ?? ''
-  const placeholderTeks = (resetOnSelect && !nilai ? placeholder : labelTerpilih) || placeholder || kosongLabel || 'Pilih…'
+  const placeholderTeks = labelTerpilih || placeholder || kosongLabel || 'Pilih…'
 
   // Saring opsi berdasarkan ketikan saat popup terbuka
   const opsiTersaring = opsiLengkap.filter((o) => {
@@ -134,16 +132,14 @@ export default function Combobox({
 
   function pilihOpsi(o: ButirCombobox) {
     if (o.nonaktif) return
-    const nilaiBaru = resetOnSelect ? '' : o.nilai
-    const kueriBaru = resetOnSelect ? '' : o.label
-    setNilai(nilaiBaru)
-    setKueri(kueriBaru)
+    setNilai(o.nilai)
+    setKueri(o.label)
     setBuka(false)
     setSorotIdx(-1)
 
     // Trigger change event pada native select agar FormOtomatis langsung menyaring
     if (selectRef.current) {
-      selectRef.current.value = nilaiBaru
+      selectRef.current.value = o.nilai
       selectRef.current.dispatchEvent(new Event('change', { bubbles: true }))
     }
     if (onChange) onChange(o.nilai)
@@ -276,7 +272,7 @@ export default function Combobox({
               buka && sorotIdx >= 0 ? `${idListbox}-opsi-${sorotIdx}` : undefined
             }
             aria-label={ariaLabel}
-            value={buka ? kueri : (resetOnSelect && !nilai ? '' : labelTerpilih)}
+            value={buka ? kueri : labelTerpilih}
             disabled={disabled}
             placeholder={placeholderTeks}
             className="combobox-input"

@@ -1161,11 +1161,11 @@ tbody tr:hover td { background: var(--permukaan-2); }
 .progres--ringkas .cincin span { width: 28px; height: 28px; font-size: 10px; }
 
 .detail-profil {
-  position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-4);
+  position: relative; display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s-1) var(--s-4);
   background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r); padding: var(--s-2) var(--s-3);
 }
 .detail-profil__info { flex: 1 1 100%; margin: 0; padding: var(--s-1) var(--s-3); font-size: var(--t-sm); }
-.detail-profil__daftar { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin: 0; font-size: var(--t-sm); flex: 1 1 auto; min-width: 0; }
+.detail-profil__daftar { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin: 0; font-size: var(--t-sm); flex: 1 1 0; min-width: min(100%, 240px); }
 .detail-profil__butir { display: flex; gap: var(--s-1); min-width: 0; }
 .detail-profil__butir dt { color: var(--redup); }
 .detail-profil__butir dt::after { content: ':'; }
@@ -1322,228 +1322,86 @@ main.profil-halaman { max-width: 760px; padding-top: var(--s-4); }
   margin: var(--s-2) 0 var(--s-3);
 }
 
-/* Dialog / Modal Koreksi Profil & Tambah Guru */
+/* Dialog / Modal Koreksi Profil & Tambah Guru: header dan footer tetap, hanya badan yang bergulir. */
 dialog.modal-profil {
+  --kontrol-tinggi: 40px;
   border: 0;
   border-radius: var(--r);
   padding: 0;
-  width: min(720px, calc(100vw - 32px));
-  height: min(85dvh, 760px);
-  max-height: min(85dvh, 760px);
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(90dvh, 820px);
   box-shadow: var(--bayang-dialog);
   color: var(--teks);
   background: var(--permukaan);
   overflow: hidden;
   display: none;
 }
-dialog.modal-profil[open] {
-  display: flex;
-  flex-direction: column;
-}
-dialog.modal-profil::backdrop {
-  background: var(--tirai);
-  backdrop-filter: blur(2px);
-}
-.modal-profil__konten {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 100%;
-  min-height: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
+dialog.modal-profil[open] { display: flex; flex-direction: column; }
+dialog.modal-profil::backdrop { background: var(--tirai); backdrop-filter: blur(2px); }
+.modal-profil__konten { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; }
 .modal-profil__kepala {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-  padding: var(--s-3) var(--s-5);
-  border-bottom: 1px solid var(--garis);
-  background: var(--permukaan);
+  display: flex; justify-content: space-between; align-items: center; flex: none;
+  padding: var(--s-3) var(--s-5); border-bottom: 1px solid var(--garis); background: var(--permukaan);
 }
-.modal-profil__kepala h2 {
-  margin: 0;
-  font-size: var(--t-md);
-  font-weight: 700;
-  color: var(--teks);
-}
-.modal-profil__tutup {
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-sm);
-  color: var(--redup);
-}
-.modal-profil__tutup:hover {
-  background: var(--hover-halus);
-  color: var(--teks);
-}
-.modal-profil__isi {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-}
+.modal-profil__kepala h2 { margin: 0; font-size: var(--t-md); font-weight: 700; color: var(--teks); }
+.modal-profil__tutup { padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-sm); color: var(--redup); }
+.modal-profil__tutup:hover { background: var(--hover-halus); color: var(--teks); }
+.modal-profil__isi { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 0; }
 .modal-profil .modal-profil__form {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
-  overflow: hidden;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden;
+  padding: 0; border: 0; background: transparent; box-shadow: none; font-size: .9rem;
 }
-.modal-profil .modal-profil__badan {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: var(--s-4) var(--s-5);
-}
-.modal-profil .panel.profil {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-.modal-profil .panel.tugas {
-  border: 1px solid var(--garis);
-  border-radius: var(--r-sm);
-  margin-top: var(--s-3);
-  padding: var(--s-2) var(--s-3);
-  background: var(--permukaan);
-}
+.modal-profil .modal-profil__badan { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4) var(--s-5); }
 
-/* Penyesuaian ukuran font dan kontrol di dalam modal agar ringkas & rapi */
-.modal-profil label {
-  font-size: var(--t-xs);
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.modal-profil input,
-.modal-profil select {
-  font-size: var(--t-sm);
-  min-height: 36px;
-  padding: 0 10px;
-  margin: 2px 0 6px;
-}
-.modal-profil .bantuan {
-  font-size: 0.75rem;
-  margin: -4px 0 6px;
-}
-.modal-profil legend {
-  font-size: var(--t-xs);
-  font-weight: 700;
-  margin-bottom: 4px;
-}
+/* Ukuran huruf mengikuti formulir lain; jarak antarbaris dirapatkan. */
+.modal-profil label { font-size: .9rem; font-weight: 600; margin: 0 0 2px; }
+.modal-profil input:not([type=checkbox]):not([type=radio]), .modal-profil select { font-size: .95rem; padding: 0 12px; margin: 2px 0 4px; }
+.modal-profil select { padding-right: 40px; }
+.modal-profil .bantuan { font-size: .8rem; line-height: 1.35; margin: 0 0 var(--s-2); }
+.modal-profil .profil-dua { gap: 0 var(--s-4); }
+.modal-profil legend { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+.modal-profil fieldset { margin: var(--s-1) 0 var(--s-2); }
+
+/* Radio dan centang: isi sejajar vertikal di tengah, tinggi kontrol seragam. */
 .modal-profil .centang {
-  font-size: var(--t-xs);
-  padding: 6px 10px;
-  min-height: 32px;
-  margin: 0;
-  border-radius: 8px;
-  gap: 8px;
+  align-items: center; gap: var(--s-2); margin: 0; padding: 0 var(--s-3);
+  min-height: var(--kontrol-tinggi); font-size: .9rem; font-weight: 600; border-radius: 10px;
 }
-.modal-profil .centang input {
-  width: 16px;
-  height: 16px;
-  margin: 1px 0 0;
-}
-.modal-profil .profil-ringkas-fieldset {
-  margin: var(--s-1) 0;
-}
-.modal-profil .pilihan-dua--ringkas {
-  gap: var(--s-2);
-}
-.modal-profil .sertifikasi-ringkas {
-  margin: var(--s-1) 0 var(--s-2);
-}
+.modal-profil .centang input { width: 18px; height: 18px; margin: 0; }
+.modal-profil .centang small { font-size: .8rem; line-height: 1.3; }
+.modal-profil .pilihan-dua { gap: var(--s-2); }
+.modal-profil .sertifikasi-ringkas { margin: 0 0 var(--s-3); }
 
-/* Tugas tambahan via combobox multi-select */
-.tugas-combobox-wrap {
-  margin: var(--s-3) 0 var(--s-2);
+/* Tugas tambahan: deretan pil yang bisa dipilih beberapa sekaligus. */
+.tugas-pil-wrap { margin: 0 0 var(--s-1); }
+.tugas-pil-judul { display: flex; align-items: baseline; gap: var(--s-2); margin: 0 0 var(--s-2); font-size: .9rem; font-weight: 600; }
+.tugas-pil-judul .redup { font-weight: 400; font-size: .8rem; }
+.tugas-pil-daftar { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.tugas-pil-daftar .tugas-pil {
+  position: relative; display: inline-flex; align-items: center; gap: 6px; margin: 0;
+  padding: 6px 14px; min-height: 34px; border: 1px solid var(--garis-input); border-radius: var(--r-pill);
+  background: var(--permukaan); color: var(--teks); font-size: .85rem; font-weight: 600; line-height: 1.2;
+  cursor: pointer; transition: background-color .12s, border-color .12s;
 }
-.tugas-combobox-label {
-  display: block;
-  font-size: var(--t-xs);
-  font-weight: 700;
-  margin-bottom: var(--s-1);
-}
-.tugas-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-1) var(--s-2);
-  margin-bottom: var(--s-2);
-}
-.tugas-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 8px 3px 10px;
-  border-radius: var(--r-pill);
-  background: var(--hijau-muda);
-  color: var(--tautan-kuat);
-  border: 1px solid var(--sah-garis);
-  font-size: var(--t-xs);
-  font-weight: 600;
-}
-.tugas-chip__hapus {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: var(--tautan-kuat) !important;
-  cursor: pointer;
-  opacity: .75;
-  transition: opacity .12s, background-color .12s;
-}
-.tugas-chip__hapus:hover:not(:disabled) {
-  opacity: 1;
-  background: rgba(0, 99, 22, .15) !important;
-}
+.tugas-pil-daftar .tugas-pil:hover:not(:has(input:disabled)) { border-color: var(--hijau-2); background: var(--hijau-muda); }
+.tugas-pil-daftar .tugas-pil:has(input:checked) { border-color: var(--hijau-2); background: var(--hijau-muda); color: var(--tautan-kuat); }
+.tugas-pil-daftar .tugas-pil:has(input:focus-visible) { outline: 3px solid var(--hijau-muda); outline-offset: 1px; border-color: var(--hijau-2); }
+.tugas-pil-daftar .tugas-pil:has(input:disabled) { cursor: default; opacity: .65; }
+.tugas-pil__ikon { flex: none; }
 
-/* Posisi tombol simpan di kaki modal */
+/* Kaki modal: tombol simpan selalu terlihat di kanan bawah. */
 .modal-profil__kaki {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--s-2);
-  margin-top: 0;
-  padding: var(--s-3) var(--s-5);
-  border-top: 1px solid var(--garis);
-  flex-shrink: 0;
-  background: var(--permukaan);
+  display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); flex: none; margin: 0;
+  padding: var(--s-3) var(--s-5); border-top: 1px solid var(--garis); background: var(--permukaan);
 }
 .modal-profil__kaki button[type=submit] {
-  min-height: 40px;
-  padding: 0 24px;
-  font-size: var(--t-sm);
-  font-weight: 700;
-  background: var(--hijau-2) !important;
-  color: #ffffff !important;
-  border-radius: var(--r-pill);
+  min-height: var(--kontrol-tinggi); padding: 0 24px; font-size: .95rem; font-weight: 700;
+  background: var(--hijau-2) !important; color: #ffffff !important; border-radius: var(--r-pill);
 }
-.modal-profil__kaki button[type=submit]:hover:not(:disabled) {
-  background: var(--hijau) !important;
-  color: #ffffff !important;
-}
+.modal-profil__kaki button[type=submit]:hover:not(:disabled) { background: var(--hijau) !important; color: #ffffff !important; }
 
-.detail-profil__aksi {
-  margin-top: var(--s-2);
-}
+/* Tombol koreksi menetap di kanan bilah profil; info di sebelah kirinya yang membungkus. */
+.detail-profil__aksi { flex: none; margin: 0 0 0 auto; align-self: flex-start; }
 
 @media (max-width: 639px) {
   dialog.modal-profil {

@@ -1,10 +1,9 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { X } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useTerpasang } from '@/lib/terpasang'
 import { TUGAS, type KunciTugas } from '@/lib/syarat'
-import Combobox from './ui/Combobox'
 
 /**
  * Centang tugas tambahan. Setiap perubahan langsung disimpan, lalu halaman disegarkan supaya
@@ -15,7 +14,7 @@ export default function PilihTugas(p: {
   guruId?: string
   terkunci?: boolean
   bukaAwal?: boolean
-  varian?: 'kartu' | 'combobox'
+  varian?: 'kartu' | 'pil'
 }) {
   const router = useRouter()
   const terpasang = useTerpasang()
@@ -49,52 +48,28 @@ export default function PilihTugas(p: {
     setSibuk(null)
   }
 
-  if (p.varian === 'combobox') {
-    const sisaOpsi = TUGAS.filter(([k]) => !nilai[k])
+  if (p.varian === 'pil') {
     return (
-      <div className="tugas-combobox-wrap">
-        <label className="tugas-combobox-label">
+      <div className="tugas-pil-wrap" role="group" aria-labelledby="judul-tugas-pil">
+        <div className="tugas-pil-judul" id="judul-tugas-pil">
           Tugas tambahan
-          {jumlahDipilih > 0 && <span className="redup"> ({jumlahDipilih} dipilih)</span>}
-        </label>
-        {jumlahDipilih > 0 && (
-          <div className="tugas-chips">
-            {TUGAS.filter(([k]) => nilai[k]).map(([k, l]) => (
-              <span key={k} className="tugas-chip">
-                <span>{l}</span>
-                <button
-                  type="button"
-                  className="tugas-chip__hapus"
-                  onClick={() => void ubah(k, false)}
-                  aria-label={`Hapus tugas ${l}`}
-                  disabled={!terpasang || p.terkunci || sibuk !== null}
-                  title="Hapus tugas"
-                >
-                  <X size={13} strokeWidth={2.5} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-        {sisaOpsi.length > 0 ? (
-          <Combobox
-            name="tambah-tugas"
-            placeholder="Cari & tambah tugas tambahan…"
-            ariaLabel="Pilih tugas tambahan"
-            resetOnSelect
-            opsi={sisaOpsi.map(([k, l]) => ({
-              nilai: k,
-              label: l,
-            }))}
-            onChange={(k) => {
-              if (k) void ubah(k as KunciTugas, true)
-            }}
-            disabled={!terpasang || p.terkunci || sibuk !== null}
-          />
-        ) : (
-          <p className="redup bantuan mb-0">Semua tugas tambahan sudah dipilih.</p>
-        )}
-        <small className="redup bantuan">Pilih tugas yang diemban untuk memunculkan berkas laporan terkait.</small>
+          <span className="redup">{jumlahDipilih > 0 ? `${jumlahDipilih} dipilih` : 'Pilih yang sesuai, boleh lebih dari satu'}</span>
+        </div>
+        <div className="tugas-pil-daftar">
+          {TUGAS.map(([k, l]) => (
+            <label className="tugas-pil" key={k}>
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={nilai[k]}
+                disabled={!terpasang || p.terkunci || sibuk !== null}
+                onChange={(e) => void ubah(k, e.target.checked)}
+              />
+              {nilai[k] && <Check className="tugas-pil__ikon" size={14} strokeWidth={3} aria-hidden="true" />}
+              <span>{l}</span>
+            </label>
+          ))}
+        </div>
         {pesan && <p className="galat" role="alert">{pesan}</p>}
       </div>
     )

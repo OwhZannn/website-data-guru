@@ -72,7 +72,7 @@ export default function ModalGuru(p: ModalGuruProps) {
               awal={p.guru}
               guruId={p.guru.id}
               onSelesai={tutup}
-              anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} varian="combobox" />}
+              anak={<PilihTugas awal={p.tugas} guruId={p.guru.id} varian="pil" />}
             />
           )}
         </div>

@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -31,14 +31,20 @@ jobs:
         run: npx tsc --noEmit -p .
       - name: Tes unit dan API (vitest)
         run: npx vitest run
+      # Temuan tinggi saat ini butuh pembaruan mayor (Next 16, Prisma 7) yang dijadwalkan manual (#45),
+      # jadi gerbang hanya untuk tingkat kritis; laporan lengkap tetap tampil di log.
+      - name: Audit dependensi produksi
+        run: |
+          npm audit --omit=dev || true
+          npm audit --omit=dev --audit-level=critical
 
   build:
     name: Build produksi
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -55,8 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -72,7 +78,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
       - name: Unggah laporan bila gagal
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: laporan-playwright
           path: |

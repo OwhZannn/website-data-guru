@@ -1,0 +1,45 @@
+# Pembaruan dependensi otomatis. PR Dependabot menjalankan CI penuh dan tidak digabung otomatis.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "build"
+    groups:
+      # Minor/patch digabung dalam satu PR; mayor tetap PR terpisah.
+      npm-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Mayor untuk kerangka inti dijadwalkan manual (butuh migrasi dan uji tersendiri).
+      - dependency-name: next
+        update-types: [version-update:semver-major]
+      - dependency-name: prisma
+        update-types: [version-update:semver-major]
+      - dependency-name: "@prisma/client"
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: pdfjs-dist
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]

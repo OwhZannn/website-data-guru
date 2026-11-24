@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 let ip = '10.0.0.1'
+let ipPalsu = ''
 vi.mock('next/headers', () => ({
-  headers: async () => new Headers({ 'x-forwarded-for': `1.2.3.4, ${ip}` }),
+  headers: async () => new Headers({ 'x-forwarded-for': `1.2.3.4, ${ip}`, ...(ipPalsu ? { 'x-real-ip': ipPalsu } : {}) }),
 }))
 
 import { prisma } from '../../src/lib/db'
@@ -18,6 +19,7 @@ describe('POST /api/daftar', () => {
   beforeEach(async () => {
     await bersihkanSemua()
     ip = '10.0.0.1'
+    ipPalsu = ''
   })
 
   it('membuat akun yang menunggu persetujuan dan mengembalikan username serta sandi 8 angka', async () => {
@@ -40,5 +42,15 @@ describe('POST /api/daftar', () => {
     expect((await daftar(req(isian(2)))).status).toBe(429)
     ip = '10.0.0.2'
     expect((await daftar(req(isian(2)))).status).toBe(200)
+  })
+
+  it('X-Real-IP palsu yang berganti-ganti tidak melewati batas', async () => {
+    for (let i = 0; i < 30; i++) {
+      ipPalsu = `acak-${i}`
+      await daftar(req({ ...isian(1), nama: '' }))
+    }
+    ipPalsu = 'acak-baru'
+    expect((await daftar(req(isian(2)))).status).toBe(429)
+    ipPalsu = ''
   })
 })

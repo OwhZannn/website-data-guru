@@ -74,17 +74,36 @@ describe('GET /api/dokumen/berkas/[fileId]', () => {
     expect(res.headers.get('Content-Disposition')).toContain('sk-berkala.pdf')
   })
 
-  it('200 jika admin mengakses berkas siapa pun', async () => {
+  it('200 jika admin mengakses berkas guru mana pun yang tercatat', async () => {
     tokenSesi = await buatSesi(adminId, 'admin')
     const res = await GET({} as NextRequest, { params: Promise.resolve({ fileId: FILE_ID }) })
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toBe('application/pdf')
   })
 
-  it('404 jika berkas tidak ditemukan di Google Drive', async () => {
+  it('404 jika berkas tercatat tetapi tidak ditemukan di Google Drive', async () => {
     tokenSesi = await buatSesi(adminId, 'admin')
     vi.mocked(unduhStreamDrive).mockResolvedValue(null)
-    const res = await GET({} as NextRequest, { params: Promise.resolve({ fileId: 'tidak-ada' }) })
+    const res = await GET({} as NextRequest, { params: Promise.resolve({ fileId: FILE_ID }) })
     expect(res.status).toBe(404)
+  })
+
+  it('404 dan tidak menyentuh Drive jika admin meminta fileId yang tidak tercatat (mis. cadangan basis data)', async () => {
+    tokenSesi = await buatSesi(adminId, 'admin')
+    const res = await GET({} as NextRequest, { params: Promise.resolve({ fileId: 'berkas-cadangan-db' }) })
+    expect(res.status).toBe(404)
+    expect(unduhStreamDrive).not.toHaveBeenCalled()
+  })
+
+  it('nama berkas non-ASCII dikirim lewat filename* dengan cadangan ASCII, plus nosniff', async () => {
+    tokenSesi = await buatSesi(guruId, 'guru')
+    vi.mocked(unduhStreamDrive).mockResolvedValue({
+      stream: Readable.from(Buffer.from('%PDF-1.4')), nama: 'SK Berkala – 2026 "baru".pdf', tipe: 'application/pdf', ukuran: 8,
+    })
+    const res = await GET({} as NextRequest, { params: Promise.resolve({ fileId: FILE_ID }) })
+    const cd = res.headers.get('Content-Disposition')!
+    expect(cd).toContain('filename="SK Berkala _ 2026 _baru_.pdf"')
+    expect(cd).toContain("filename*=UTF-8''SK%20Berkala%20%E2%80%93%202026%20%22baru%22.pdf")
+    expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
   })
 })

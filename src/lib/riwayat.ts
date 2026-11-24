@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db'
 export type AksiRiwayat =
   | 'unggah' | 'ganti_file' | 'sahkan' | 'tolak' | 'batalkan'
   | 'buka_periode' | 'tutup_periode' | 'ubah_daftar_dokumen' | 'impor_guru' | 'buat_admin' | 'ubah_profil'
-  | 'tambah_guru' | 'daftar_guru' | 'setujui_guru' | 'tolak_daftar'
+  | 'tambah_guru' | 'daftar_guru' | 'setujui_guru' | 'tolak_daftar' | 'ubah_tenggat'
 
 export type MasukanRiwayat = {
   periodeId: string
@@ -41,6 +41,8 @@ export function daftarRiwayatPeriode(
 }
 
 export const TIDAK_DIKENAL = '(tidak dikenal)'
+/** `oleh` untuk aksi otomatis (mis. penutupan periode karena tenggat). */
+export const OLEH_SISTEM = 'sistem'
 
 /** Nama pelaku setiap baris riwayat, diambil massal (dua query) lalu digabung di memori. Kunci: id riwayat. */
 export async function namaPelakuRiwayat(daftar: Pick<Riwayat, 'id' | 'oleh' | 'olehTipe'>[]): Promise<Map<string, string>> {
@@ -52,5 +54,5 @@ export async function namaPelakuRiwayat(daftar: Pick<Riwayat, 'id' | 'oleh' | 'o
   ])
   const nAdmin = new Map(admin.map((a) => [a.id, a.nama]))
   const nGuru = new Map(guru.map((g) => [g.id, g.nama]))
-  return new Map(daftar.map((r) => [r.id, (r.olehTipe === 'admin' ? nAdmin : nGuru).get(r.oleh) ?? TIDAK_DIKENAL]))
+  return new Map(daftar.map((r) => [r.id, r.oleh === OLEH_SISTEM ? 'Sistem' : (r.olehTipe === 'admin' ? nAdmin : nGuru).get(r.oleh) ?? TIDAK_DIKENAL]))
 }

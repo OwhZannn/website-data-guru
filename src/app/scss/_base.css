@@ -118,6 +118,13 @@ td button { padding: var(--s-1) var(--s-3); min-height: 32px; font-size: 13px; }
 .galat { color: var(--tolak); margin: 8px 0; font-weight: 600; }
 .ok { color: var(--sah); margin: 8px 0; font-weight: 600; }
 .info { background: var(--info-bg); color: var(--info); border-radius: 12px; padding: 10px 14px; margin: 0 0 14px; font-weight: 600; }
+.info.mendesak { background: var(--tunggu-bg); color: var(--tunggu); }
+.teks-tunggu { color: var(--tunggu); font-weight: 600; }
+.tautan-teks { all: unset; color: var(--hijau, var(--sah)); font-weight: 600; text-decoration: underline; cursor: pointer; }
+.tautan-teks:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 2px; }
+.tautan-teks:disabled { opacity: .5; cursor: default; }
+.tenggat-sel { display: flex; flex-wrap: wrap; column-gap: var(--s-2); max-width: 150px; margin-top: var(--s-1); }
+.tenggat-form { flex-wrap: wrap; }
 .riwayat { font-size: .82rem; color: var(--redup); margin: 12px 0 0; padding: 10px 0 0 18px; border-top: 1px dashed var(--garis); }
 .redup { color: var(--redup); }
 

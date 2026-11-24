@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { hashSandi, periksaSandi } from '@/lib/sandi'
-import { bolehCobaMasuk, catatGagalMasuk, bersihkanGagalMasuk, kunciMasuk } from '@/lib/pembatas'
+import { bolehCobaMasuk, catatGagalMasuk, bersihkanGagalMasuk, kunciMasuk, kunciMasukIp, BATAS_MASUK_IP } from '@/lib/pembatas'
+import { ipKlien } from '@/lib/ipKlien'
 import { buatSesi, MASA_SESI_MS } from '@/lib/sesi'
 
 // `username`: email untuk admin, NIP/NIK untuk guru. `email` diterima untuk klien lama.
@@ -27,7 +28,9 @@ export async function POST(req: Request) {
   const sandi = body.data.sandi
 
   const kunci = kunciMasuk(id)
-  if (!(await bolehCobaMasuk(kunci))) {
+  // Batas per IP mencegah satu sandi dicoba ke banyak NIP (password spraying). Longgar karena guru satu sekolah berbagi WiFi.
+  const kunciIp = kunciMasukIp(ipKlien(await headers()))
+  if (!(await bolehCobaMasuk(kunciIp, BATAS_MASUK_IP)) || !(await bolehCobaMasuk(kunci))) {
     return NextResponse.json(
       { ok: false, pesan: 'Terlalu banyak percobaan. Coba lagi dalam 15 menit.' },
       { status: 429 },
@@ -42,6 +45,7 @@ export async function POST(req: Request) {
   const cocok = await periksaSandi(sandi, akun?.hashSandi ?? (await ambilHashPalsu()))
   if (!akun || !cocok || !akun.aktif) {
     await catatGagalMasuk(kunci)
+    await catatGagalMasuk(kunciIp)
     return gagal()
   }
   await bersihkanGagalMasuk(kunci)

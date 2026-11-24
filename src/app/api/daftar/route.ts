@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import { buatAkunGuru } from '@/lib/kelolaGuru'
 import { bolehCobaMasuk, catatGagalMasuk } from '@/lib/pembatas'
 import { galatUmum } from '@/lib/rute'
+import { ipKlien } from '@/lib/ipKlien'
 
 export const runtime = 'nodejs'
 
@@ -14,9 +15,7 @@ const BATAS_DAFTAR = 30
 export async function POST(req: Request) {
   try {
     const h = await headers()
-    // Entri terakhir X-Forwarded-For ditambahkan nginx sendiri; entri sebelumnya bisa dipalsukan pengirim.
-    const ip = h.get('x-real-ip') ?? h.get('x-forwarded-for')?.split(',').pop()?.trim() ?? 'tanpa-ip'
-    const kunci = `daftar:${ip}`
+    const kunci = `daftar:${ipKlien(h)}`
     if (!(await bolehCobaMasuk(kunci, BATAS_DAFTAR))) {
       return Response.json({ ok: false, pesan: 'Terlalu banyak pendaftaran dari jaringan ini. Coba lagi dalam 15 menit.' }, { status: 429 })
     }

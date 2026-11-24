@@ -90,6 +90,8 @@ sudo nginx -t && sudo systemctl reload nginx
 
 Batas unggahan 8 MB dan batas waktu 120 detik sudah diatur di berkas tersebut. Certbot memperbarui sertifikat otomatis.
 
+**Alamat IP klien.** Pembatas laju (pendaftaran dan masuk) memakai entri **terakhir** `X-Forwarded-For`, yaitu alamat yang ditambahkan proxy terdekat, dan baru memakai `X-Real-IP` bila `X-Forwarded-For` tidak ada. Bila memakai reverse proxy lain (mis. Synology, Traefik, Caddy, atau proxy di Komodo), pastikan proxy itu **menambahkan** alamat klien ke `X-Forwarded-For` dan **menimpa** `X-Real-IP`, jangan meneruskan nilai kiriman klien. Bila ada dua proxy berantai, proxy kedua harus meneruskan alamat dari proxy pertama.
+
 ## 7. Cadangan otomatis (crontab)
 
 Folder `data/` dimiliki uid 1000, jadi cron **harus berjalan sebagai pengguna ber-uid 1000** (cek dengan `id -un 1000`), kalau tidak cadangan gagal tanpa suara:

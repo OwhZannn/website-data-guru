@@ -27,6 +27,7 @@ cp .env.example .env
 | `DRIVE_FOLDER_ID` | ID folder Drive induk (bagian akhir URL folder). **Folder harus milik akun Gmail yang sama** dengan yang menyetujui OAuth di langkah 3; aplikasi hanya dapat mengakses berkas yang dibuatnya sendiri (scope `drive.file`). |
 | `DRIVE_PALSU` | Hanya untuk tes otomatis. Kosongkan. Diabaikan di produksi. |
 | `BERKAS_DB`, `DIR_CADANGAN` | Opsional, untuk skrip cadangan (bawaan `data/prod.db` dan `data/cadangan`). |
+| `CSP_TEGAKKAN` | `1` = Content-Security-Policy ditegakkan (memblokir). Kosong = hanya melaporkan (`Content-Security-Policy-Report-Only`). Lihat bagian 6. |
 
 Jangan pernah memasukkan `.env` ke git (sudah ada di `.gitignore`).
 
@@ -89,6 +90,8 @@ sudo nginx -t && sudo systemctl reload nginx
 ```
 
 Batas unggahan 8 MB dan batas waktu 120 detik sudah diatur di berkas tersebut. Certbot memperbarui sertifikat otomatis.
+
+**Header keamanan.** Aplikasi sendiri memasang `Permissions-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN` (`next.config.ts`) dan Content-Security-Policy dengan nonce per permintaan (`src/middleware.ts`, `src/lib/csp.ts`), sehingga tetap berlaku tanpa nginx. Bawaannya CSP hanya **melaporkan**: pelanggaran dikirim peramban ke `/api/csp-laporan` dan muncul di log kontainer sebagai `pelanggaran CSP`. Setelah satu siklus tanpa laporan yang sah, isi `CSP_TEGAKKAN=1` di `.env` dan mulai ulang kontainer. Tes e2e selalu berjalan dalam mode tegakkan.
 
 ## 7. Cadangan otomatis (crontab)
 

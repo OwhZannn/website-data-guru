@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { headers } from 'next/headers'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import { SKRIP_AWAL } from '@/lib/tema'
 import BilahNavigasi from '@/components/BilahNavigasi'
@@ -18,11 +19,13 @@ export const viewport = {
   ],
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+// Membaca header membuat semua halaman dirender dinamis; ini wajib agar setiap respons membawa nonce CSP yang segar.
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined
   return (
     <html lang="id" className={jakarta.variable} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SKRIP_AWAL }} />
+        <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: SKRIP_AWAL }} />
       </head>
       <body>
         <BilahNavigasi />

@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Tautan from '@/components/ui/Tautan'
-import { ambilBagian, sebelumDanSesudah, SEMUA_BAGIAN } from '../konten'
+import { ambilBagian, sebelumDanSesudah } from '../konten'
 
-export async function generateStaticParams() {
-  return SEMUA_BAGIAN.map((b) => ({ slug: b.id }))
-}
+// Dirender per permintaan (bukan SSG) supaya skrip Next.js mendapat nonce CSP; isinya ringan.
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

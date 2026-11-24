@@ -22,6 +22,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'file:./e2e.db',
       DRIVE_PALSU: '1',
+      CSP_TEGAKKAN: '1',
       NODE_ENV: 'development',
       NODE_OPTIONS: '--max-old-space-size=4096',
     },

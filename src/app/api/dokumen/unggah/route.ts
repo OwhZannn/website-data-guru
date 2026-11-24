@@ -2,6 +2,7 @@ import { wajibGuru } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { unggahDokumen } from '@/lib/unggahDokumen'
 import { GalatDrive, GalatPengguna } from '@/lib/galat'
+import { tutupPeriodeLewatTenggat } from '@/lib/tenggat'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     if (typeof dokumenId !== 'string' || !dokumenId) return gagal('Dokumen belum dipilih')
     if (!(berkas instanceof File)) return gagal('Berkas belum dipilih')
 
+    await tutupPeriodeLewatTenggat()
     const periode = await prisma.periode.findFirst({ where: { dibuka: true } })
     if (!periode) return gagal('Masa pengunggahan sedang ditutup')
 

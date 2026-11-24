@@ -54,6 +54,8 @@ model Periode {
   id         String   @id @default(cuid())
   nama       String
   dibuka     Boolean  @default(false)
+  // Batas akhir unggah (eksklusif: awal hari sesudah tanggal tenggat, WITA). Lewat dari ini periode ditutup otomatis.
+  tenggat    DateTime?
   dibuatPada DateTime @default(now())
   dokumen    DaftarDokumen[]
   dokumenGuru DokumenGuru[]

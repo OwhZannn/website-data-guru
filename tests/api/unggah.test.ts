@@ -38,6 +38,17 @@ const unggah = (lebih: Partial<Parameters<typeof unggahDokumen>[0]> = {}) =>
   unggahDokumen({ guruId, periodeId, dokumenId, nama: 'a.pdf', tipe: 'application/pdf', isi: pdf, oleh: guruId, ...lebih })
 
 describe('unggahDokumen', () => {
+  it('menolak setelah tenggat lewat walau periode masih tercatat dibuka, tanpa menyentuh Drive', async () => {
+    await prisma.periode.update({ where: { id: periodeId }, data: { tenggat: new Date(Date.now() - 1000) } })
+    await expect(unggah()).rejects.toThrow('Tenggat unggah periode ini sudah lewat')
+    expect(drive.unggahKeDrive).not.toHaveBeenCalled()
+  })
+
+  it('menerima sebelum tenggat', async () => {
+    await prisma.periode.update({ where: { id: periodeId }, data: { tenggat: new Date(Date.now() + 3_600_000) } })
+    await expect(unggah()).resolves.toEqual({ status: 'MENUNGGU' })
+  })
+
   it('menolak bila profil guru belum lengkap, tanpa menyentuh Drive', async () => {
     await prisma.guru.update({ where: { id: guruId }, data: { asalSekolah: null } })
     await expect(unggah()).rejects.toThrow('Lengkapi profil Anda terlebih dahulu')
@@ -186,6 +197,15 @@ describe('POST /api/dokumen/unggah', () => {
     const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ ok: false, pesan: 'Masa pengunggahan sedang ditutup' })
+  })
+
+  it('menutup periode yang lewat tenggat lalu membalas 400', async () => {
+    tokenSesi = await buatSesi(guruId, 'guru')
+    await prisma.periode.update({ where: { id: periodeId }, data: { tenggat: new Date(Date.now() - 1000) } })
+    const res = await POST(form({ dokumenId, berkas: new File([pdf], 'a.pdf', { type: 'application/pdf' }) }))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ ok: false, pesan: 'Masa pengunggahan sedang ditutup' })
+    expect((await prisma.periode.findUniqueOrThrow({ where: { id: periodeId } })).dibuka).toBe(false)
   })
 
   it('membalas 500 dengan pesan umum untuk galat tak terduga', async () => {

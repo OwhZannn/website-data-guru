@@ -9,7 +9,8 @@ import { CalendarX } from 'lucide-react'
 import Tautan from '@/components/ui/Tautan'
 import Combobox from './ui/Combobox'
 
-type P = { id: string; nama: string; dibuka: boolean }
+export type TenggatTampil = { tanggal: string; teks: string; judul: string; sisa: { teks: string; mendesak: boolean } | null }
+type P = { id: string; nama: string; dibuka: boolean; tenggat: TenggatTampil | null }
 
 export default function KelolaPeriode({ periode }: { periode: P[] }) {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
   const [sibuk, setSibuk] = useState(false)
   const [sumber, setSumber] = useState<Record<string, string>>({})
   const [tutup, setTutup] = useState<P | null>(null)
+  const [ubahTenggat, setUbahTenggat] = useState<string | null>(null)
 
   async function kirim(badan: object, sukses?: (j: { jumlah?: number }) => string) {
     setSibuk(true); setPesan('')
@@ -44,7 +46,34 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
         </>
       ),
     },
-    { id: 'status', label: 'Status', sel: (p) => <span className={p.dibuka ? 'lencana buka' : 'lencana'}>{p.dibuka ? 'Dibuka' : 'Ditutup'}</span> },
+    {
+      id: 'status', label: 'Status & tenggat',
+      sel: (p) => (
+        <>
+          <span className={p.dibuka ? 'lencana buka' : 'lencana'}>{p.dibuka ? 'Dibuka' : 'Ditutup'}</span>
+          {ubahTenggat === p.id ? (
+            <form
+              className="aksi-baris tenggat-form mt-s1"
+              onSubmit={(e) => {
+                e.preventDefault()
+                const tanggal = String(new FormData(e.currentTarget).get('tanggal') ?? '')
+                void kirim({ aksi: 'tenggat', periodeId: p.id, tanggal: tanggal || null }, () => (tanggal ? `Tenggat ${p.nama} disimpan` : `Tenggat ${p.nama} dihapus`)).then(() => setUbahTenggat(null))
+              }}
+            >
+              <input type="date" name="tanggal" aria-label={`Hari terakhir unggah ${p.nama}`} defaultValue={p.tenggat?.tanggal ?? ''} />
+              <button type="submit" disabled={sibuk}>Simpan</button>
+              <button type="button" className="biasa" disabled={sibuk} onClick={() => setUbahTenggat(null)}>Batal</button>
+            </form>
+          ) : (
+            <div className="kartu-sub tenggat-sel" title={p.tenggat?.judul}>
+              <span className="nowrap">{p.tenggat ? <>Tenggat {p.tenggat.teks}</> : 'Tanpa tenggat'}</span>{' '}
+              {p.tenggat?.sisa && <span className={p.tenggat.sisa.mendesak ? 'teks-tunggu nowrap' : 'nowrap'}>{p.tenggat.sisa.teks}</span>}{' '}
+              <button type="button" className="tautan-teks" disabled={sibuk} onClick={() => setUbahTenggat(p.id)} aria-label={`Atur tenggat ${p.nama}`}>Atur</button>
+            </div>
+          )}
+        </>
+      ),
+    },
     {
       id: 'dokumen', label: 'Dokumen', kelas: 'nowrap',
       sel: (p) => (
@@ -107,6 +136,7 @@ export default function KelolaPeriode({ periode }: { periode: P[] }) {
       >
         <p>Setelah ditutup, <b>guru tidak bisa lagi mengunggah atau mengganti berkas</b> pada periode ini, dan tombol unggah hilang dari halaman mereka.</p>
         <p>Admin tetap bisa memeriksa, mengesahkan, menolak, dan mengunduh rekap. Periode bisa dibuka lagi kapan saja.</p>
+        <p>Periode yang punya tenggat juga tertutup otomatis setelah hari terakhirnya berakhir (pukul 24.00 WITA).</p>
       </Konfirmasi>
     </>
   )

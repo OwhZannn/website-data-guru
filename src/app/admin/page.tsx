@@ -2,6 +2,7 @@ import { halamanAdmin } from '@/lib/halaman'
 import { pilihPeriode, semuaPeriode } from '@/lib/pilihPeriode'
 import { ringkasanDasbor } from '@/lib/dasbor'
 import { selisihWaktuIndonesia, ZONA_WAKTU } from '@/lib/waktu'
+import { sisaWaktu, teksTenggat } from '@/lib/tenggat'
 import BannerDrive from '@/components/BannerDrive'
 import StatCard from '@/components/ui/StatCard'
 import Section from '@/components/ui/Section'
@@ -33,6 +34,7 @@ const LABEL_AKSI: Record<string, string> = {
   daftar_guru: 'Guru mendaftar',
   setujui_guru: 'Guru disetujui',
   tolak_daftar: 'Pendaftaran ditolak',
+  ubah_tenggat: 'Tenggat diubah',
 }
 
 const waktuWita = (d: Date) =>
@@ -105,7 +107,15 @@ export default async function BerandaAdmin({
       <BannerDrive />
       <PageHeader
         judul="Beranda Admin"
-        keterangan={<>Periode: <strong className="redup-teks">{periode.nama}</strong></>}
+        keterangan={(
+          <>
+            Periode: <strong className="redup-teks">{periode.nama}</strong>
+            {periode.dibuka && periode.tenggat && (() => {
+              const s = sisaWaktu(periode.tenggat)
+              return <> · Tenggat {teksTenggat(periode.tenggat)} <span className={s.mendesak ? 'teks-tunggu' : undefined} data-testid="tenggat">({s.teks})</span></>
+            })()}
+          </>
+        )}
         aksi={(
           <details className="unduh-rekap">
             <summary>Unduh rekap</summary>

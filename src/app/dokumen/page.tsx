@@ -4,6 +4,7 @@ import { hitungStatusGuru } from '@/lib/status'
 import { daftarRiwayatDokumen } from '@/lib/riwayat'
 import { periodeTerlihatGuru, pilihPeriode } from '@/lib/pilihPeriode'
 import { tanggalLokal } from '@/lib/waktu'
+import { sisaWaktu, teksTenggat } from '@/lib/tenggat'
 import KartuDokumen from '@/components/KartuDokumen'
 import Kepala from '@/components/Kepala'
 import Tautan from '@/components/ui/Tautan'
@@ -26,6 +27,7 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
   const periode = pilihPeriode(daftarPeriode, sp.periode)
   const dibuka = periode?.dibuka ?? false
   const adaDibuka = daftarPeriode.some((p) => p.dibuka)
+  const sisa = dibuka && periode?.tenggat ? sisaWaktu(periode.tenggat) : null
   // Guru hanya melihat dokumen yang wajib baginya menurut profil (status kepegawaian dan tugas tambahan).
   const lengkapProfil = profilLengkap(guru)
   const dokumen = periode
@@ -95,6 +97,11 @@ export default async function Dokumen({ searchParams }: { searchParams: Promise<
             />
           )}
           {periode && !dibuka && adaDibuka && <p role="status" className="info">Periode ini sudah ditutup; hanya dapat dilihat.</p>}
+          {sisa && periode?.tenggat && (
+            <p role="status" className={sisa.mendesak ? 'info mendesak' : 'info'} data-testid="tenggat">
+              Batas unggah: {teksTenggat(periode.tenggat)} pukul 24.00 WITA ({sisa.teks}).
+            </p>
+          )}
           {!lengkapProfil && (
             <div className="info" role="status">
               <p className="mb-s2">Lengkapi profil Anda dulu. Dokumen yang perlu diunggah ditentukan dari jabatan dan status kepegawaian Anda.</p>

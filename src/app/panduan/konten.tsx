@@ -263,6 +263,7 @@ export const SEMUA_BAGIAN: BagianPanduan[] = [
           <li>Tekan <b>Daftar dokumen</b> pada periode itu. Untuk periode yang masih kosong, tekan <b>Isi dengan daftar baku</b> untuk memasukkan 24 dokumen standar (lihat Lampiran).</li>
           <li>Bila perlu, tambah dokumen, ubah nama, ubah urutan, atau ubah <b>Berlaku untuk</b> setiap dokumen.</li>
           <li>Kembali ke halaman Periode dan tekan <b>Buka</b>. Mulai saat itu guru bisa mengunggah.</li>
+          <li>Opsional: pada kolom <b>Tenggat unggah</b>, tekan <b>Atur</b>, pilih hari terakhir unggah, lalu <b>Simpan</b>. Guru melihat batas waktu dan sisa harinya di halaman Dokumen Saya, dan periode tertutup otomatis setelah pukul 24.00 WITA pada hari itu.</li>
         </ol>
         <Gambar berkas="admin-periode.webp" alt="Halaman Periode dengan tombol Buka, Tutup periode, Daftar dokumen, dan rekap" lebar={1280} tinggi={720}>
           Gambar B2. Halaman Periode
@@ -412,7 +413,7 @@ Nur Hasanah;;5201014507900001;Non ASN;2021`}</pre>
       <>
         <ol>
           <li>Di menu <b>Periode</b>, tekan <b>Tutup periode</b>, lalu baca peringatannya dan tekan <b>Ya, tutup periode</b>.</li>
-          <li>Setelah ditutup, guru tidak bisa lagi mengunggah. Admin tetap bisa memeriksa dokumen yang masuk dan mengunduh rekap. Periode bisa dibuka lagi kapan saja.</li>
+          <li>Setelah ditutup, guru tidak bisa lagi mengunggah. Admin tetap bisa memeriksa dokumen yang masuk dan mengunduh rekap. Periode bisa dibuka lagi kapan saja; bila ditutup otomatis karena tenggat, ubah atau hapus tenggatnya dulu sebelum menekan <b>Buka</b>.</li>
           <li>Tekan <b>Rekap XLSX</b> (Excel) atau <b>Rekap CSV</b>. Rekap memuat NIP, NIK, nama, asal sekolah, jabatan, status kepegawaian, tahun sertifikasi, jumlah dokumen sah dan wajib, status, dan tanggal.</li>
         </ol>
       </>

@@ -7,6 +7,7 @@ import { GalatDrive, GalatPengguna } from '@/lib/galat'
 import { terjemahkanGalatDrive } from '@/lib/galatDrive'
 import { tanggalLokal } from '@/lib/waktu'
 import { profilLengkap, wajibBagi } from '@/lib/syarat'
+import { lewatTenggat } from '@/lib/tenggat'
 
 const PESAN_SAH = 'Dokumen ini sudah dinyatakan sah'
 
@@ -41,6 +42,7 @@ export async function unggahDokumen(masukan: {
   // 1. Periode harus dibuka.
   const periode = await prisma.periode.findUnique({ where: { id: periodeId } })
   if (!periode?.dibuka) throw new GalatPengguna('Masa pengunggahan sedang ditutup')
+  if (lewatTenggat(periode.tenggat)) throw new GalatPengguna('Tenggat unggah periode ini sudah lewat')
   const dokumen = await prisma.daftarDokumen.findUnique({ where: { id: dokumenId } })
   if (!dokumen || !dokumen.aktif || dokumen.periodeId !== periodeId)
     throw new GalatPengguna('Dokumen tidak ditemukan atau tidak aktif')

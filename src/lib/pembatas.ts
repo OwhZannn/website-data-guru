@@ -4,6 +4,9 @@ const BATAS = 5
 const JENDELA_MS = 15 * 60_000
 
 export const kunciMasuk = (email: string) => `masuk:${email.toLowerCase()}`
+// Hitungan per IP tidak dibersihkan saat masuk berhasil, supaya penyerang tidak bisa mengatur ulang dengan masuk ke akunnya sendiri.
+export const kunciMasukIp = (ip: string) => `masuk-ip:${ip}`
+export const BATAS_MASUK_IP = 50
 
 export async function bolehCobaMasuk(kunci: string, batas = BATAS): Promise<boolean> {
   const baris = await prisma.percobaanMasuk.findUnique({ where: { kunci } })

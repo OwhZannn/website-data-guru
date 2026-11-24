@@ -4,6 +4,7 @@ const set = vi.fn()
 const del = vi.fn()
 vi.mock('next/headers', () => ({
   cookies: async () => ({ set, delete: del, get: () => ({ value: 'tok' }) }),
+  headers: async () => new Headers({ 'x-forwarded-for': '10.0.0.1' }),
 }))
 vi.mock('@/lib/sandi', async (asli) => {
   const mod = await asli<typeof import('../../src/lib/sandi')>()
